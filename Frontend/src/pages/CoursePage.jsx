@@ -1,10 +1,10 @@
 import React from 'react';
 import Header from '../layout/Header.jsx';
 import Footer from "../layout/Footer.jsx";
-import ActiveCourseList from '../components/courses/activeCourses/ActiveCourseList.jsx';
-import CategoryList from "../components/courses/category/CategoryList.jsx";
-import RecommendList from "../components/courses/recommendCourses/RecommendList.jsx";
-import FeaturedList from "../components/courses/FeaturedCourses/FeaturedList.jsx";
+import ActiveCourseList from '../component/courses/activeCourses/ActiveCourseList.jsx';
+import CategoryList from "../component/courses/category/CategoryList.jsx";
+import RecommendList from "../component/courses/recommendCourses/RecommendList.jsx";
+import FeaturedList from "../component/courses/FeaturedCourses/FeaturedList.jsx";
 const CoursePage = () => {
     return (
         <div className="flex pt-16">

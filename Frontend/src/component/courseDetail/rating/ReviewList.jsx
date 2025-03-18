@@ -1,4 +1,4 @@
-import ReviewItem from "./ReviewItem";
+import ReviewItem from "./ReviewItem.jsx";
 
 const reviews = [
     { name: "Lina", rating: 5, time: "3 Months", text: "Class, launched less than a year ago by Blackboard co-founder Michael Chasen, integrates exclusively..." },

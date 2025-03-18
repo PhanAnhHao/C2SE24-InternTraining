@@ -1,5 +1,5 @@
-import RatingSummary from "./RatingSummary";
-import ReviewList from "./ReviewList";
+import RatingSummary from "./RatingSummary.jsx";
+import ReviewList from "./ReviewList.jsx";
 import Buttons from "./Buttons.jsx";
 const RatingReview=() => {
     return (
