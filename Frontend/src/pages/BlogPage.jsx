@@ -9,7 +9,6 @@ import Articles from "../component/BlogPage/Articles/Articles";
 const BlogPage = () => {
     return (
         <div className="min-h-screen flex flex-col">
-            <Header />
             <main className="flex-grow mt-20">
                 <div className="py-5">
                     <Introduce />
@@ -24,7 +23,6 @@ const BlogPage = () => {
                     <Articles />
                 </div>
             </main>
-            <Footer />
         </div>
     );
 };

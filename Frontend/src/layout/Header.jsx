@@ -15,27 +15,27 @@ const Header = () => {
                 </div>
             </div>
 
-              <div className="flex items-center space-x-8">
-            {/* Navigation */}
-            <nav className="hidden md:flex space-x-8 text-gray-600">
-                <a href="#" className="hover:text-black">Home</a>
-                <a href="#" className="hover:text-black">Courses</a>
-                <a href="#" className="hover:text-black">Careers</a>
-                <a href="#" className="hover:text-black">Blog</a>
-                <a href="#" className="hover:text-black">About Us</a>
-            </nav>
+            <div className="flex items-center space-x-8">
+                {/* Navigation */}
+                <nav className="hidden md:flex space-x-8 text-gray-600">
+                    <a href="#" className="hover:text-black">Home</a>
+                    <a href="#" className="hover:text-black">Courses</a>
+                    <a href="#" className="hover:text-black">Careers</a>
+                    <a href="#" className="hover:text-black">Blog</a>
+                    <a href="#" className="hover:text-black">About Us</a>
+                </nav>
 
-            {/* User Profile */}
-            <div className="flex items-center space-x-2 cursor-pointer">
-                <span className="text-gray-900">Lina</span>
-                <FontAwesomeIcon icon={faChevronDown} className="text-gray-500 text-sm"/>
-                <img
-                    src="https://randomuser.me/api/portraits/women/44.jpg"
-                    alt="User Avatar"
-                    className="w-8 h-8 rounded-full border"
-                />
+                {/* User Profile */}
+                <div className="flex items-center space-x-2 cursor-pointer">
+                    <span className="text-gray-900">Lina</span>
+                    <FontAwesomeIcon icon={faChevronDown} className="text-gray-500 text-sm" />
+                    <img
+                        src="https://randomuser.me/api/portraits/women/44.jpg"
+                        alt="User Avatar"
+                        className="w-8 h-8 rounded-full border"
+                    />
+                </div>
             </div>
-              </div>
         </header>
     );
 };
