@@ -13,8 +13,8 @@ const Testimonial = () => {
                 <Typography variant="body2" className="text-blue-500 font-bold tracking-widest">
                     --TESTIMONIAL
                 </Typography>
-                <Typography variant="h3" className="font-bold mt-2 text-gray-900">
-                    What They Say?
+                <Typography variant="h3" sx={{ fontWeight: "700" }} className="mt-2">
+                    <span className="bg-gradient-to-r from-blue-500 to-[#00CBB8] bg-clip-text text-transparent">What They Say?</span>
                 </Typography>
                 <Typography variant="body1" className="text-gray-500 mt-4">
                     Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam rerum optio excepturi? Vitae, impedit ipsa?
