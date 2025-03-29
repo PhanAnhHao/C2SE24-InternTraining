@@ -7,6 +7,7 @@ import CourseDetailPage from "./pages/CourseDetailPage.jsx";
 import BlogPage from "./pages/BlogPage.jsx";
 import "./App.css";
 import Homepage from './pages/Homepage.jsx';
+import OnlineLearningManager from "./pages/Admin/OnlineLearningManager.jsx";
 import Layout from './Layout.jsx';
 
 const NotFound = () => {
@@ -24,12 +25,13 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Homepage />} />
           <Route path="/course" element={<CoursePage />} />
-          <Route path="/course/{id}" element={<CourseDetailPage />} />
+          <Route path="/course/1" element={<CourseDetailPage />} />
           <Route path="/blog-page" element={<BlogPage />} />
         </Route>
 
         <Route path="/user-login" element={<LoginPage />} />
         <Route path="/user-register" element={<RegisterPage />} />
+        <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
