@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { FaBookOpen } from "react-icons/fa";
-import Sidebar from '../../layout/AdminLayout/SideBar.jsx';
-import Header from "../../layout/AdminLayout/Header.jsx";
 
 const ManageCourse = () => {
     const coursesData = [
@@ -43,10 +41,8 @@ const ManageCourse = () => {
 
     return (
         <div className="flex">
-            <Sidebar />
-            <div className="flex-1 p-6">
-                <Header />
-                <h1 className="text-2xl font-bold text-gray-700 flex items-center mt-4">
+            <div className="flex-1 ">
+                <h1 className="text-2xl font-bold text-gray-700 flex items-center ">
                     <FaBookOpen className="text-[#4FD1C5] mr-2" /> Manage Courses
                 </h1>
                 <div className="mt-6 overflow-x-auto">

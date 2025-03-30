@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { FaUsers, FaUserGraduate, FaBook, FaChalkboardTeacher, FaStar } from "react-icons/fa";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import Sidebar from '../../layout/AdminLayout/SideBar.jsx';
-import Header from "../../layout/AdminLayout/Header.jsx";
+
 
 const Dashboard = () => {
     const stats = [
@@ -23,8 +22,7 @@ const Dashboard = () => {
 
     return (
         <div className="flex">
-            <Sidebar />
-            <div className="flex-1 p-6">
+            <div className="flex-1 ">
                 {/* <Header /> */}
                 <h1 className="text-2xl font-bold text-gray-700 mt-4">Dashboard</h1>
 

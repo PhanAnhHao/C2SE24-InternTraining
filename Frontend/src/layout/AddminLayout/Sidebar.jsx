@@ -21,7 +21,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className="w-72 h-screen p-6 flex flex-col justify-between">
+        <div className="w-72 h-screen  bg-white p-6 flex flex-col justify-between ">
             {/* Logo */}
             <div>
                 <div className="flex items-center cursor-pointer py-2">

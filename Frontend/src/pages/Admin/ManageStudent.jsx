@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { FaUserGraduate } from "react-icons/fa";
-import Sidebar from "../../layout/AdminLayout/SideBar.jsx";
-import Header from "../../layout/AdminLayout/Header.jsx";
-
 const ManageStudent = () => {
     const studentsData = Array.from({ length: 22 }, (_, i) => ({
         id: i + 1,
@@ -23,10 +20,8 @@ const ManageStudent = () => {
 
     return (
         <div className="flex h-screen">
-            <Sidebar />
             <div className="flex flex-col flex-1">
-                <Header />
-                <div className="p-6">
+                <div className="">
                     <h1 className="text-2xl font-bold text-gray-700 flex items-center">
                         <FaUserGraduate className="text-[#4FD1C5] mr-2" /> Manage Students
                     </h1>

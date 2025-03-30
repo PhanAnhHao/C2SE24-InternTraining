@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { FaClipboardList } from "react-icons/fa";
-import Sidebar from "../../layout/AdminLayout/SideBar.jsx";
-import Header from "../../layout/AdminLayout/Header.jsx";
 
 const ManageStudentTest = () => {
     const testsData = [
@@ -39,11 +37,9 @@ const ManageStudentTest = () => {
 
     return (
         <div className="flex">
-            <Sidebar />
-            <div className="flex-1 p-6">
-                <Header />
-                <h1 className="text-2xl font-bold text-gray-700 flex items-center mt-4">
-                    <FaClipboardList className="text-[#4FD1C5] mr-2" /> Manage Student Tests
+            <div className="flex-1 ">
+                <h1 className="text-2xl font-bold text-gray-700 flex items-center ">
+                    <FaClipboardList className="text-[#4FD1C5] mr-2 " /> Manage Student Tests
                 </h1>
                 <div className="mt-6 overflow-x-auto">
                     <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
