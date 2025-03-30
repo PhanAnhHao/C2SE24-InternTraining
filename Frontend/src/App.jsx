@@ -7,8 +7,12 @@ import CourseDetailPage from "./pages/CourseDetailPage.jsx";
 import BlogPage from "./pages/BlogPage.jsx";
 import "./App.css";
 import Homepage from './pages/Homepage.jsx';
-import OnlineLearningManager from "./pages/Admin/OnlineLearningManager.jsx";
 import Layout from './Layout.jsx';
+import OnlineLearningManager from './pages/Admin/OnlineLearningManager.jsx';
+import ManageStudent from './pages/Admin/ManageStudent.jsx';
+import ManageStudentTest from './pages/Admin/ManageStudentTest.jsx';
+import ManageCourse from './pages/Admin/ManageCourse.jsx';
+import Dashboard from './pages/Admin/Dashboard.jsx';
 
 const NotFound = () => {
   return (
@@ -29,6 +33,11 @@ function App() {
           <Route path="/blog-page" element={<BlogPage />} />
         </Route>
 
+        <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
+        <Route path="/admin/students" element={<ManageStudent />} />
+        <Route path="/admin/students-test" element={<ManageStudentTest />} />
+        <Route path="/admin/courses" element={<ManageCourse />} />
+        <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/user-login" element={<LoginPage />} />
         <Route path="/user-register" element={<RegisterPage />} />
         <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
