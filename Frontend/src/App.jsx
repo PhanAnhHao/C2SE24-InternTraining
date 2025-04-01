@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import LoginPage from './component/Login/Login';
+import RegisterPage from './component/Register/Register';
+import CoursePage from "./pages/CoursePage.jsx";
+import CourseDetailPage from "./pages/CourseDetailPage.jsx";
+import BlogPage from "./pages/BlogPage.jsx";
+import "./App.css";
+import Homepage from './pages/Homepage.jsx';
+import Layout from './Layout.jsx';
+import AdminLayout from "./AdminLayout.jsx";
+import OnlineLearningManager from './pages/Admin/OnlineLearningManager.jsx';
+import ManageReviews from "./pages/Admin/ManageReviews.jsx";
+import ManageStudent from './pages/Admin/ManageStudent.jsx';
+import ManageStudentTest from './pages/Admin/ManageStudentTest.jsx';
+import ManageCourse from './pages/Admin/ManageCourse.jsx';
+import Dashboard from './pages/Admin/Dashboard.jsx';
+
+const NotFound = () => {
+  return (
+    <div className="page-not-found" role="alert" >
+      404. NOT FOUND
+    </div>
+  )
+};
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Homepage />} />
+          <Route path="/course" element={<CoursePage />} />
+          <Route path="/course/1" element={<CourseDetailPage />} />
+          <Route path="/blog-page" element={<BlogPage />} />
+        </Route>
+          <Route path="/user-login" element={<LoginPage />} />
+          <Route path="/user-register" element={<RegisterPage />} />
+
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
+          <Route path="/admin/students" element={<ManageStudent />} />
+          <Route path="/admin/students-test" element={<ManageStudentTest />} />
+          <Route path="/admin/courses" element={<ManageCourse />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
+          <Route path="/admin/reviews" element={<ManageReviews />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
