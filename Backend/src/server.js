@@ -10,6 +10,7 @@ const lessonRouter = require('./routes/lessonRouter');
 const testRouter = require('./routes/testRouter');
 const questionRouter = require('./routes/questionRouter');
 const authRouter = require('./routes/authRouter');
+const testMailRouter = require('./routes/testMailRouter');
 
 
 require('dotenv').config();
@@ -34,6 +35,7 @@ app.use('/lessons', lessonRouter);
 app.use('/tests', testRouter);
 app.use('/questions', questionRouter);
 app.use('/auth', authRouter);
+app.use('/send-mail', testMailRouter);
 
 // Chạy server
 const PORT = process.env.PORT || 5000;
