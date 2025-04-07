@@ -4,7 +4,6 @@ import { FaEyeSlash, FaEye } from 'react-icons/fa';
 import theme_log from '../../assets/ava_lap.jpg';
 
 const RegisterPage = () => {
-
     const navigate = useNavigate();
 
     const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +14,9 @@ const RegisterPage = () => {
         role: 'student'
     });
 
+    const [errors, setErrors] = useState({});
+    const [showSuccess, setShowSuccess] = useState(false);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -23,9 +25,47 @@ const RegisterPage = () => {
         });
     };
 
+    const isValidEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const newErrors = {};
+
+        if (!formData.email.trim()) {
+            newErrors.email = "Email cannot be blank";
+        } else if (!isValidEmail(formData.email)) {
+            newErrors.email = "Email is not in correct format.";
+        }
+
+        if (!formData.username.trim()) {
+            newErrors.username = "Username cannot be blank";
+        }
+
+        if (!formData.password) {
+            newErrors.password = "Password cannot be blank";
+        } else if (formData.password.length < 6) {
+            newErrors.password = "Password must be at least 6 characters";
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        setErrors({});
         console.log('Register data:', formData);
+
+        // Hiển thị thông báo thành công
+        setShowSuccess(true);
+
+        // Chuyển trang sau 2 giây
+        setTimeout(() => {
+            navigate('/user-login');
+        }, 2000);
     };
 
     const togglePasswordVisibility = () => {
@@ -34,14 +74,23 @@ const RegisterPage = () => {
 
     return (
         <>
+            {/* Success Notification */}
+            {showSuccess && (
+                <div className="fixed top-6 right-6 z-50">
+                    <div className="bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg animate-slide-in-down transition-transform duration-500">
+                        🎉 Registration successful! Redirecting page...
+                    </div>
+                </div>
+            )}
+
             {/* Logo */}
-            <div div className="flex items-center cursor-pointer ml-8 mt-5 mb-[-120px]" onClick={() => navigate("/")} >
-                <div
-                    className="relative w-12 h-12 flex items-center justify-center border-4 border-cyan-400 transform rotate-45">
-                    <span className="text-2xl font-bold text-gray-700 transform -rotate-45 " >IT</span>
+            <div className="flex items-center cursor-pointer ml-8 mt-5 mb-[-120px]" onClick={() => navigate("/")}>
+                <div className="relative w-12 h-12 flex items-center justify-center border-4 border-cyan-400 transform rotate-45">
+                    <span className="text-2xl font-bold text-gray-700 transform -rotate-45">IT</span>
                 </div>
                 <span className='ml-4 font-semibold text-sky-500 hover:underline'> Home &lt;&lt;</span>
-            </div >
+            </div>
+
             <div className="flex flex-col md:flex-row h-screen w-screen gap-0">
                 {/* Left side - Illustration */}
                 <div className="hidden md:flex md:w-1/3 bg-gray-20 items-center justify-center p-2 ml-80">
@@ -83,8 +132,9 @@ const RegisterPage = () => {
                                     onChange={handleChange}
                                     placeholder="Enter your Email Address"
                                     className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400"
-                                    required
+
                                 />
+                                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                             </div>
 
                             <div className="mb-4">
@@ -99,8 +149,9 @@ const RegisterPage = () => {
                                     onChange={handleChange}
                                     placeholder="Enter your User name"
                                     className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400"
-                                    required
+
                                 />
+                                {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
                             </div>
 
                             <div className="mb-4">
@@ -116,7 +167,7 @@ const RegisterPage = () => {
                                         onChange={handleChange}
                                         placeholder="Enter your Password"
                                         className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400"
-                                        required
+
                                     />
                                     <button
                                         type="button"
@@ -126,6 +177,7 @@ const RegisterPage = () => {
                                         {showPassword ? <FaEyeSlash /> : <FaEye />}
                                     </button>
                                 </div>
+                                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                             </div>
 
                             <div className="mb-6">
@@ -138,7 +190,7 @@ const RegisterPage = () => {
                                     value={formData.role}
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400"
-                                    required
+
                                 >
                                     <option value="student">Student</option>
                                     <option value="business">Business</option>

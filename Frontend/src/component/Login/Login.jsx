@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaEyeSlash, FaEye } from 'react-icons/fa';
 import theme_log from '../../assets/ava_lap.jpg';
 
 const LoginPage = () => {
+    const navigate = useNavigate();
+
+    // Fake user accounts
+    const fakeUsers = [
+        { username: 'user1', password: '123456' },
+        { username: 'user2', password: 'abcdef' }
+    ];
+
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
@@ -11,8 +19,7 @@ const LoginPage = () => {
         rememberMe: false
     });
 
-    const location = useLocation();
-    const navigate = useNavigate();
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -20,11 +27,43 @@ const LoginPage = () => {
             ...formData,
             [name]: type === 'checkbox' ? checked : value
         });
+        setError('');
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Login data:', formData);
+
+        const { username, password } = formData;
+
+        // Kiểm tra trường trống
+        // if (!username || !password) {
+        //     setError('Please enter full username and password.');
+        //     return;
+        // }
+
+        if (!username) {
+            setError('Please enter your username.');
+            return;
+        }
+        if (!password) {
+            setError('Please enter your password.');
+            return;
+        }
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters long.');
+            return;
+        }
+
+        // Kiểm tra thông tin đăng nhập
+        const userMatch = fakeUsers.find(
+            (user) => user.username === username && user.password === password
+        );
+
+        if (userMatch) {
+            navigate('/');
+        } else {
+            setError('Incorrect username or password.');
+        }
     };
 
     const togglePasswordVisibility = () => {
@@ -34,22 +73,22 @@ const LoginPage = () => {
     return (
         <>
             {/* Logo */}
-            <div div className="flex items-center cursor-pointer ml-8 mt-5 mb-[-120px]" onClick={() => navigate("/")} >
-                <div
-                    className="relative w-12 h-12 flex items-center justify-center border-4 border-cyan-400 transform rotate-45">
-                    <span className="text-2xl font-bold text-gray-700 transform -rotate-45 " >IT</span>
+            <div className="flex items-center cursor-pointer ml-8 mt-5 mb-[-120px]" onClick={() => navigate("/")}>
+                <div className="relative w-12 h-12 flex items-center justify-center border-4 border-cyan-400 transform rotate-45">
+                    <span className="text-2xl font-bold text-gray-700 transform -rotate-45">IT</span>
                 </div>
-                <span className='ml-4 font-semibold text-sky-500 hover:underline'> Home &lt;&lt;</span>
-            </div >
+                <span className="ml-4 font-semibold text-sky-500 hover:underline"> Home &lt;&lt;</span>
+            </div>
+
             <div className="flex flex-col md:flex-row h-screen w-screen gap-0">
-                {/* Left side - Illustration */}
+                {/* Left - image */}
                 <div className="hidden md:flex md:w-1/3 bg-gray-20 items-center justify-center p-2 ml-80">
                     <div className="max-w-lg scale-250">
                         <img src={theme_log} alt="Student with books" className="w-[90%] max-w-sm" />
                     </div>
                 </div>
 
-                {/* Right side - Login form */}
+                {/* Right - login form */}
                 <div className="w-full md:w-1/2 flex items-center justify-center p-5 bg-white">
                     <div className="w-full max-w-md mx-auto px-6 py-8 bg-white rounded-lg shadow-md ml-40">
                         <div className="text-center mb-8">
@@ -79,7 +118,6 @@ const LoginPage = () => {
                                     onChange={handleChange}
                                     placeholder="Enter your User name"
                                     className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400"
-                                    required
                                 />
                             </div>
 
@@ -93,7 +131,6 @@ const LoginPage = () => {
                                         onChange={handleChange}
                                         placeholder="Enter your Password"
                                         className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400"
-                                        required
                                     />
                                     <button
                                         type="button"
@@ -119,6 +156,13 @@ const LoginPage = () => {
                                 <a href="#" className="text-teal-400 hover:text-teal-600 transition-colors">Forgot Password?</a>
                             </div>
 
+                            {/* Thông báo lỗi */}
+                            {error && (
+                                <div className="text-red-500 text-sm mb-4 text-center">
+                                    {error}
+                                </div>
+                            )}
+
                             <div className="mt-6">
                                 <button
                                     type="submit"
@@ -132,7 +176,6 @@ const LoginPage = () => {
                 </div>
             </div>
         </>
-
     );
 };
 
