@@ -41,11 +41,11 @@ const RegisterPage = () => {
             newErrors.email = "Email is not in correct format.";
         }
 
-        if (!formData.username.trim()) {
+        else if (!formData.username.trim()) {
             newErrors.username = "Username cannot be blank";
         }
 
-        if (!formData.password) {
+        else if (!formData.password) {
             newErrors.password = "Password cannot be blank";
         } else if (formData.password.length < 6) {
             newErrors.password = "Password must be at least 6 characters";
