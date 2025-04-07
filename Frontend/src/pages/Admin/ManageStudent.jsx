@@ -16,31 +16,41 @@ const ManageStudent = () => {
     const studentsPerPage = 10;
     const [editingStudent, setEditingStudent] = useState(null);
     const [form, setForm] = useState({ name: '', age: '', school: '', mail: '', course: '' });
+    const [notification, setNotification] = useState({ show: false, message: '', type: '' });
 
     const totalPages = Math.ceil(students.length / studentsPerPage);
     const indexOfLastStudent = currentPage * studentsPerPage;
     const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
     const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
 
+    const showNotification = (message, type) => {
+        setNotification({ show: true, message, type });
+        setTimeout(() => {
+            setNotification({ show: false, message: '', type: '' });
+        }, 3000);
+    };
+
     const handleDelete = (id) => {
         const confirmed = window.confirm("Are you sure you want to delete?");
         if (confirmed) {
             setStudents(students.filter(student => student.id !== id));
+            showNotification("Student deleted successfully", "error");
         }
     };
+
     const validateForm = () => {
         const { name, age, school, mail, course } = form;
         if (!name || !age || !school || !mail || !course) {
-            alert("Vui lòng điền đầy đủ thông tin.");
+            alert("Please fill in all information.");
             return false;
         }
         if (isNaN(age) || Number(age) <= 0) {
-            alert("Tuổi phải là một số hợp lệ.");
+            alert("Please enter a valid age.");
             return false;
         }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(mail)) {
-            alert("Email không hợp lệ.");
+            alert("Invalid email.");
             return false;
         }
         return true;
@@ -61,6 +71,7 @@ const ManageStudent = () => {
         setStudents(students.map(s => s.id === form.id ? { ...form, age: Number(form.age) } : s));
         setEditingStudent(null);
         setForm({ name: '', age: '', school: '', mail: '', course: '' });
+        showNotification("Student updated successfully", "success");
     };
 
     const handleAdd = () => {
@@ -73,11 +84,18 @@ const ManageStudent = () => {
         };
         setStudents([...students, newStudent]);
         setForm({ name: '', age: '', school: '', mail: '', course: '' });
+        showNotification("Add new student successfully", "success");
     };
-
 
     return (
         <div className="flex flex-col min-h-screen p-6 bg-gray-50">
+            {notification.show && (
+                <div className={`fixed top-4 right-4 p-4 rounded shadow-lg ${notification.type === "success" ? "bg-green-500" : "bg-red-500"
+                    } text-white transition-all duration-300`}>
+                    {notification.message}
+                </div>
+            )}
+
             <h1 className="text-2xl font-bold text-gray-700 flex items-center mb-4">
                 <FaUserGraduate className="text-[#4FD1C5] mr-2" /> Manage Students
             </h1>
