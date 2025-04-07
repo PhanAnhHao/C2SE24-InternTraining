@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaClipboardList } from "react-icons/fa";
 
 const ManageStudentTest = () => {
-    const testsData = [
+    const initialTests = [
         { idtest: 1, idlesson: 101, content: "Test Content 1", idquestion: 1001, score: 85 },
         { idtest: 2, idlesson: 102, content: "Test Content 2", idquestion: 1002, score: 90 },
         { idtest: 3, idlesson: 103, content: "Test Content 3", idquestion: 1003, score: 78 },
@@ -27,19 +27,46 @@ const ManageStudentTest = () => {
         { idtest: 22, idlesson: 122, content: "Test Content 22", idquestion: 1022, score: 79 }
     ];
 
+    const [tests, setTests] = useState(initialTests);
     const [currentPage, setCurrentPage] = useState(1);
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState({});
+
     const testsPerPage = 10;
-    const totalPages = Math.ceil(testsData.length / testsPerPage);
+    const totalPages = Math.ceil(tests.length / testsPerPage);
 
     const indexOfLastTest = currentPage * testsPerPage;
     const indexOfFirstTest = indexOfLastTest - testsPerPage;
-    const currentTests = testsData.slice(indexOfFirstTest, indexOfLastTest);
+    const currentTests = tests.slice(indexOfFirstTest, indexOfLastTest);
+
+    const handleDelete = (id) => {
+        if (window.confirm("Are you sure you want to delete this test?")) {
+            setTests(tests.filter(test => test.idtest !== id));
+        }
+    };
+
+    const handleEditClick = (test) => {
+        setEditingId(test.idtest);
+        setEditForm({ ...test });
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditForm(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleEditSubmit = () => {
+        setTests(prev =>
+            prev.map(test => (test.idtest === editingId ? { ...editForm, score: Number(editForm.score) } : test))
+        );
+        setEditingId(null);
+    };
 
     return (
         <div className="flex">
-            <div className="flex-1 ">
-                <h1 className="text-2xl font-bold text-gray-700 flex items-center ">
-                    <FaClipboardList className="text-[#4FD1C5] mr-2 " /> Manage Student Tests
+            <div className="flex-1">
+                <h1 className="text-2xl font-bold text-gray-700 flex items-center">
+                    <FaClipboardList className="text-[#4FD1C5] mr-2" /> Manage Student Tests
                 </h1>
                 <div className="mt-6 overflow-x-auto">
                     <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
@@ -50,16 +77,95 @@ const ManageStudentTest = () => {
                                 <th className="py-3 px-4 text-left">Content</th>
                                 <th className="py-3 px-4 text-left">Question ID</th>
                                 <th className="py-3 px-4 text-left">Score</th>
+                                <th className="py-3 px-4 text-left">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {currentTests.map((test, index) => (
                                 <tr key={test.idtest} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
                                     <td className="py-3 px-4">{test.idtest}</td>
-                                    <td className="py-3 px-4">{test.idlesson}</td>
-                                    <td className="py-3 px-4">{test.content}</td>
-                                    <td className="py-3 px-4">{test.idquestion}</td>
-                                    <td className="py-3 px-4">{test.score}</td>
+                                    <td className="py-3 px-4">
+                                        {editingId === test.idtest ? (
+                                            <input
+                                                name="idlesson"
+                                                value={editForm.idlesson}
+                                                onChange={handleEditChange}
+                                                className="border p-1 rounded"
+                                            />
+                                        ) : (
+                                            test.idlesson
+                                        )}
+                                    </td>
+                                    <td className="py-3 px-4">
+                                        {editingId === test.idtest ? (
+                                            <input
+                                                name="content"
+                                                value={editForm.content}
+                                                onChange={handleEditChange}
+                                                className="border p-1 rounded w-full"
+                                            />
+                                        ) : (
+                                            test.content
+                                        )}
+                                    </td>
+                                    <td className="py-3 px-4">
+                                        {editingId === test.idtest ? (
+                                            <input
+                                                name="idquestion"
+                                                value={editForm.idquestion}
+                                                onChange={handleEditChange}
+                                                className="border p-1 rounded"
+                                            />
+                                        ) : (
+                                            test.idquestion
+                                        )}
+                                    </td>
+                                    <td className="py-3 px-4">
+                                        {editingId === test.idtest ? (
+                                            <input
+                                                name="score"
+                                                type="number"
+                                                value={editForm.score}
+                                                onChange={handleEditChange}
+                                                className="border p-1 rounded"
+                                            />
+                                        ) : (
+                                            test.score
+                                        )}
+                                    </td>
+                                    <td className="py-3 px-4 space-x-2">
+                                        {editingId === test.idtest ? (
+                                            <>
+                                                <button
+                                                    className="bg-green-500 text-white px-3 py-1 rounded"
+                                                    onClick={handleEditSubmit}
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    className="bg-gray-400 text-white px-3 py-1 rounded"
+                                                    onClick={() => setEditingId(null)}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                                                    onClick={() => handleEditClick(test)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    className="bg-red-500 text-white px-3 py-1 rounded"
+                                                    onClick={() => handleDelete(test.idtest)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </>
+                                        )}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -68,15 +174,17 @@ const ManageStudentTest = () => {
                 <div className="flex justify-center mt-4">
                     <button
                         className={`px-4 py-2 mx-1 rounded ${currentPage === 1 ? "bg-gray-300" : "bg-[#4FD1C5] text-white"}`}
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
                     >
                         Prev
                     </button>
-                    <span className="px-4 py-2 bg-gray-200 rounded">Page {currentPage} of {totalPages}</span>
+                    <span className="px-4 py-2 bg-gray-200 rounded">
+                        Page {currentPage} of {totalPages}
+                    </span>
                     <button
                         className={`px-4 py-2 mx-1 rounded ${currentPage === totalPages ? "bg-gray-300" : "bg-[#4FD1C5] text-white"}`}
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
                     >
                         Next

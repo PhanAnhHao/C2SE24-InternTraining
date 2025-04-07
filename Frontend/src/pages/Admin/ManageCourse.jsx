@@ -30,19 +30,34 @@ const ManageCourse = () => {
         { idCourse: 25, name: "Cloud Computing with AWS", language: "Various", instructor: "Thor Odinson", duration: "8 weeks" }
     ];
 
-
     const [currentPage, setCurrentPage] = useState(1);
+    const [courses, setCourses] = useState(coursesData);
+    const [editCourse, setEditCourse] = useState(null); // State for editing course
+
     const coursesPerPage = 10;
-    const totalPages = Math.ceil(coursesData.length / coursesPerPage);
+    const totalPages = Math.ceil(courses.length / coursesPerPage);
 
     const indexOfLastCourse = currentPage * coursesPerPage;
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
-    const currentCourses = coursesData.slice(indexOfFirstCourse, indexOfLastCourse);
+    const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+
+    // Handle delete course
+    const handleDelete = (id) => {
+        const updatedCourses = courses.filter(course => course.idCourse !== id);
+        setCourses(updatedCourses);
+    };
+
+    // Handle edit course
+    const handleEdit = (course) => {
+        setEditCourse(course);
+        // You can add a modal or form to handle editing here
+        alert(`Editing course: ${course.name}`);
+    };
 
     return (
         <div className="flex">
-            <div className="flex-1 ">
-                <h1 className="text-2xl font-bold text-gray-700 flex items-center ">
+            <div className="flex-1">
+                <h1 className="text-2xl font-bold text-gray-700 flex items-center">
                     <FaBookOpen className="text-[#4FD1C5] mr-2" /> Manage Courses
                 </h1>
                 <div className="mt-6 overflow-x-auto">
@@ -54,6 +69,7 @@ const ManageCourse = () => {
                                 <th className="py-3 px-4 text-left">Language</th>
                                 <th className="py-3 px-4 text-left">Instructor</th>
                                 <th className="py-3 px-4 text-left">Duration</th>
+                                <th className="py-3 px-4 text-left">Action</th> {/* New Action column */}
                             </tr>
                         </thead>
                         <tbody>
@@ -64,6 +80,20 @@ const ManageCourse = () => {
                                     <td className="py-3 px-4">{course.language}</td>
                                     <td className="py-3 px-4">{course.instructor}</td>
                                     <td className="py-3 px-4">{course.duration}</td>
+                                    <td className="py-3 px-4">
+                                        <button
+                                            onClick={() => handleEdit(course)}
+                                            className="text-blue-500 mr-2"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(course.idCourse)}
+                                            className="text-red-500"
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
