@@ -8,12 +8,13 @@ const Table = ({ courses, onSelectCourse }) => {
             <table className="w-full border-collapse text-gray-700">
                 <thead className="bg-[#4FD1C5] text-white text-left uppercase">
                 <tr>
-                    <th className="p-2">Khóa học</th>
-                    <th className="p-2">Danh mục</th>
-                    <th className="p-2">Thời lượng</th>
-                    <th className="p-2">Giảng viên</th>
-                    <th className="p-2">Đánh giá trung bình</th>
-                    <th className="p-2">Hành động</th>
+                    <th className="p-2">Course</th>
+                    <th className="p-2">Category</th>
+                    <th className="p-2">Duration</th>
+                    <th className="p-2">Instructor</th>
+                    <th className="p-2">Average Rating</th>
+                    <th className="p-2">Actions</th>
+
                 </tr>
                 </thead>
                 <tbody>
@@ -33,7 +34,7 @@ const Table = ({ courses, onSelectCourse }) => {
                         </td>
                         <td className="p-2">
                             <Button className="mr-2" onClick={() => onSelectCourse(course.id)}>
-                                Xem tất cả đánh giá
+                                View all review
                             </Button>
                         </td>
                     </tr>

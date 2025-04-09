@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaBookOpen } from "react-icons/fa";
+import { FaClipboardList } from "react-icons/fa";
 
 const ManageCourse = () => {
     const coursesData = [
@@ -30,9 +30,10 @@ const ManageCourse = () => {
         { idCourse: 25, name: "Cloud Computing with AWS", language: "Various", instructor: "Thor Odinson", duration: "8 weeks" }
     ];
 
-    const [currentPage, setCurrentPage] = useState(1);
     const [courses, setCourses] = useState(coursesData);
-    const [editCourse, setEditCourse] = useState(null); // State for editing course
+    const [currentPage, setCurrentPage] = useState(1);
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState({});
 
     const coursesPerPage = 10;
     const totalPages = Math.ceil(courses.length / coursesPerPage);
@@ -41,76 +42,161 @@ const ManageCourse = () => {
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
     const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
-    // Handle delete course
     const handleDelete = (id) => {
-        const updatedCourses = courses.filter(course => course.idCourse !== id);
-        setCourses(updatedCourses);
+        if (window.confirm("Are you sure you want to delete this course?")) {
+            setCourses(courses.filter(course => course.idCourse !== id));
+        }
     };
 
-    // Handle edit course
-    const handleEdit = (course) => {
-        setEditCourse(course);
-        // You can add a modal or form to handle editing here
-        alert(`Editing course: ${course.name}`);
+    const handleEditClick = (course) => {
+        setEditingId(course.idCourse);
+        setEditForm({ ...course });
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditForm(prev => ({ ...prev, [name]: value }));
+    };
+
+    const validateEditForm = () => {
+        const { name, language, instructor, duration } = editForm;
+        if (!name || !language || !instructor || !duration) {
+            alert("Please fill in all fields.");
+            return false;
+        }
+        return true;
+    };
+
+    const handleEditSubmit = () => {
+        if (!validateEditForm()) return;
+        setCourses(prev =>
+            prev.map(course => (course.idCourse === editingId ? { ...editForm } : course))
+        );
+        setEditingId(null);
     };
 
     return (
         <div className="flex">
             <div className="flex-1">
                 <h1 className="text-2xl font-bold text-gray-700 flex items-center">
-                    <FaBookOpen className="text-[#4FD1C5] mr-2" /> Manage Courses
+                    <FaClipboardList className="text-[#4FD1C5] mr-2" /> Manage Courses
                 </h1>
                 <div className="mt-6 overflow-x-auto">
                     <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
                         <thead className="bg-[#4FD1C5] text-white">
-                            <tr>
-                                <th className="py-3 px-4 text-left">Course ID</th>
-                                <th className="py-3 px-4 text-left">Course Name</th>
-                                <th className="py-3 px-4 text-left">Language</th>
-                                <th className="py-3 px-4 text-left">Instructor</th>
-                                <th className="py-3 px-4 text-left">Duration</th>
-                                <th className="py-3 px-4 text-left">Action</th> {/* New Action column */}
-                            </tr>
+                        <tr>
+                            <th className="py-3 px-4 text-left">Course ID</th>
+                            <th className="py-3 px-4 text-left">Name</th>
+                            <th className="py-3 px-4 text-left">Language</th>
+                            <th className="py-3 px-4 text-left">Instructor</th>
+                            <th className="py-3 px-4 text-left">Duration</th>
+                            <th className="py-3 px-4 text-left">Actions</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {currentCourses.map((course, index) => (
-                                <tr key={course.idCourse} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                                    <td className="py-3 px-4">{course.idCourse}</td>
-                                    <td className="py-3 px-4">{course.name}</td>
-                                    <td className="py-3 px-4">{course.language}</td>
-                                    <td className="py-3 px-4">{course.instructor}</td>
-                                    <td className="py-3 px-4">{course.duration}</td>
-                                    <td className="py-3 px-4">
-                                        <button
-                                            onClick={() => handleEdit(course)}
-                                            className="text-blue-500 mr-2"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(course.idCourse)}
-                                            className="text-red-500"
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                        {currentCourses.map((course, index) => (
+                            <tr key={course.idCourse} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                                <td className="py-3 px-4">{course.idCourse}</td>
+                                <td className="py-3 px-4">
+                                    {editingId === course.idCourse ? (
+                                        <input
+                                            name="name"
+                                            value={editForm.name}
+                                            onChange={handleEditChange}
+                                            className="border p-1 rounded w-full"
+                                        />
+                                    ) : (
+                                        course.name
+                                    )}
+                                </td>
+                                <td className="py-3 px-4">
+                                    {editingId === course.idCourse ? (
+                                        <input
+                                            name="language"
+                                            value={editForm.language}
+                                            onChange={handleEditChange}
+                                            className="border p-1 rounded w-full"
+                                        />
+                                    ) : (
+                                        course.language
+                                    )}
+                                </td>
+                                <td className="py-3 px-4">
+                                    {editingId === course.idCourse ? (
+                                        <input
+                                            name="instructor"
+                                            value={editForm.instructor}
+                                            onChange={handleEditChange}
+                                            className="border p-1 rounded w-full"
+                                        />
+                                    ) : (
+                                        course.instructor
+                                    )}
+                                </td>
+                                <td className="py-3 px-4">
+                                    {editingId === course.idCourse ? (
+                                        <input
+                                            name="duration"
+                                            value={editForm.duration}
+                                            onChange={handleEditChange}
+                                            className="border p-1 rounded w-full"
+                                        />
+                                    ) : (
+                                        course.duration
+                                    )}
+                                </td>
+                                <td className="py-3 px-4 space-x-2">
+                                    {editingId === course.idCourse ? (
+                                        <>
+                                            <button
+                                                className="bg-green-500 text-white px-3 py-1 rounded"
+                                                onClick={handleEditSubmit}
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                className="bg-gray-400 text-white px-3 py-1 rounded"
+                                                onClick={() => setEditingId(null)}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button
+                                                className="bg-blue-500 text-white px-3 py-1 rounded"
+                                                onClick={() => handleEditClick(course)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="bg-red-500 text-white px-3 py-1 rounded"
+                                                onClick={() => handleDelete(course.idCourse)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
                         </tbody>
                     </table>
                 </div>
                 <div className="flex justify-center mt-4">
                     <button
                         className={`px-4 py-2 mx-1 rounded ${currentPage === 1 ? "bg-gray-300" : "bg-[#4FD1C5] text-white"}`}
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
                     >
                         Prev
                     </button>
-                    <span className="px-4 py-2 bg-gray-200 rounded">Page {currentPage} of {totalPages}</span>
+                    <span className="px-4 py-2 bg-gray-200 rounded">
+                        Page {currentPage} of {totalPages}
+                    </span>
                     <button
                         className={`px-4 py-2 mx-1 rounded ${currentPage === totalPages ? "bg-gray-300" : "bg-[#4FD1C5] text-white"}`}
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
                     >
                         Next

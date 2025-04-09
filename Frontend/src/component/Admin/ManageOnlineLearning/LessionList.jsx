@@ -11,17 +11,7 @@ const LessonList = ({ lessons = [], onEdit, onDelete, onAdd }) => {
 
     return (
         <div className="relative p-4">
-            {/* Nút thêm bài học */}
-            <div className="flex justify-end mb-4 mt-[-60px]">
-                <button
-                    onClick={() => setIsAdding(true)} // Khi bấm mở form
-                    className="px-4 py-2 bg-green-500 text-white rounded shadow-md flex items-center gap-2
-                    hover:bg-green-600 transition-transform transform hover:scale-105"
-                >
-                    <FontAwesomeIcon icon={faPlus}/>
-                    Thêm bài học
-                </button>
-            </div>
+
 
             {/* Danh sách bài học */}
             {lessons.length === 0 ? (
