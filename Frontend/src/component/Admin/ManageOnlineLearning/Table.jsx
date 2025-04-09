@@ -7,11 +7,12 @@ const Table = ({ courses, onSelectCourse, onSelectStudentList }) => {
             <table className="w-full border-collapse text-gray-700">
                 <thead className="bg-[#4FD1C5] text-white text-left uppercase">
                 <tr>
-                    <th className="p-2">Khóa học</th>
-                    <th className="p-2">Danh mục</th>
-                    <th className="p-2">Thời lượng</th>
-                    <th className="p-2">Giảng viên</th>
-                    <th className="p-2">Hành động</th>
+                    <th className="p-2">Course</th>
+                    <th className="p-2">Category</th>
+                    <th className="p-2">Duration</th>
+                    <th className="p-2">Instructor</th>
+                    <th className="p-2">Actions</th>
+
                 </tr>
                 </thead>
                 <tbody>
@@ -26,10 +27,10 @@ const Table = ({ courses, onSelectCourse, onSelectStudentList }) => {
                         <td className="p-2">{course.instructor}</td>
                         <td className="p-2 flex gap-2">
                             <Button onClick={() => onSelectCourse(course.id)}>
-                                Xem bài học
+                                View Lessons
                             </Button>
                             <Button onClick={() => onSelectStudentList(course.id)}>
-                                Tiến trình học tập
+                                Learning Progress
                             </Button>
                         </td>
                     </tr>

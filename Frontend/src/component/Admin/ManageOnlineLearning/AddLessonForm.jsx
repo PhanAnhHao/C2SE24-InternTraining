@@ -28,12 +28,12 @@ const AddLessonForm = ({ onClose, onSave }) => {
     return (
         <div className="fixed inset-0 w-screen h-screen flex items-center justify-center bg-black/40 z-50">
             <div className="bg-white p-6 rounded-2xl shadow-xl w-1/2 border border-gray-200">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">Thêm bài học mới</h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Add new lesson</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
 
                     {/* Tiêu đề bài học */}
                     <div>
-                        <label className="block text-gray-700 font-medium">Tiêu đề bài học</label>
+                        <label className="block text-gray-700 font-medium">Title</label>
                         <input
                             type="text"
                             name="title"
@@ -57,7 +57,7 @@ const AddLessonForm = ({ onClose, onSave }) => {
 
                     {/* Upload video */}
                     <div>
-                        <label className="block text-gray-700 font-medium">Tải lên video</label>
+                        <label className="block text-gray-700 font-medium">Upload video</label>
                         <input
                             type="file"
                             name="videoFile"
@@ -69,7 +69,7 @@ const AddLessonForm = ({ onClose, onSave }) => {
 
                     {/* Upload tài liệu */}
                     <div>
-                        <label className="block text-gray-700 font-medium">Tải lên tài liệu</label>
+                        <label className="block text-gray-700 font-medium">Upload document</label>
                         <input
                             type="file"
                             name="documentFile"
@@ -86,13 +86,13 @@ const AddLessonForm = ({ onClose, onSave }) => {
                             onClick={onClose}
                             className="px-4 py-2 bg-gray-400 text-white rounded-lg shadow hover:bg-gray-500 transition"
                         >
-                            Hủy
+                            Cancel
                         </button>
                         <button
                             type="submit"
                             className="px-4 py-2 bg-[#4FD1C5] text-white rounded-lg shadow hover:bg-[#38B2AC] transition"
                         >
-                            Lưu
+                            Save
                         </button>
                     </div>
                 </form>

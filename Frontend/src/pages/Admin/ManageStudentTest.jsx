@@ -54,8 +54,35 @@ const ManageStudentTest = () => {
         const { name, value } = e.target;
         setEditForm(prev => ({ ...prev, [name]: value }));
     };
+    const validateEditTestForm = () => {
+        const { idlesson, content, idquestion, score } = editForm;
+
+        if (!idlesson || !content || !idquestion || score === "") {
+            alert("Please fill in all fields.");
+            return false;
+        }
+
+        if (isNaN(idlesson) || isNaN(idquestion)) {
+            alert("Lesson ID and Question ID must be numbers.");
+            return false;
+        }
+
+        if (isNaN(score) || Number(score) < 0 || Number(score) > 100) {
+            alert("Score must be a number between 0 and 100.");
+            return false;
+        }
+
+        if (content.trim() === "") {
+            alert("Content cannot be empty.");
+            return false;
+        }
+
+        return true;
+    };
 
     const handleEditSubmit = () => {
+        if (!validateEditTestForm()) return;
+
         setTests(prev =>
             prev.map(test => (test.idtest === editingId ? { ...editForm, score: Number(editForm.score) } : test))
         );
