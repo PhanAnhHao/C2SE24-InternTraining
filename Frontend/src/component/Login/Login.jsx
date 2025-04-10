@@ -1,16 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEyeSlash, FaEye } from 'react-icons/fa';
-import theme_log from '../../assets/ava_lap.jpg';
+import theme_log from '../../assets/login_theme.jpg';
 
 const LoginPage = () => {
     const navigate = useNavigate();
-
-    // Fake user accounts
-    const fakeUsers = [
-        { username: 'user1', password: '123456' },
-        { username: 'user2', password: 'abcdef' }
-    ];
 
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
@@ -30,16 +24,10 @@ const LoginPage = () => {
         setError('');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const { username, password } = formData;
-
-        // Kiểm tra trường trống
-        // if (!username || !password) {
-        //     setError('Please enter full username and password.');
-        //     return;
-        // }
 
         if (!username) {
             setError('Please enter your username.');
@@ -54,17 +42,38 @@ const LoginPage = () => {
             return;
         }
 
-        // Kiểm tra thông tin đăng nhập
-        const userMatch = fakeUsers.find(
-            (user) => user.username === username && user.password === password
-        );
+        try {
+            const response = await fetch("http://localhost:5000/auth/login", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
 
-        if (userMatch) {
-            navigate('/');
-        } else {
-            setError('Incorrect username or password.');
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.message || 'Login failed. Please try again.');
+                return;
+            }
+
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                navigate('/');
+            } else {
+                setError('No token received. Please check your credentials.');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setError('An error occurred. Please try again later.');
         }
     };
+
+
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
