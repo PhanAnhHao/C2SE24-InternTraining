@@ -11,8 +11,7 @@ import Layout from './Layout.jsx';
 import AdminLayout from "./AdminLayout.jsx";
 import OnlineLearningManager from './pages/Admin/OnlineLearningManager.jsx';
 import ManageReviews from "./pages/Admin/ManageReviews.jsx";
-import ManageStudent from './pages/Admin/ManageStudent.jsx';
-import ManageBusiness from './pages/Admin/ManageBusiness.jsx';
+import ManageAccount from './pages/Admin/ManageAccount.jsx';
 import ManageStudentTest from './pages/Admin/ManageStudentTest.jsx';
 import ManageCourse from './pages/Admin/ManageCourse.jsx';
 import Dashboard from './pages/Admin/Dashboard.jsx';
@@ -42,8 +41,7 @@ function App() {
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
-          <Route path="/admin/students" element={<ManageStudent />} />
-          <Route path="/admin/businesses" element={<ManageBusiness />} />
+          <Route path="/admin/accounts" element={<ManageAccount />} />
           <Route path="/admin/students-test" element={<ManageStudentTest />} />
           <Route path="/admin/courses" element={<ManageCourse />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />

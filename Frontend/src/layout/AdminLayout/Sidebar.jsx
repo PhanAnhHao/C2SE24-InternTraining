@@ -19,9 +19,8 @@ const Sidebar = () => {
 
     const menuItems = [
         { name: "Dashboard", icon: <FaHome />, path: "/admin/dashboard" },
-        { name: "Manage Student", icon: <FaUsers />, path: "/admin/students" },
+        { name: "Manage account", icon: <FaUsers />, path: "/admin/accounts" },
         { name: "Manage Student Test", icon: <FaUserGraduate />, path: "/admin/students-test" },
-        { name: "Manage Business", icon: <FaBuilding />, path: "/admin/businesses" },
         { name: "Manage Course", icon: <FaBook />, path: "/admin/courses" },
         { name: "Manage Online Learning", icon: <FaChalkboardTeacher />, path: "/admin/online-learning" },
         { name: "Manage Review Rating", icon: <FaStar />, path: "/admin/reviews" },
