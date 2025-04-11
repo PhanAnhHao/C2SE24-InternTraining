@@ -31,16 +31,19 @@ const ManageAccount = () => {
     const fetchAccounts = async () => {
         try {
             const res = await axios.get("http://localhost:5000/api/accounts/all-accounts");
+            // console.log("Fetched accounts:", res.data);
             setAccounts(res.data);
         } catch (err) {
             enqueueSnackbar("Failed to fetch accounts", { variant: "error" });
-            console.error("Error fetching accounts:", err);
+            const errorMessage = err.response?.data?.message || "Failed to add account. Please try again.";
+            enqueueSnackbar(errorMessage, { variant: "error" });
         }
     };
 
     const filteredAccounts = accounts.filter(acc => {
-        const matchesRole = filterRole === "All" || acc.role.name.toLowerCase() === filterRole.toLowerCase();
-        const matchesSearch = acc.username.toLowerCase().includes(searchTerm.toLowerCase());
+        const roleName = acc.role?.name?.toLowerCase();
+        const matchesRole = filterRole === "All" || roleName === filterRole.toLowerCase();
+        const matchesSearch = acc.username?.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesRole && matchesSearch;
     });
 
@@ -108,31 +111,58 @@ const ManageAccount = () => {
         setShowForm(false);
     };
 
-    const handleAdd = () => {
+    const handleAdd = async () => {
         if (!validateForm()) return;
 
-        const newAccount = {
-            _id: Date.now().toString(),
-            username: form.username,
-            password: form.password,
-            email: form.email,
-            role: {
-                _id: Date.now().toString(),
-                name: form.roleName,
-                description: form.roleDescription
-            }
-        };
+        try {
+            const roleIdMap = {
+                student: "660edabc12eac0f2fc123402",
+                business: "660edabc12eac0f2fc123403"
+            };
 
-        setAccounts([...accounts, newAccount]);
-        setForm({ username: '', password: '', email: '', roleName: '', roleDescription: '' });
-        enqueueSnackbar("New account added successfully", { variant: "success" });
-        setShowForm(false);
+            const roleId = roleIdMap[form.roleName.toLowerCase()];
+
+            if (!roleId) {
+                enqueueSnackbar("Invalid role selected.", { variant: "error" });
+                return;
+            }
+
+            const newAccountData = {
+                username: form.username,
+                email: form.email,
+                password: form.password,
+                roleId: roleId  // Be nhận object
+            };
+
+            const res = await axios.post("http://localhost:5000/api/accounts/add-account", newAccountData);
+            console.log("Response from server:", res.data);
+
+            const addedAccount = {
+                ...res.data,
+                role: {
+                    name: form.roleName,
+                    description: form.roleDescription
+                }
+            };
+
+            setAccounts(prev => [...prev, addedAccount]);
+            enqueueSnackbar("New account added successfully", { variant: "success" });
+
+            setForm({ username: '', password: '', email: '', roleName: '', roleDescription: '' });
+            setShowForm(false);
+
+        } catch (err) {
+            console.error("Add account error:", err);
+            const errorMessage = err.response?.data?.message || "Failed to add account. Please try again.";
+            enqueueSnackbar(errorMessage, { variant: "error" });
+        }
     };
+
 
     return (
         <div className="flex flex-col min-h-screen  bg-gray-50">
             <h1 className="text-2xl font-bold text-gray-700 flex items-center mb-4">
-                <FaUsersCog className="text-[#4FD1C5] mr-2"/> Manage Accounts
+                <FaUsersCog className="text-[#4FD1C5] mr-2" /> Manage Accounts
             </h1>
             <div className="flex justify-end mb-4">
                 <button
