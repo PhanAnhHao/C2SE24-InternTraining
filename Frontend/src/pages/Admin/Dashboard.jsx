@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 
 const Dashboard = () => {
     const stats = [
-        { name: "Student", icon: <FaUsers />, count: 120 },
+        { name: "User", icon: <FaUsers />, count: 120 },
         { name: "Student Test", icon: <FaUserGraduate />, count: 95 },
         { name: "Course", icon: <FaBook />, count: 30 },
         { name: "Online Learning", icon: <FaChalkboardTeacher />, count: 50 },
@@ -13,11 +13,11 @@ const Dashboard = () => {
     ];
 
     const chartData = [
-        { name: "January", students: 30, courses: 5 },
-        { name: "February", students: 50, courses: 8 },
-        { name: "March", students: 70, courses: 12 },
-        { name: "April", students: 90, courses: 15 },
-        { name: "May", students: 110, courses: 20 },
+        { name: "January", user: 30, courses: 5 },
+        { name: "February", user: 50, courses: 8 },
+        { name: "March", user: 70, courses: 12 },
+        { name: "April", user: 90, courses: 15 },
+        { name: "May", user: 110, courses: 20 },
     ];
 
     return (
@@ -43,7 +43,7 @@ const Dashboard = () => {
                             <XAxis dataKey="name" stroke="#4FD1C5" />
                             <YAxis />
                             <Tooltip />
-                            <Bar dataKey="students" fill="#4FD1C5" barSize={40} />
+                            <Bar dataKey="user" fill="#4FD1C5" barSize={40} />
                             <Bar dataKey="courses" fill="#FF6384" barSize={40} />
                         </BarChart>
                     </ResponsiveContainer>

@@ -67,7 +67,7 @@ const RegisterPage = () => {
             if (error.response && error.response.data && error.response.data.message) {
                 setApiError(error.response.data.message);
             } else {
-                setApiError("Registration failed. Please try again.");
+                setApiError("Registration failed!");
             }
         }
     };
