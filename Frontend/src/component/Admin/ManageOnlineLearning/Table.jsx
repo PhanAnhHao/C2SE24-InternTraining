@@ -7,29 +7,28 @@ const Table = ({ courses, onSelectCourse, onSelectStudentList }) => {
             <table className="w-full border-collapse text-gray-700">
                 <thead className="bg-[#4FD1C5] text-white text-left uppercase">
                 <tr>
-                    <th className="p-2">Course</th>
-                    <th className="p-2">Category</th>
-                    <th className="p-2">Duration</th>
-                    <th className="p-2">Instructor</th>
+                    <th className="p-2">No.</th>
+                    <th className="p-2">Course Name</th>
+                    <th className="p-2">Language</th>
+                    <th className="p-2">Rating</th>
                     <th className="p-2">Actions</th>
-
                 </tr>
                 </thead>
                 <tbody>
                 {courses.map((course, index) => (
                     <tr
-                        key={course.id}
+                        key={course._id}
                         className={`border-t ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100 transition-all duration-200`}
                     >
-                        <td className="p-2 font-semibold">{course.title}</td>
-                        <td className="p-2">{course.category}</td>
-                        <td className="p-2">{course.duration}</td>
-                        <td className="p-2">{course.instructor}</td>
+                        <td className="p-2 font-semibold">{index + 1}</td>
+                        <td className="p-2">{course.info}</td>
+                        <td className="p-2">{course.languageID?.name || "N/A"}</td>
+                        <td className="p-2">{course.rating}</td>
                         <td className="p-2 flex gap-2">
-                            <Button onClick={() => onSelectCourse(course.id)}>
+                            <Button onClick={() => onSelectCourse(course._id)}>
                                 View Lessons
                             </Button>
-                            <Button onClick={() => onSelectStudentList(course.id)}>
+                            <Button onClick={() => onSelectStudentList(course._id)}>
                                 Learning Progress
                             </Button>
                         </td>
