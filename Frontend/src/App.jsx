@@ -36,8 +36,8 @@ function App() {
           <Route path="/blog-page" element={<BlogPage />} />
           <Route path="/blog-detail" element={<BlogDetail />} />
         </Route>
-        <Route path="/user-login" element={<LoginPage />} />
-        <Route path="/user-register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="/admin/online-learning" element={<OnlineLearningManager />} />

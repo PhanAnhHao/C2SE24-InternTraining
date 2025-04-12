@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import hero_img from "../../assets/hero_img.png";
 import Stack from '@mui/material/Stack';
@@ -9,6 +9,16 @@ import { motion } from "motion/react";
 
 const HeroContent = () => {
     const navigate = useNavigate();
+    const [loggedIn, setLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const authData = localStorage.getItem("token");
+        if (authData) {
+            setLoggedIn(true);
+        } else {
+            setLoggedIn(false);
+        }
+    }, [loggedIn]);
     return (
         <div className='grid grid-cols-12 bg-[#49BBBD] py-0 rounded-b-[21%] h-[800px]'>
             <motion.div initial={{ x: 0 }} whileInView={{ x: 50, transition: { duration: 1.5 } }} className='left-content col-span-6 text-white px-[120px] py-[200px]'>
@@ -24,7 +34,9 @@ const HeroContent = () => {
                         variant="contained"
                         sx={{ borderRadius: "80px", backgroundColor: "#7fcfd1" }}
                         onClick={() => navigate("/user-login")}
-                    >Join for free
+                    >{
+                            loggedIn ? "Go to course" : "Join for free"
+                        }
                     </Button>
                     <Button
                         variant="outlined"

@@ -86,10 +86,10 @@ const LoginPage = () => {
                 <div className="relative w-12 h-12 flex items-center justify-center border-4 border-cyan-400 transform rotate-45">
                     <span className="text-2xl font-bold text-gray-700 transform -rotate-45">IT</span>
                 </div>
-                <span className="ml-4 font-semibold text-sky-500 hover:underline"> Home &lt;&lt;</span>
+                <span className='ml-4 font-semibold text-sky-500 hover:underline'> Home &lt;&lt;</span>
             </div>
 
-            <div className="flex flex-col md:flex-row h-screen w-screen gap-0">
+            <div className="flex flex-col md:flex-row h-screen w-screen gap-0 mt-[50px]">
                 {/* Left - image */}
                 <div className="hidden md:flex md:w-1/3 bg-gray-20 items-center justify-center p-2 ml-80">
                     <div className="max-w-lg scale-250">
@@ -108,7 +108,7 @@ const LoginPage = () => {
                                         Login
                                     </button>
                                 </div>
-                                <Link to="/user-register" className="w-32">
+                                <Link to="/register" className="w-32">
                                     <button className="w-full bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition-colors">
                                         Register
                                     </button>
