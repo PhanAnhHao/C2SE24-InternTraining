@@ -3,25 +3,16 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Account = require('../models/Account');
 const User = require('../models/User');
+const Business = require('../models/Business');
 
 const router = express.Router();
 
-// Đăng ký
+// Đăng ký cho Student
 router.post('/register', async (req, res) => {
   try {
     const { username, password, email, userName, location, phone } = req.body;
 
-    // --- BỔ SUNG: Lấy ID của Role 'Student' ---
-    // Cách 1: Hardcode ID (nếu bạn chắc chắn ID này không đổi)
     const defaultRoleId = '660edabc12eac0f2fc123402';
-
-    // Cách 2: Tìm Role ID động (an toàn hơn nếu ID có thể thay đổi)
-    // const studentRole = await Role.findOne({ name: 'Student' });
-    // if (!studentRole) {
-    //   return res.status(500).json({ error: 'Default role "Student" not found.' });
-    // }
-    // const defaultRoleId = studentRole._id;
-    // --- KẾT THÚC BỔ SUNG ---
 
     const existing = await Account.findOne({ username });
     if (existing) return res.status(400).json({ error: 'Username already exists' });
@@ -35,7 +26,7 @@ router.post('/register', async (req, res) => {
       password: hashedPassword,
       role: defaultRoleId // Gán Role mặc định khi tạo Account
     });
-    // --- KẾT THÚC SỬA ĐỔI ---
+
 
     const savedAccount = await newAccount.save();
 
@@ -59,6 +50,55 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ error: 'An internal server error occurred.' }); // Trả về lỗi chung chung hơn
   }
 });
+
+// Đăng ký cho Business
+router.post('/register-business', async (req, res) => {
+  try {
+    const { username, password, email, userName, location, phone, idBusiness, detail } = req.body;
+
+    const defaultRoleId = '660edabc12eac0f2fc123403';
+
+    const existing = await Account.findOne({ username });
+    if (existing) return res.status(400).json({ error: 'Username already exists' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newAccount = new Account({
+      username,
+      password: hashedPassword,
+      role: defaultRoleId
+    });
+
+    const savedAccount = await newAccount.save();
+
+    const newUser = new User({
+      userName,
+      email,
+      location,
+      phone,
+      idAccount: savedAccount._id
+    });
+
+    const savedUser = await newUser.save();
+
+    const newBusiness = new Business({
+      idBusiness,
+      detail,
+      userId: savedUser._id
+    });
+
+    await newBusiness.save();
+
+    res.status(201).json({ message: 'Business registration successful' });
+  } catch (err) {
+    console.error("Business Registration Error:", err);
+    if (err.name === 'ValidationError') {
+        return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: 'An internal server error occurred.' });
+  }
+});
+
 // Đăng nhập
 router.post('/login', async (req, res) => {
   try {

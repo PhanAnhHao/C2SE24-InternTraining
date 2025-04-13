@@ -40,3 +40,4 @@ app.use('/send-mail', testMailRouter);
 // Chạy server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Để chạy server, chạy lệnh: node server.js hoặc node src/server.js (nếu .env ở ngoài src)

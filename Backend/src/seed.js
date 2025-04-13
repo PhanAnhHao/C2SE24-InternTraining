@@ -1,5 +1,5 @@
 // seed.js
-
+// Để chạy seed, chạy lệnh: node seed.js hoặc node src/seed.js (nếu .env ở ngoài src)
 require('dotenv').config();
 const mongoose = require('mongoose');
 

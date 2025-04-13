@@ -38,6 +38,34 @@
 					"response": []
 				},
 				{
+					"name": "Register Business",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"business_user\",\n  \"password\": \"password123\",\n  \"email\": \"business@example.com\",\n  \"userName\": \"Business Company\",\n  \"location\": \"Business City\",\n  \"phone\": \"0999888555\",\n  \"idBusiness\": \"BUS12345\",\n  \"detail\": \"A company specializing in software development\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register-business",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register-business"
+							]
+						},
+						"description": "Đăng ký tài khoản doanh nghiệp (Role Business)"
+					},
+					"response": []
+				},
+				{
 					"name": "Login",
 					"event": [
 						{
@@ -147,6 +175,28 @@
 				},
 				{
 					"name": "Get All Accounts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của account đầu tiên vào biến collection 'accountId'",
+									"if (pm.response.code === 200) {",
+									"    const accounts = pm.response.json();",
+									"    if (accounts && accounts.length > 0) {",
+									"        pm.collectionVariables.set(\"accountId\", accounts[0]._id);",
+									"        console.log(`Saved first account ID to collection variable 'accountId': ${accounts[0]._id}`);",
+									"    } else {",
+									"        console.log('No accounts found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get accounts.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -162,6 +212,78 @@
 							]
 						},
 						"description": "Lấy danh sách tất cả tài khoản"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Account by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts/account/{{accountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"account",
+								"{{accountId}}"
+							]
+						},
+						"description": "Lấy thông tin chi tiết của tài khoản theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Account",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"updated_username\",\n  \"email\": \"updated@example.com\",\n  \"roleId\": \"660edabc12eac0f2fc123403\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts/update-account/{{accountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"update-account",
+								"{{accountId}}"
+							]
+						},
+						"description": "Cập nhật thông tin tài khoản theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts/delete-account/{{accountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"delete-account",
+								"{{accountId}}"
+							]
+						},
+						"description": "Xóa tài khoản theo ID"
 					},
 					"response": []
 				}
@@ -1370,6 +1492,12 @@
 			"value": "",
 			"type": "string",
 			"description": "JWT Token nhận được sau khi Login"
+		},
+		{
+			"key": "accountId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Account (lấy từ GET /api/accounts/all-accounts)"
 		},
 		{
 			"key": "studentId",
