@@ -14,8 +14,8 @@ router.post('/register', async (req, res) => {
 
     const defaultRoleId = '660edabc12eac0f2fc123402';
 
-    const existing = await Account.findOne({ username });
-    if (existing) return res.status(400).json({ error: 'Username already exists' });
+    const existing = await Account.findOne({ email });
+    if (existing) return res.status(400).json({ error: 'Email already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -58,8 +58,8 @@ router.post('/register-business', async (req, res) => {
 
     const defaultRoleId = '660edabc12eac0f2fc123403';
 
-    const existing = await Account.findOne({ username });
-    if (existing) return res.status(400).json({ error: 'Username already exists' });
+    const existing = await Account.findOne({ email });
+    if (existing) return res.status(400).json({ error: 'Email already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 

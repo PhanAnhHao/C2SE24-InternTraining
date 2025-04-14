@@ -11,13 +11,14 @@ const testRouter = require('./routes/testRouter');
 const questionRouter = require('./routes/questionRouter');
 const authRouter = require('./routes/authRouter');
 const testMailRouter = require('./routes/testMailRouter');
+const cors = require("cors");
 
 
 require('dotenv').config();
 
 const app = express();
 app.use(express.json()); // Để phân tích JSON trong body của request
-
+app.use(cors());
 // Kết nối đến MongoDB
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
