@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Account = require('../models/Account');
 const Role = require('../models/Role');
+const bcrypt = require('bcrypt');
 
 // Route tạo tài khoản mới
 router.post('/add-account', async (req, res) => {
@@ -14,11 +15,14 @@ router.post('/add-account', async (req, res) => {
       return res.status(400).json({ message: 'Role not found' });
     }
 
+    // Hash password trước khi lưu
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Tạo tài khoản mới với role liên kết
     const newAccount = new Account({
       username,
       email,
-      password,
+      password: hashedPassword,
       role: role._id
     });
 
@@ -63,7 +67,10 @@ router.put('/update-account/:id', async (req, res) => {
     // Chỉ cập nhật các trường được gửi lên
     if (username) updateData.username = username;
     if (email) updateData.email = email;
-    if (password) updateData.password = password;
+    if (password) {
+      // Hash password trước khi cập nhật
+      updateData.password = await bcrypt.hash(password, 10);
+    }
     
     // Kiểm tra nếu có thay đổi roleId
     if (roleId) {
