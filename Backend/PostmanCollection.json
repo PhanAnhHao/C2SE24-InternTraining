@@ -1,0 +1,1551 @@
+{
+	"info": {
+		"_postman_id": "YOUR_COLLECTION_ID",
+		"name": "Backend Project API (Updated)",
+		"description": "API collection for the Node.js backend project, including CRUD operations.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"newuser_postman\",\n  \"password\": \"password123\",\n  \"email\": \"newuser_postman@example.com\",\n  \"userName\": \"Postman Tester\",\n  \"location\": \"Postman City\",\n  \"phone\": \"0999888777\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Đăng ký người dùng mới (mặc định Role Student)"
+					},
+					"response": []
+				},
+				{
+					"name": "Register Business",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"business_user\",\n  \"password\": \"password123\",\n  \"email\": \"business@example.com\",\n  \"userName\": \"Business Company\",\n  \"location\": \"Business City\",\n  \"phone\": \"0999888555\",\n  \"idBusiness\": \"BUS12345\",\n  \"detail\": \"A company specializing in software development\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register-business",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register-business"
+							]
+						},
+						"description": "Đăng ký tài khoản doanh nghiệp (Role Business)"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Tự động lưu token vào biến collection 'token'",
+									"if (pm.response.code === 200) {",
+									"    pm.collectionVariables.set(\"token\", pm.response.json().token);",
+									"    console.log('Token saved to collection variable: token');",
+									"} else {",
+									"    console.log('Login failed or did not return a token.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"student01\",\n  \"password\": \"student123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Đăng nhập để lấy JWT Token. Token sẽ tự động lưu vào biến {{token}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						},
+						"description": "Lấy thông tin người dùng đang đăng nhập (yêu cầu token)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Accounts",
+			"item": [
+				{
+					"name": "Add Account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"manual_account\",\n  \"email\": \"manual@example.com\",\n  \"password\": \"manualpass\",\n  \"roleId\": \"660edabc12eac0f2fc123403\"  // Thay bằng ObjectId của Role mong muốn (vd: Business)\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts/add-account",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"add-account"
+							]
+						},
+						"description": "Tạo tài khoản với Role ID cụ thể"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Accounts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của account đầu tiên vào biến collection 'accountId'",
+									"if (pm.response.code === 200) {",
+									"    const accounts = pm.response.json();",
+									"    if (accounts && accounts.length > 0) {",
+									"        pm.collectionVariables.set(\"accountId\", accounts[0]._id);",
+									"        console.log(`Saved first account ID to collection variable 'accountId': ${accounts[0]._id}`);",
+									"    } else {",
+									"        console.log('No accounts found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get accounts.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts/all-accounts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"all-accounts"
+							]
+						},
+						"description": "Lấy danh sách tất cả tài khoản"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Account by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts/account/{{accountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"account",
+								"{{accountId}}"
+							]
+						},
+						"description": "Lấy thông tin chi tiết của tài khoản theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Account",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"updated_username\",\n  \"email\": \"updated@example.com\",\n  \"roleId\": \"660edabc12eac0f2fc123403\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts/update-account/{{accountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"update-account",
+								"{{accountId}}"
+							]
+						},
+						"description": "Cập nhật thông tin tài khoản theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts/delete-account/{{accountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"accounts",
+								"delete-account",
+								"{{accountId}}"
+							]
+						},
+						"description": "Xóa tài khoản theo ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "Add Role",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"SupportStaff\",\n  \"description\": \"Nhân viên hỗ trợ\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/roles/add-role",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"add-role"
+							]
+						},
+						"description": "Tạo Role mới"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Students",
+			"item": [
+				{
+					"name": "Create Student",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idStudent\": \"S_POSTMAN\",\n  \"age\": 21,\n  \"school\": \"Đại học Postman\",\n  \"course\": \"API Testing\",\n  \"englishSkill\": \"Advanced\",\n  \"userId\": \"<ObjectId_User_Co_Role_Student>\" // Lấy từ GET /users hoặc DB\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/students",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students"
+							]
+						},
+						"description": "Tạo hồ sơ Student mới (cần userId hợp lệ)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Students",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Tự động lưu _id của student đầu tiên vào biến collection 'studentId'",
+									"if (pm.response.code === 200) {",
+									"    const students = pm.response.json();",
+									"    if (students && students.length > 0) {",
+									"        pm.collectionVariables.set(\"studentId\", students[0]._id);",
+									"        console.log(`Saved first student ID to collection variable 'studentId': ${students[0]._id}`);",
+									"    } else {",
+									"        console.log('No students found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get students.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/students",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students"
+							]
+						},
+						"description": "Lấy danh sách Students. Lưu _id student đầu tiên vào {{studentId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Student by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/students/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"{{studentId}}"
+							]
+						},
+						"description": "Lấy thông tin Student theo {{studentId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Student",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"school\": \"Đại học Postman Updated\",\n  \"age\": 22\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/students/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"{{studentId}}"
+							]
+						},
+						"description": "Cập nhật thông tin Student theo {{studentId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Student",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/students/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"{{studentId}}"
+							]
+						},
+						"description": "Xóa Student theo {{studentId}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Businesses",
+			"item": [
+				{
+					"name": "Create Business",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idBusiness\": \"B_POSTMAN\",\n  \"detail\": \"Công ty Postman Solutions\",\n  \"userId\": \"<ObjectId_User_Co_Role_Business>\" // Lấy từ GET /users hoặc DB\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"businesses"
+							]
+						},
+						"description": "Tạo hồ sơ Business mới (cần userId hợp lệ)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Businesses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Tự động lưu _id của business đầu tiên vào biến collection 'businessId'",
+									"if (pm.response.code === 200) {",
+									"    const businesses = pm.response.json();",
+									"    if (businesses && businesses.length > 0) {",
+									"        pm.collectionVariables.set(\"businessId\", businesses[0]._id);",
+									"        console.log(`Saved first business ID to collection variable 'businessId': ${businesses[0]._id}`);",
+									"    } else {",
+									"        console.log('No businesses found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get businesses.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/businesses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"businesses"
+							]
+						},
+						"description": "Lấy danh sách Businesses. Lưu _id business đầu tiên vào {{businessId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Business by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"businesses",
+								"{{businessId}}"
+							]
+						},
+						"description": "Lấy thông tin Business theo {{businessId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Business",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"detail\": \"Công ty Postman Solutions - Tuyển dụng API Tester\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"businesses",
+								"{{businessId}}"
+							]
+						},
+						"description": "Cập nhật thông tin Business theo {{businessId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Business",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/businesses/{{businessId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"businesses",
+								"{{businessId}}"
+							]
+						},
+						"description": "Xóa Business theo {{businessId}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Languages",
+			"item": [
+				{
+					"name": "Create Language",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"languageId\": \"KOTLIN\",\n  \"name\": \"Kotlin Lang\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/languages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"languages"
+							]
+						},
+						"description": "Tạo Language mới"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Languages",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của language đầu tiên vào biến collection 'languageId'",
+									"if (pm.response.code === 200) {",
+									"    const languages = pm.response.json();",
+									"    if (languages && languages.length > 0) {",
+									"        pm.collectionVariables.set(\"languageId\", languages[0]._id);",
+									"        console.log(`Saved first language ID to collection variable 'languageId': ${languages[0]._id}`);",
+									"    } else {",
+									"        console.log('No languages found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get languages.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/languages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"languages"
+							]
+						},
+						"description": "Lấy danh sách Languages. Lưu _id language đầu tiên vào {{languageId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Language by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/languages/{{languageId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"languages",
+								"{{languageId}}"
+							]
+						},
+						"description": "Lấy thông tin Language theo {{languageId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Language",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Kotlin for Android\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/languages/{{languageId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"languages",
+								"{{languageId}}"
+							]
+						},
+						"description": "Cập nhật thông tin Language theo {{languageId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Language",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/languages/{{languageId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"languages",
+								"{{languageId}}"
+							]
+						},
+						"description": "Xóa Language theo {{languageId}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Courses",
+			"item": [
+				{
+					"name": "Create Course",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idCourse\": \"C_POSTMAN\",\n  \"infor\": \"Khóa học Postman Nâng cao\",\n  \"languageID\": \"<ObjectId_Cua_Language_JS>\", // Thay bằng ObjectId của Language JS hoặc language khác\n  \"rating\": 4.7\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							]
+						},
+						"description": "Tạo Course mới (cần languageID hợp lệ)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Courses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của course đầu tiên vào biến collection 'courseId'",
+									"if (pm.response.code === 200) {",
+									"    const courses = pm.response.json();",
+									"    if (courses && courses.length > 0) {",
+									"        pm.collectionVariables.set(\"courseId\", courses[0]._id);",
+									"        console.log(`Saved first course ID to collection variable 'courseId': ${courses[0]._id}`);",
+									"    } else {",
+									"        console.log('No courses found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get courses.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							]
+						},
+						"description": "Lấy danh sách Courses. Lưu _id course đầu tiên vào {{courseId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Course by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}"
+							]
+						},
+						"description": "Lấy thông tin Course theo {{courseId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Course",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"infor\": \"Khóa học Postman Nâng cao và Tự động hóa Test\",\n  \"rating\": 4.8\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/courses/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}"
+							]
+						},
+						"description": "Cập nhật thông tin Course theo {{courseId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Course",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}"
+							]
+						},
+						"description": "Xóa Course theo {{courseId}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lessons",
+			"item": [
+				{
+					"name": "Create Lesson",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idLesson\": \"L_POSTMAN\",\n  \"idCourse\": \"<ObjectId_Cua_Course>\", // Thay bằng ObjectId của Course mong muốn\n  \"name\": \"Bài học về Variables trong Postman\",\n  \"content\": \"Cách sử dụng biến môi trường, collection, global.\",\n  \"linkVideo\": \"http://example.com/postman_vars\",\n  \"status\": \"published\",\n  \"idTest\": \"<ObjectId_Cua_Test>\" // Thay bằng ObjectId của Test liên quan (nếu có)\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							]
+						},
+						"description": "Tạo Lesson mới (cần idCourse, idTest hợp lệ)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Lessons",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của lesson đầu tiên vào biến collection 'lessonId'",
+									"if (pm.response.code === 200) {",
+									"    const lessons = pm.response.json();",
+									"    if (lessons && lessons.length > 0) {",
+									"        pm.collectionVariables.set(\"lessonId\", lessons[0]._id);",
+									"        console.log(`Saved first lesson ID to collection variable 'lessonId': ${lessons[0]._id}`);",
+									"    } else {",
+									"        console.log('No lessons found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get lessons.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							]
+						},
+						"description": "Lấy danh sách Lessons. Lưu _id lesson đầu tiên vào {{lessonId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Lesson by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}"
+							]
+						},
+						"description": "Lấy thông tin Lesson theo {{lessonId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Lesson",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Bài học về Scripting trong Postman\",\n  \"status\": \"draft\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}"
+							]
+						},
+						"description": "Cập nhật thông tin Lesson theo {{lessonId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Lesson",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}"
+							]
+						},
+						"description": "Xóa Lesson theo {{lessonId}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tests",
+			"item": [
+				{
+					"name": "Create Test",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idTest\": \"T_POSTMAN\",\n  \"idLesson\": \"<ObjectId_Cua_Lesson>\", // Thay bằng ObjectId của Lesson\n  \"content\": \"Bài Test về kiến thức Postman cơ bản\",\n  \"idQuestion\": [] // Thêm ObjectId của Question sau\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tests",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tests"
+							]
+						},
+						"description": "Tạo Test mới (cần idLesson hợp lệ)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Tests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của test đầu tiên vào biến collection 'testId'",
+									"if (pm.response.code === 200) {",
+									"    const tests = pm.response.json();",
+									"    if (tests && tests.length > 0) {",
+									"        pm.collectionVariables.set(\"testId\", tests[0]._id);",
+									"        console.log(`Saved first test ID to collection variable 'testId': ${tests[0]._id}`);",
+									"    } else {",
+									"        console.log('No tests found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get tests.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tests",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tests"
+							]
+						},
+						"description": "Lấy danh sách Tests. Lưu _id test đầu tiên vào {{testId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Test by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tests/{{testId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tests",
+								"{{testId}}"
+							]
+						},
+						"description": "Lấy thông tin Test theo {{testId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Test",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Bài Test về kiến thức Postman cơ bản và nâng cao\",\n  \"idQuestion\": [\n      \"<ObjectId_Cua_Question_Da_Tao_1>\", \n      \"<ObjectId_Cua_Question_Da_Tao_2>\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tests/{{testId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tests",
+								"{{testId}}"
+							]
+						},
+						"description": "Cập nhật thông tin Test theo {{testId}} (cần idQuestion hợp lệ)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Test",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tests/{{testId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tests",
+								"{{testId}}"
+							]
+						},
+						"description": "Xóa Test theo {{testId}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Questions",
+			"item": [
+				{
+					"name": "Create Question",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idQuestion\": \"Q_POSTMAN\",\n  \"idTest\": \"<ObjectId_Cua_Test>\", // Thay bằng ObjectId của Test\n  \"question\": \"Biến Collection trong Postman dùng để làm gì?\",\n  \"answer\": \"Lưu trữ giá trị dùng chung trong một Collection.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/questions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions"
+							]
+						},
+						"description": "Tạo Question mới (cần idTest hợp lệ)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Questions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của question đầu tiên vào biến collection 'questionId'",
+									"if (pm.response.code === 200) {",
+									"    const questions = pm.response.json();",
+									"    if (questions && questions.length > 0) {",
+									"        pm.collectionVariables.set(\"questionId\", questions[0]._id);",
+									"        console.log(`Saved first question ID to collection variable 'questionId': ${questions[0]._id}`);",
+									"    } else {",
+									"        console.log('No questions found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get questions.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/questions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions"
+							]
+						},
+						"description": "Lấy danh sách Questions. Lưu _id question đầu tiên vào {{questionId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Question by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/questions/{{questionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions",
+								"{{questionId}}"
+							]
+						},
+						"description": "Lấy thông tin Question theo {{questionId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Question",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"Biến Environment trong Postman dùng để làm gì?\",\n  \"answer\": \"Lưu trữ giá trị cho các môi trường khác nhau (dev, staging, prod).\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/questions/{{questionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions",
+								"{{questionId}}"
+							]
+						},
+						"description": "Cập nhật thông tin Question theo {{questionId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Question",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/questions/{{questionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"questions",
+								"{{questionId}}"
+							]
+						},
+						"description": "Xóa Question theo {{questionId}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User Profile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"Manual User Profile\",\n  \"email\": \"manual@example.com\", \n  \"location\": \"Manual Location\",\n  \"phone\": \"0911223344\",\n  \"idAccount\": \"<ObjectId_Cua_Account_Da_Tao>\" // Thay bằng ObjectId của Account đã tạo mà chưa có User Profile\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Tạo User Profile riêng (cần idAccount hợp lệ)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của user đầu tiên vào biến collection 'userId'",
+									"if (pm.response.code === 200) {",
+									"    const users = pm.response.json();",
+									"    if (users && users.length > 0) {",
+									"        pm.collectionVariables.set(\"userId\", users[0]._id);",
+									"        console.log(`Saved first user ID to collection variable 'userId': ${users[0]._id}`);",
+									"    } else {",
+									"        console.log('No users found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get users.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Lấy danh sách Users. Lưu _id user đầu tiên vào {{userId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Lấy thông tin User theo {{userId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"location\": \"Updated User Location\",\n  \"phone\": \"0999999999\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Cập nhật thông tin User theo {{userId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						},
+						"description": "Xóa User theo {{userId}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Test Mail",
+			"item": [
+				{
+					"name": "Send Test Mail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"to\": \"your_real_email@example.com\",\n  \"subject\": \"Postman Collection Test Mail\",\n  \"message\": \"This email was sent via the Postman collection.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/send-mail",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"send-mail"
+							]
+						},
+						"description": "Gửi email test (cần cấu hình .env và email người nhận thật)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string",
+			"description": "Base URL của API server"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string",
+			"description": "JWT Token nhận được sau khi Login"
+		},
+		{
+			"key": "accountId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Account (lấy từ GET /api/accounts/all-accounts)"
+		},
+		{
+			"key": "studentId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Student (lấy từ GET /students)"
+		},
+		{
+			"key": "businessId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Business (lấy từ GET /businesses)"
+		},
+		{
+			"key": "languageId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Language (lấy từ GET /languages)"
+		},
+		{
+			"key": "courseId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Course (lấy từ GET /courses)"
+		},
+		{
+			"key": "lessonId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Lesson (lấy từ GET /lessons)"
+		},
+		{
+			"key": "testId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Test (lấy từ GET /tests)"
+		},
+		{
+			"key": "questionId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Question (lấy từ GET /questions)"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một User (lấy từ GET /users)"
+		}
+	]
+}

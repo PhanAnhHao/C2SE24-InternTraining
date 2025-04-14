@@ -25,7 +25,7 @@ const Filter = ({ onFilterChange }) => {
                     onChange={handleRatingChange}
                     className="border px-2 py-1 rounded"
                 >
-                    <option value="">Tất cả</option>
+                    <option value="">All</option>
                     <option value="1">1 ★</option>
                     <option value="2">2 ★</option>
                     <option value="3">3 ★</option>
@@ -42,7 +42,7 @@ const Filter = ({ onFilterChange }) => {
                 <input
                     type="text"
                     id="user"
-                    placeholder="Tìm theo tên"
+                    placeholder="Search by name"
                     onChange={handleUserChange}
                     className="border px-2 py-1 rounded"
                 />

@@ -11,11 +11,13 @@ import Layout from './Layout.jsx';
 import AdminLayout from "./AdminLayout.jsx";
 import OnlineLearningManager from './pages/Admin/OnlineLearningManager.jsx';
 import ManageReviews from "./pages/Admin/ManageReviews.jsx";
-import ManageStudent from './pages/Admin/ManageStudent.jsx';
+import ManageAccount from './pages/Admin/ManageAccount.jsx';
 import ManageStudentTest from './pages/Admin/ManageStudentTest.jsx';
 import ManageCourse from './pages/Admin/ManageCourse.jsx';
 import Dashboard from './pages/Admin/Dashboard.jsx';
 import BlogDetail from './pages/BlogDetail.jsx';
+import StudentProfile from './component/UserProfile/StudentProfile.jsx';
+import BusinessProfile from './component/UserProfile/BusinessProfile.jsx';
 
 const NotFound = () => {
   return (
@@ -35,13 +37,16 @@ function App() {
           <Route path="/course/1" element={<CourseDetailPage />} />
           <Route path="/blog-page" element={<BlogPage />} />
           <Route path="/blog-detail" element={<BlogDetail />} />
+          <Route path="/student-profile" element={<StudentProfile />} />
+          <Route path="/business-profile" element={<BusinessProfile />} />
+
         </Route>
-        <Route path="/user-login" element={<LoginPage />} />
-        <Route path="/user-register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
-          <Route path="/admin/students" element={<ManageStudent />} />
+          <Route path="/admin/accounts" element={<ManageAccount />} />
           <Route path="/admin/students-test" element={<ManageStudentTest />} />
           <Route path="/admin/courses" element={<ManageCourse />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />

@@ -61,7 +61,15 @@ router.post('/login', async (req, res) => {
 const authMiddleware = require('../middlewares/authMiddleware');
 router.get('/me', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findOne({ idAccount: req.user.id }).populate('idAccount', 'username');
+    const user = await User.findOne({ idAccount: req.user.id })
+      .populate({
+        path: 'idAccount',
+        select: 'username role',
+        populate: {
+          path: 'role',
+          select: 'name description'
+        }
+      });
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });

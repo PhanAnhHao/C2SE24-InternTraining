@@ -1,12 +1,12 @@
 // seed.js
-
+// Để chạy seed, chạy lệnh: node seed.js hoặc node src/seed.js (nếu .env ở ngoài src)
 require('dotenv').config();
 const mongoose = require('mongoose');
 
 const uri = process.env.MONGO_URI || 'mongodb+srv://PhanAnhHao:anhhao1234567@clustertandinh.ass8o.mongodb.net/test?retryWrites=true&w=majority';
 mongoose.connect(uri)
-  .then(() => console.log('✅ Đã kết nối MongoDB'))
-  .catch(err => console.error('❌ Kết nối MongoDB thất bại:', err));
+  .then(() => console.log('Đã kết nối MongoDB'))
+  .catch(err => console.error('Kết nối MongoDB thất bại:', err));
 
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -120,10 +120,10 @@ async function seed() {
       await Test.findByIdAndUpdate(testIds[i], { idQuestion: [questionIds[i]] });
     }
 
-    console.log('✅ Seed Intern Training Data thành công!');
+    console.log('Seed Intern Training Data thành công!');
     process.exit();
   } catch (error) {
-    console.error('❌ Lỗi khi seed dữ liệu:', error);
+    console.error('Lỗi khi seed dữ liệu:', error);
     process.exit(1);
   }
 }

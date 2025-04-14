@@ -78,33 +78,33 @@ export default function StudentProgress() {
     return (
         <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200 p-6">
             <h2 className="text-3xl font-bold text-center text-gray-700 mb-2">
-                Theo dõi tiến trình học viên
+                Student Progress Tracking
             </h2>
             <p className="text-xl text-center text-gray-600 mb-6">
-                Khóa học: {courseName}
+                Course: {courseName}
             </p>
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-gray-700">
                     <thead>
                     <tr className="bg-[#4FD1C5] text-white text-left uppercase">
-                        <th className="px-6 py-3 font-semibold">STT</th>
+                        <th className="px-6 py-3 font-semibold">No.</th>
                         <th
                             className="px-6 py-3 font-semibold cursor-pointer select-none"
                             onClick={() => handleSort("name")}
                         >
-                            Tên học viên {getSortIndicator("name")}
+                            Student Name {getSortIndicator("name")}
                         </th>
                         <th
                             className="px-6 py-3 font-semibold cursor-pointer select-none"
                             onClick={() => handleSort("startDate")}
                         >
-                            Ngày bắt đầu học {getSortIndicator("startDate")}
+                            Start Date {getSortIndicator("startDate")}
                         </th>
                         <th
                             className="px-6 py-3 font-semibold cursor-pointer select-none"
                             onClick={() => handleSort("progress")}
                         >
-                            Tiến độ {getSortIndicator("progress")}
+                            Progress {getSortIndicator("progress")}
                         </th>
                     </tr>
                     </thead>
@@ -120,9 +120,9 @@ export default function StudentProgress() {
                             <td className="px-6 py-2">
                                 <div className="relative">
                                     <div className="flex justify-between mb-1">
-                      <span className="text-sm font-medium text-[#4FD1C5]">
-                        {student.progress}%
-                      </span>
+                                    <span className="text-sm font-medium text-[#4FD1C5]">
+                                        {student.progress}%
+                                    </span>
                                         <span className="text-sm font-medium text-gray-400">100%</span>
                                     </div>
                                     <div className="w-full bg-gray-300 rounded-full h-4">
@@ -140,4 +140,5 @@ export default function StudentProgress() {
             </div>
         </div>
     );
+
 }
