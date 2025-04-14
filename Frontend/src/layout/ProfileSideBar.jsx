@@ -24,7 +24,7 @@ const ProfileSideBar = ({ role }) => {
         {
             icon: <LogOut size={18} />,
             label: "Log out",
-            path: "/logout",
+            path: "/login",
             danger: true,
         },
     ];
