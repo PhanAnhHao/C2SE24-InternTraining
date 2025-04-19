@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEyeSlash, FaEye } from 'react-icons/fa';
 import axios from 'axios';
@@ -8,6 +8,7 @@ const RegisterPage = () => {
     const navigate = useNavigate();
 
     const [showPassword, setShowPassword] = useState(false);
+    const [role, setRole] = useState("");
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -15,12 +16,22 @@ const RegisterPage = () => {
         userName: '',
         location: '',
         phone: '',
-        role: 'student'
+        role: role
     });
 
     const [errors, setErrors] = useState({});
     const [showSuccess, setShowSuccess] = useState(false);
     const [apiError, setApiError] = useState('');
+
+    const handleRole = (role) => {
+        setRole(role);
+    }
+
+    useEffect(() => {
+        if (!role) {
+            setRole('student');
+        }
+    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -61,7 +72,7 @@ const RegisterPage = () => {
             const response = await axios.post("http://localhost:5000/auth/register", formData);
             console.log('Register success:', response.data);
             setShowSuccess(true);
-            setTimeout(() => navigate('/user-login'), 2000);
+            setTimeout(() => navigate('/login'), 2000);
         } catch (error) {
             console.error('Register error:', error);
             if (error.response && error.response.data && error.response.data.message) {
@@ -101,19 +112,19 @@ const RegisterPage = () => {
                 <span className='ml-4 font-semibold text-sky-500 hover:underline'> Home &lt;&lt;</span>
             </div>
 
-            <div className="flex flex-col md:flex-row h-screen w-screen gap-0">
-                <div className="hidden md:flex md:w-1/3 bg-gray-20 items-center justify-center p-2 ml-80">
+            <div className="flex flex-col md:flex-row h-screen w-screen gap-0 mt-[50px]">
+                <div className="hidden md:flex md:w-1/3 bg-gray-20 items-center justify-center p-2 ml-80 mt-5">
                     <div className="max-w-lg scale-190">
                         <img src={theme_log} alt="Student with books" className="w-[96%]" />
                     </div>
                 </div>
 
-                <div className="w-full md:w-1/2 flex items-center justify-center p-5 mt-[70px]  mr-[20px] bg-white">
+                <div className="w-full md:w-1/2 flex items-center justify-center p-5 mt-[400px] mr-[20px] bg-white">
                     <div className="w-full max-w-md mx-auto px-6 py-8 bg-white rounded-lg shadow-md ml-50">
                         <div className="text-center mb-8">
                             <h1 className="text-2xl font-semibold mb-2">Welcome to Lorem!</h1>
                             <div className="flex justify-center space-x-4 mb-6">
-                                <Link to="/user-login" className="w-32">
+                                <Link to="/login" className="w-32">
                                     <button className="w-full bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition-colors">
                                         Login
                                     </button>
@@ -128,6 +139,21 @@ const RegisterPage = () => {
                         </div>
 
                         <form onSubmit={handleSubmit} className="w-full space-y-4">
+                            <p>Choose your role, What do you wanna be? <span className='font-semibold text-red-500'>(Required*)</span></p>
+                            <div className="role-buttons flex gap-3">
+                                <button
+                                    className={role === 'student'
+                                        ? "w-full bg-teal-400 text-white px-6 py-2 rounded-full hover:bg-teal-500 transition-colors"
+                                        : "w-full bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition-colors"}
+                                    onClick={() => handleRole('student')}
+                                >Student</button>
+                                <button className={role === 'business'
+                                    ? "w-full bg-teal-400 text-white px-6 py-2 rounded-full hover:bg-teal-500 transition-colors"
+                                    : "w-full bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition-colors"}
+                                    onClick={() => handleRole('business')}
+                                >Business
+                                </button>
+                            </div>
                             {[
                                 { label: "Username", name: "username", type: "text", placeholder: "Enter your Username" },
                                 { label: "Password", name: "password", type: showPassword ? "text" : "password", placeholder: "Enter your Password", isPassword: true },

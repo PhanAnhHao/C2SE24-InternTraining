@@ -17,6 +17,7 @@ import ManageCourse from './pages/Admin/ManageCourse.jsx';
 import Dashboard from './pages/Admin/Dashboard.jsx';
 import BlogDetail from './pages/BlogDetail.jsx';
 import CreateCoursePage from "./pages/CreateCoursePage.jsx";
+import Profile from './component/Profile/Profile.js
 
 const NotFound = () => {
   return (
@@ -36,9 +37,11 @@ function App() {
           <Route path="/course/1" element={<CourseDetailPage />} />
           <Route path="/blog-page" element={<BlogPage />} />
           <Route path="/blog-detail" element={<BlogDetail />} />
+          <Route path="/profile" element={<Profile />} />
+
         </Route>
-        <Route path="/user-login" element={<LoginPage />} />
-        <Route path="/user-register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="/admin/online-learning" element={<OnlineLearningManager />} />

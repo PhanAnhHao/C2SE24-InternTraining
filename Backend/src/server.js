@@ -11,13 +11,14 @@ const testRouter = require('./routes/testRouter');
 const questionRouter = require('./routes/questionRouter');
 const authRouter = require('./routes/authRouter');
 const testMailRouter = require('./routes/testMailRouter');
+const cors = require("cors");
 
 
 require('dotenv').config();
 
 const app = express();
 app.use(express.json()); // Để phân tích JSON trong body của request
-
+app.use(cors());
 // Kết nối đến MongoDB
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
@@ -40,3 +41,4 @@ app.use('/send-mail', testMailRouter);
 // Chạy server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Để chạy server, chạy lệnh: node server.js hoặc node src/server.js (nếu .env ở ngoài src)
