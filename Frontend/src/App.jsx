@@ -53,12 +53,11 @@ function App() {
 
           <Route path="/business/create-course" element={<CreateCoursePage />} />
 
+        {/*Test*/}
 
-        {/*test*/}
         <Route path="*" element={<NotFound />} />
       </Routes>
-
-
+    </Router>
   );
 }
 
