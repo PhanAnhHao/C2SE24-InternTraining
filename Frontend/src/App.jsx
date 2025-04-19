@@ -16,6 +16,7 @@ import ManageStudentTest from './pages/Admin/ManageStudentTest.jsx';
 import ManageCourse from './pages/Admin/ManageCourse.jsx';
 import Dashboard from './pages/Admin/Dashboard.jsx';
 import BlogDetail from './pages/BlogDetail.jsx';
+import CreateCoursePage from "./pages/CreateCoursePage.jsx";
 
 const NotFound = () => {
   return (
@@ -48,6 +49,11 @@ function App() {
           <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
           <Route path="/admin/reviews" element={<ManageReviews />} />
         </Route>
+
+
+          <Route path="/business/create-course" element={<CreateCoursePage />} />
+
+
 
         <Route path="*" element={<NotFound />} />
       </Routes>
