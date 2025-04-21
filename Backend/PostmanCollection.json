@@ -138,6 +138,44 @@
 						"description": "Lấy thông tin người dùng đang đăng nhập (yêu cầu token)"
 					},
 					"response": []
+				},
+				{
+					"name": "Edit Current User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"Updated User Name\",\n  \"email\": \"updated_email@example.com\",\n  \"location\": \"Updated Location\",\n  \"phone\": \"0987654321\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/edit-me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"edit-me"
+							]
+						},
+						"description": "Cập nhật thông tin người dùng đang đăng nhập (yêu cầu token)"
+					},
+					"response": []
 				}
 			]
 		},
@@ -1458,6 +1496,520 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "History",
+			"item": [
+				{
+					"name": "Create History",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentId\": \"<ObjectId_Of_Student>\",\n  \"testId\": \"<ObjectId_Of_Test>\",\n  \"score\": 85,\n  \"passed\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/history",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history"
+							]
+						},
+						"description": "Tạo lịch sử làm bài với điểm số"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All History",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của history đầu tiên vào biến collection 'historyId'",
+									"if (pm.response.code === 200) {",
+									"    const histories = pm.response.json();",
+									"    if (histories && histories.length > 0) {",
+									"        pm.collectionVariables.set(\"historyId\", histories[0]._id);",
+									"        console.log(`Saved first history ID to collection variable 'historyId': ${histories[0]._id}`);",
+									"    } else {",
+									"        console.log('No history found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get history.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/history",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history"
+							]
+						},
+						"description": "Lấy tất cả lịch sử làm bài. Lưu _id history đầu tiên vào {{historyId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get History by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/history/{{historyId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history",
+								"{{historyId}}"
+							]
+						},
+						"description": "Lấy thông tin chi tiết của history theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get History by Student",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/history/student/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history",
+								"student",
+								"{{studentId}}"
+							]
+						},
+						"description": "Lấy lịch sử làm bài của một học viên cụ thể"
+					},
+					"response": []
+				},
+				{
+					"name": "Update History",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"score\": 90,\n  \"passed\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/history/{{historyId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history",
+								"{{historyId}}"
+							]
+						},
+						"description": "Cập nhật thông tin lịch sử làm bài theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete History",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/history/{{historyId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history",
+								"{{historyId}}"
+							]
+						},
+						"description": "Xóa history theo ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Answers",
+			"item": [
+				{
+					"name": "Submit Answer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Đây là câu trả lời của tôi\",\n  \"questionId\": \"<ObjectId_Of_Question>\",\n  \"userId\": \"<ObjectId_Of_User>\",\n  \"isCorrect\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/answers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers"
+							]
+						},
+						"description": "Gửi câu trả lời cho câu hỏi"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Answers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của answer đầu tiên vào biến collection 'answerId'",
+									"if (pm.response.code === 200) {",
+									"    const answers = pm.response.json();",
+									"    if (answers && answers.length > 0) {",
+									"        pm.collectionVariables.set(\"answerId\", answers[0]._id);",
+									"        console.log(`Saved first answer ID to collection variable 'answerId': ${answers[0]._id}`);",
+									"    } else {",
+									"        console.log('No answers found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get answers.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers"
+							]
+						},
+						"description": "Lấy tất cả câu trả lời. Lưu _id answer đầu tiên vào {{answerId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Answer by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answers/{{answerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers",
+								"{{answerId}}"
+							]
+						},
+						"description": "Lấy thông tin chi tiết của câu trả lời theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Answers by User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answers/user/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers",
+								"user",
+								"{{userId}}"
+							]
+						},
+						"description": "Lấy tất cả câu trả lời của một người dùng cụ thể"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Answers by Question",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answers/question/{{questionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers",
+								"question",
+								"{{questionId}}"
+							]
+						},
+						"description": "Lấy tất cả câu trả lời cho một câu hỏi cụ thể"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Answer",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Đây là câu trả lời đã cập nhật\",\n  \"isCorrect\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/answers/{{answerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers",
+								"{{answerId}}"
+							]
+						},
+						"description": "Cập nhật thông tin câu trả lời theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Answer",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answers/{{answerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers",
+								"{{answerId}}"
+							]
+						},
+						"description": "Xóa câu trả lời theo ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ratings",
+			"item": [
+				{
+					"name": "Add Rating",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentId\": \"<ObjectId_Of_Student>\",\n  \"courseId\": \"<ObjectId_Of_Course>\",\n  \"stars\": 4.5,\n  \"feedback\": \"Khóa học rất hay và bổ ích\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						},
+						"description": "Thêm đánh giá mới cho khóa học"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Ratings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của rating đầu tiên vào biến collection 'ratingId'",
+									"if (pm.response.code === 200) {",
+									"    const ratings = pm.response.json();",
+									"    if (ratings && ratings.length > 0) {",
+									"        pm.collectionVariables.set(\"ratingId\", ratings[0]._id);",
+									"        console.log(`Saved first rating ID to collection variable 'ratingId': ${ratings[0]._id}`);",
+									"    } else {",
+									"        console.log('No ratings found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get ratings.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings"
+							]
+						},
+						"description": "Lấy tất cả đánh giá. Lưu _id rating đầu tiên vào {{ratingId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Rating by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{ratingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{ratingId}}"
+							]
+						},
+						"description": "Lấy thông tin chi tiết của đánh giá theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Ratings by Course",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/course/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"course",
+								"{{courseId}}"
+							]
+						},
+						"description": "Lấy tất cả đánh giá cho một khóa học cụ thể và điểm trung bình"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Ratings by Student",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/student/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"student",
+								"{{studentId}}"
+							]
+						},
+						"description": "Lấy tất cả đánh giá của một học viên cụ thể"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rating",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"stars\": 5,\n  \"feedback\": \"Đánh giá đã được cập nhật, khóa học xuất sắc\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{ratingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{ratingId}}"
+							]
+						},
+						"description": "Cập nhật thông tin đánh giá theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rating",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{ratingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{ratingId}}"
+							]
+						},
+						"description": "Xóa đánh giá theo ID"
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -1546,6 +2098,24 @@
 			"value": "",
 			"type": "string",
 			"description": "ObjectId của một User (lấy từ GET /users)"
+		},
+		{
+			"key": "historyId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một History (lấy từ GET /history)"
+		},
+		{
+			"key": "answerId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Answer (lấy từ GET /answers)"
+		},
+		{
+			"key": "ratingId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Rating (lấy từ GET /ratings)"
 		}
 	]
 }
