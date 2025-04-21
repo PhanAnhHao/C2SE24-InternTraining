@@ -15,8 +15,8 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
     };
 
     const handleEditLesson = (index) => {
-        onEditLesson(index); // Gọi hàm từ CourseManager để cập nhật editingLesson
-        setShowAddLessonForm(true); // Hiển thị form
+        onEditLesson(index);
+        setShowAddLessonForm(true);
     };
 
     const handleDeleteLesson = (index) => {
@@ -25,7 +25,7 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
 
     const handleCancel = () => {
         setShowAddLessonForm(false);
-        onCancelEdit(); // Gọi hàm từ CourseManager để thoát chế độ chỉnh sửa
+        onCancelEdit();
     };
 
     return (
@@ -34,7 +34,7 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
             {lessons.map((lesson, idx) => (
                 <LessonItem
                     key={idx}
-                    title={lesson.title}
+                    lessonName={lesson.name}
                     color={lesson.color || colors[idx % colors.length]}
                     onEdit={() => handleEditLesson(idx)}
                     onDelete={() => handleDeleteLesson(idx)}
@@ -60,11 +60,9 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
                         <CreateLessonForm
                             onSubmit={(lesson) => {
                                 if (editingLesson) {
-                                    // Nếu đang chỉnh sửa, giữ nguyên màu sắc hiện tại
                                     const updatedLesson = { ...lesson, color: editingLesson.lesson.color };
                                     onEditLesson(editingLesson.index, updatedLesson);
                                 } else {
-                                    // Nếu thêm mới, gán màu mới
                                     handleAddLesson(lesson);
                                 }
                                 setShowAddLessonForm(false);

@@ -1,33 +1,35 @@
 import { useState, useEffect } from "react";
 import LessonHeader from "./LessonHeader.jsx";
+import { v4 as uuidv4 } from 'uuid';
+import { useSnackbar } from "notistack";
 
 const CreateLessonForm = ({ onSubmit, onCancel, editingLesson }) => {
     const [lessonNumber, setLessonNumber] = useState(1);
     const [lessonName, setLessonName] = useState("");
-    const [file, setFile] = useState(null);
+    const [linkVideo, setLinkVideo] = useState("");
     const [desc, setDesc] = useState("");
     const [errors, setErrors] = useState({});
+
+    const { enqueueSnackbar } = useSnackbar();
 
     // Khi editingLesson thay đổi, điền dữ liệu vào form
     useEffect(() => {
         if (editingLesson) {
             const { lesson } = editingLesson;
-            // Giả sử title có dạng "Lesson X: Name"
-            const match = lesson.title.match(/Lesson (\d+): (.+)/);
+            const match = lesson.name.match(/Lesson (\d+): (.+)/);
             if (match) {
                 setLessonNumber(parseInt(match[1]));
                 setLessonName(match[2]);
             } else {
                 setLessonNumber(1);
-                setLessonName(lesson.title);
+                setLessonName(lesson.name);
             }
-            setDesc(lesson.description || "");
-            setFile(lesson.file || null);
+            setDesc(lesson.content || ""); // Đổi description thành content
+            setLinkVideo(lesson.linkVideo || ""); // Điền linkVideo
         } else {
-            // Reset form khi không chỉnh sửa
             setLessonNumber(1);
             setLessonName("");
-            setFile(null);
+            setLinkVideo("");
             setDesc("");
             setErrors({});
         }
@@ -44,13 +46,13 @@ const CreateLessonForm = ({ onSubmit, onCancel, editingLesson }) => {
             newErrors.lessonName = "Lesson name is required.";
         }
 
-        if (!file) {
-            newErrors.file = "Please upload a file.";
+        if (!linkVideo.trim()) {
+            newErrors.linkVideo = "Video link is required.";
         } else {
-            const allowedExtensions = [".mp4", ".txt", ".pdf", ".docx", ".jpg", ".png"];
-            const fileExtension = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
-            if (!allowedExtensions.includes(fileExtension)) {
-                newErrors.file = "Invalid file format. Allowed: mp4, txt, pdf, docx, jpg, png.";
+            // Kiểm tra định dạng URL (tùy chọn)
+            const urlPattern = /^(https?:\/\/[^\s$.?#].[^\s]*)$/;
+            if (!urlPattern.test(linkVideo)) {
+                newErrors.linkVideo = "Please enter a valid URL (e.g., https://example.com).";
             }
         }
 
@@ -66,23 +68,24 @@ const CreateLessonForm = ({ onSubmit, onCancel, editingLesson }) => {
 
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
+            enqueueSnackbar("Please fix the errors in the form.", { variant: "error" });
             return;
         }
 
         const newLesson = {
-            title: `Lesson ${lessonNumber}: ` + lessonName || `Lesson ${lessonNumber}: Untitled`,
-            duration: "30 mins",
-            color: `teal-300`,
-            description: desc,
-            file: file,
+            idLesson: uuidv4(),
+            name: `Lesson ${lessonNumber}: ` + lessonName || `Lesson ${lessonNumber}: Untitled`,
+            content: desc,
+            linkVideo: linkVideo,
+            status: "draft",
         };
+
         onSubmit(newLesson);
 
-        // Reset form
         if (!editingLesson) {
             setLessonNumber(1);
             setLessonName("");
-            setFile(null);
+            setLinkVideo("");
             setDesc("");
             setErrors({});
         }
@@ -111,16 +114,16 @@ const CreateLessonForm = ({ onSubmit, onCancel, editingLesson }) => {
                 />
                 {errors.lessonName && <p className="text-red-500 text-xs mb-2">{errors.lessonName}</p>}
 
-                <h2 className="font-bold mb-2 text-gray-700 text-sm">Upload File</h2>
+                <h2 className="font-bold mb-2 text-gray-700 text-sm">Video Link</h2>
                 <div className="relative w-full mb-4">
                     <input
-                        type="file"
-                        onChange={(e) => setFile(e.target.files[0])}
-                        className={`w-full border ${errors.file ? "border-red-500" : "border-[#D9D9D9]"} p-2 rounded text-gray-700`}
-                        accept=".mp4,.txt,.pdf,.docx,.jpg,.png"
+                        type="text"
+                        value={linkVideo}
+                        onChange={(e) => setLinkVideo(e.target.value)}
+                        placeholder="Paste video link here (e.g., https://example.com/video.mp4)"
+                        className={`w-full border ${errors.linkVideo ? "border-red-500" : "border-[#D9D9D9]"} p-2 rounded mb-4 text-gray-700 placeholder-gray-400`}
                     />
-                    <p className="text-xs text-gray-400 mt-1">mp4, txt, pdf, docx, jpg, png</p>
-                    {errors.file && <p className="text-red-500 text-xs mt-1">{errors.file}</p>}
+                    {errors.linkVideo && <p className="text-red-500 text-xs mb-2">{errors.linkVideo}</p>}
                 </div>
 
                 <h2 className="font-bold mb-2 text-gray-700 text-sm">Lesson Description</h2>
