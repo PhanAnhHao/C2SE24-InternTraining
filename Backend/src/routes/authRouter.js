@@ -45,7 +45,7 @@ router.post('/register', async (req, res) => {
     console.error("Register Error:", err); // Log lỗi ra console để debug dễ hơn
     // Trả về lỗi cụ thể hơn nếu là lỗi validation
     if (err.name === 'ValidationError') {
-        return res.status(400).json({ error: err.message });
+      return res.status(400).json({ error: err.message });
     }
     res.status(500).json({ error: 'An internal server error occurred.' }); // Trả về lỗi chung chung hơn
   }
@@ -93,7 +93,7 @@ router.post('/register-business', async (req, res) => {
   } catch (err) {
     console.error("Business Registration Error:", err);
     if (err.name === 'ValidationError') {
-        return res.status(400).json({ error: err.message });
+      return res.status(400).json({ error: err.message });
     }
     res.status(500).json({ error: 'An internal server error occurred.' });
   }
@@ -121,10 +121,29 @@ router.post('/login', async (req, res) => {
 });
 
 // Lấy thông tin người dùng hiện tại
+// const authMiddleware = require('../middlewares/authMiddleware');
+// router.get('/me', authMiddleware, async (req, res) => {
+//   try {
+//     const user = await User.findOne({ idAccount: req.user.id }).populate('idAccount', 'username');
+//     res.json(user);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+
+// Lấy thông tin người dùng hiện tại
 const authMiddleware = require('../middlewares/authMiddleware');
 router.get('/me', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findOne({ idAccount: req.user.id }).populate('idAccount', 'username');
+    const user = await User.findOne({ idAccount: req.user.id })
+      .populate({
+        path: 'idAccount',
+        select: 'username role',
+        populate: {
+          path: 'role',
+          select: 'name description'
+        }
+      });
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
