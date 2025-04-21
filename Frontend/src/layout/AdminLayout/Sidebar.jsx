@@ -66,7 +66,7 @@ const Sidebar = () => {
                 <ul>
                     <li
                         className="flex items-center p-3 mt-2 hover:bg-gray-200 rounded-lg cursor-pointer"
-                        onClick={() => handleNavigation("/user-login")}
+                        onClick={() => handleNavigation("/login")}
                     >
                         <FaSignOutAlt className="text-teal-500" />
                         <span className="ml-3">Log out</span>

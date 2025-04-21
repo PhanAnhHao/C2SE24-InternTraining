@@ -72,7 +72,7 @@ const RegisterPage = () => {
             const response = await axios.post("http://localhost:5000/auth/register", formData);
             console.log('Register success:', response.data);
             setShowSuccess(true);
-            setTimeout(() => navigate('/user-login'), 2000);
+            setTimeout(() => navigate('/login'), 2000);
         } catch (error) {
             console.error('Register error:', error);
             if (error.response && error.response.data && error.response.data.message) {

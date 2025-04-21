@@ -11,6 +11,9 @@ const testRouter = require('./routes/testRouter');
 const questionRouter = require('./routes/questionRouter');
 const authRouter = require('./routes/authRouter');
 const testMailRouter = require('./routes/testMailRouter');
+const historyRouter = require('./routes/historyRouter'); // New router for History
+const answerRouter = require('./routes/answerRouter'); // New router for Answer
+const ratingRouter = require('./routes/ratingRouter'); // New router for Rating
 const cors = require("cors");
 
 
@@ -37,6 +40,10 @@ app.use('/tests', testRouter);
 app.use('/questions', questionRouter);
 app.use('/auth', authRouter);
 app.use('/send-mail', testMailRouter);
+// Add routes for new collections
+app.use('/history', historyRouter);
+app.use('/answers', answerRouter);
+app.use('/ratings', ratingRouter);
 
 // Chạy server
 const PORT = process.env.PORT || 5000;

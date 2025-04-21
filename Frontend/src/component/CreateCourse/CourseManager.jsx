@@ -1,0 +1,60 @@
+import { useState } from "react";
+import CourseForm from "./CourseForm";
+import LessonList from "./LessonList";
+
+const CourseManager = () => {
+    const [lessons, setLessons] = useState([
+        { title: "Lesson 01: Introduction about XD", duration: "30 mins", description: "", file: null },
+        { title: "Lesson 02: Basics of XD Design", duration: "30 mins", description: "", file: null},
+        { title: "Lesson 03: Advanced XD Features", duration: "30 mins", description: "", file: null },
+        { title: "Lesson 04: XD Prototyping Tips", duration: "30 mins", description: "", file: null },
+    ]);
+    const [editingLesson, setEditingLesson] = useState(null); // Lưu lesson đang chỉnh sửa và chỉ số
+
+    const handleAddLesson = (newLesson) => {
+        if (editingLesson !== null) {
+            // Nếu đang chỉnh sửa, cập nhật lesson thay vì thêm mới
+            const updatedLessons = lessons.map((lesson, idx) =>
+                idx === editingLesson.index ? newLesson : lesson
+            );
+            setLessons(updatedLessons);
+            setEditingLesson(null); // Thoát chế độ chỉnh sửa
+        } else {
+            // Thêm lesson mới
+            setLessons([...lessons, newLesson]);
+        }
+    };
+
+    const handleEditLesson = (index) => {
+        // Lưu thông tin lesson cần chỉnh sửa
+        setEditingLesson({ index, lesson: lessons[index] });
+    };
+
+    const handleDeleteLesson = (index) => {
+        const filteredLessons = lessons.filter((_, idx) => idx !== index);
+        setLessons(filteredLessons);
+        if (editingLesson && editingLesson.index === index) {
+            setEditingLesson(null); // Thoát chế độ chỉnh sửa nếu lesson bị xóa
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditingLesson(null); // Thoát chế độ chỉnh sửa
+    };
+
+    return (
+        <div className="flex">
+            <LessonList
+                lessons={lessons}
+                onAddLesson={handleAddLesson}
+                onEditLesson={handleEditLesson}
+                onDeleteLesson={handleDeleteLesson}
+                editingLesson={editingLesson}
+                onCancelEdit={handleCancelEdit}
+            />
+            <CourseForm lessons={lessons} />
+        </div>
+    );
+};
+
+export default CourseManager;

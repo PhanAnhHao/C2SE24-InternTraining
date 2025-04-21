@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import AvatarDropdown from "./AvatarDropdown";
 
 const Header = () => {
     const navigate = useNavigate();
@@ -15,6 +16,7 @@ const Header = () => {
             setLoggedIn(false);
         }
     }, [loggedIn])
+
     return (
         <header
             className="fixed  top-0 left-0 w-full flex items-center justify-between px-[5%] py-4 bg-white shadow-md z-50">
@@ -40,15 +42,7 @@ const Header = () => {
                 {
                     loggedIn
                         ?
-                        <div className="flex items-center space-x-2 cursor-pointer">
-                            <span className="text-gray-900">Lina</span>
-                            <FontAwesomeIcon icon={faChevronDown} className="text-gray-500 text-sm" />
-                            <img
-                                src="https://randomuser.me/api/portraits/women/44.jpg"
-                                alt="User Avatar"
-                                className="w-8 h-8 rounded-full border"
-                            />
-                        </div>
+                        <AvatarDropdown />
                         :
                         <div className="flex justify-center space-x-4">
                             <Link to="/login" className="w-32">

@@ -63,7 +63,22 @@ const LoginPage = () => {
 
             if (data.token) {
                 localStorage.setItem('token', data.token);
-                navigate('/');
+
+                // Save user role to localStorage
+                if (data.role && data.role.name) {
+                    localStorage.setItem('role', data.role.name);
+                    console.log(data.role.name);
+
+                    // Redirect based on role
+                    if (data.role.name === 'Business') {
+                        navigate('/business-profile');
+                    } else {
+                        navigate('/student-profile');
+                    }
+                } else {
+                    // Default redirect if role is not available
+                    navigate('/');
+                }
             } else {
                 setError('No token received. Please check your credentials.');
             }
@@ -72,8 +87,6 @@ const LoginPage = () => {
             setError('An error occurred. Please try again later.');
         }
     };
-
-
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);

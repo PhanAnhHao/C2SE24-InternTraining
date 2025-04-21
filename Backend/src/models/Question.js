@@ -6,21 +6,33 @@ const QuestionSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  idTest: {
+  content: {
+    type: String,
+    required: true
+  },
+  correct: {
+    type: String,
+    required: true
+  },
+  testId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Test',
     required: true
-  },
-  question: {
-    type: String,
-    required: true
-  },
-  answer: {
-    type: String,
-    required: true
   }
+  // answer field removed - now managed through Answer collection
 }, {
   timestamps: true
 });
+
+// Virtual property to get answers when needed
+QuestionSchema.virtual('answers', {
+  ref: 'Answer',
+  localField: '_id',
+  foreignField: 'questionId'
+});
+
+// Ensure the virtual field is included when converting to JSON
+QuestionSchema.set('toJSON', { virtuals: true });
+QuestionSchema.set('toObject', { virtuals: true });
 
 module.exports = mongoose.model('Question', QuestionSchema);

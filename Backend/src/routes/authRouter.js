@@ -3,23 +3,33 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Account = require('../models/Account');
 const User = require('../models/User');
+const Business = require('../models/Business');
 
 const router = express.Router();
 
-// Đăng ký
+// Đăng ký cho Student
 router.post('/register', async (req, res) => {
   try {
     const { username, password, email, userName, location, phone } = req.body;
 
-    // Kiểm tra trùng username hoặc email
-    const existing = await Account.findOne({ username });
-    if (existing) return res.status(400).json({ error: 'Username already exists' });
+    const defaultRoleId = '660edabc12eac0f2fc123402';
+
+    const existing = await Account.findOne({ email });
+    if (existing) return res.status(400).json({ error: 'Email already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newAccount = new Account({ username, password: hashedPassword });
+
+    // --- SỬA ĐỔI Ở ĐÂY ---
+    // Thêm trường 'role' với giá trị là defaultRoleId
+    const newAccount = new Account({
+      username,
+      password: hashedPassword,
+      role: defaultRoleId // Gán Role mặc định khi tạo Account
+    });
+
+
     const savedAccount = await newAccount.save();
 
-    // Tạo luôn user profile
     const newUser = new User({
       userName,
       email,
@@ -32,7 +42,60 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({ message: 'Register successful' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Register Error:", err); // Log lỗi ra console để debug dễ hơn
+    // Trả về lỗi cụ thể hơn nếu là lỗi validation
+    if (err.name === 'ValidationError') {
+        return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: 'An internal server error occurred.' }); // Trả về lỗi chung chung hơn
+  }
+});
+
+// Đăng ký cho Business
+router.post('/register-business', async (req, res) => {
+  try {
+    const { username, password, email, userName, location, phone, idBusiness, detail } = req.body;
+
+    const defaultRoleId = '660edabc12eac0f2fc123403';
+
+    const existing = await Account.findOne({ email });
+    if (existing) return res.status(400).json({ error: 'Email already exists' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newAccount = new Account({
+      username,
+      password: hashedPassword,
+      role: defaultRoleId
+    });
+
+    const savedAccount = await newAccount.save();
+
+    const newUser = new User({
+      userName,
+      email,
+      location,
+      phone,
+      idAccount: savedAccount._id
+    });
+
+    const savedUser = await newUser.save();
+
+    const newBusiness = new Business({
+      idBusiness,
+      detail,
+      userId: savedUser._id
+    });
+
+    await newBusiness.save();
+
+    res.status(201).json({ message: 'Business registration successful' });
+  } catch (err) {
+    console.error("Business Registration Error:", err);
+    if (err.name === 'ValidationError') {
+        return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: 'An internal server error occurred.' });
   }
 });
 
@@ -73,6 +136,40 @@ router.get('/me', authMiddleware, async (req, res) => {
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Cập nhật thông tin người dùng hiện tại
+router.put('/edit-me', authMiddleware, async (req, res) => {
+  try {
+    const { userName, email, location, phone } = req.body;
+    
+    // Tìm user dựa trên account ID từ token
+    const user = await User.findOne({ idAccount: req.user.id });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Cập nhật các trường nếu được cung cấp
+    if (userName) user.userName = userName;
+    if (email) user.email = email;
+    if (location) user.location = location;
+    if (phone) user.phone = phone;
+    
+    // Lưu thay đổi
+    const updatedUser = await user.save();
+    
+    res.json({
+      message: 'User profile updated successfully',
+      user: updatedUser
+    });
+  } catch (err) {
+    console.error("Update Profile Error:", err);
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: 'An internal server error occurred.' });
   }
 });
 
