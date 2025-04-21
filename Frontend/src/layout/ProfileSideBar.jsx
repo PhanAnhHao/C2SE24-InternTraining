@@ -2,24 +2,22 @@ import React from "react";
 import { Home, BookOpen, KeyRound, LogOut } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
-const ProfileSideBar = ({ role }) => {
-    const isBusiness = role === "Business";
-
+const ProfileSideBar = () => {
     const sidebarItems = [
         {
             icon: <Home size={18} />,
             label: "Profile",
-            path: isBusiness ? "/business-profile" : "/student-profile",
+            path: "/profile",
         },
         {
             icon: <BookOpen size={18} />,
-            label: isBusiness ? "My Courses" : "Courses taken",
-            path: isBusiness ? "/my-courses" : "/courses-taken",
+            label: "My Courses",
+            path: "/my-courses",
         },
         {
             icon: <KeyRound size={18} />,
             label: "Change password",
-            path: "/changepassword",
+            path: "/change-password",
         },
         {
             icon: <LogOut size={18} />,

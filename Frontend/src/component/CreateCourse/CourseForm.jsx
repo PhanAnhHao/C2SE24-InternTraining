@@ -1,32 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import CourseHeader from "./CourseHeader.jsx";
 import { useSnackbar } from "notistack";
+import { v4 as uuidv4 } from 'uuid';
 
 const CourseForm = ({ lessons }) => {
     const [name, setName] = useState("");
     const [desc, setDesc] = useState("");
+    const [languageID, setLanguageID] = useState("");
+    const [languages, setLanguages] = useState([]);
     const [errors, setErrors] = useState({});
 
     const { enqueueSnackbar } = useSnackbar();
 
-    // Hàm validate các trường
+    useEffect(() => {
+        const fetchLanguages = async () => {
+            try {
+                const response = await axios.get("http://localhost:5000/languages");
+                setLanguages(response.data);
+                if (response.data.length > 0) {
+                    setLanguageID(response.data[0]._id);
+                }
+            } catch (error) {
+                enqueueSnackbar("Failed to fetch languages.", { variant: "error" });
+            }
+        };
+        fetchLanguages();
+    }, [enqueueSnackbar]);
+
     const validateForm = () => {
         const newErrors = {};
 
-        // Validate course name
         if (!name.trim()) {
             newErrors.name = "Course name is required.";
         }
 
-        // Validate course description
         if (!desc.trim()) {
             newErrors.desc = "Course description is required.";
         }
 
-        // Validate lessons: yêu cầu ít nhất 1 lesson
+        if (!languageID) {
+            newErrors.languageID = "Please select a language.";
+        }
+
         if (!lessons || lessons.length === 0) {
-            enqueueSnackbar("At least one lesson is required to create a course.", { variant: "error" });
+            newErrors.lessons = "At least one lesson is required to create a course.";
         }
 
         return newErrors;
@@ -35,32 +53,48 @@ const CourseForm = ({ lessons }) => {
     const handleCreate = async () => {
         const validationErrors = validateForm();
 
-        // Nếu có lỗi, cập nhật state errors và không gửi form
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             enqueueSnackbar("Please fix the errors in the form.", { variant: "error" });
             return;
         }
 
-        const courseData = {
-            name: name || "Untitled Course",
-            description: desc,
-            lessons: lessons,
-        };
-
-        console.log("Creating course:", courseData);
-
         try {
-            const response = await axios.post("http://localhost:5000/courses", courseData);
-            console.log("Course created successfully:", response.data);
-            enqueueSnackbar("Course created successfully!", { variant: "success" });
+            // Bước 1: Tạo Course
+            const courseData = {
+                idCourse: uuidv4(),
+                infor: desc,
+                languageID: languageID,
+            };
 
-            // Reset form sau khi tạo thành công
+            const courseResponse = await axios.post("http://localhost:5000/courses", courseData);
+            const courseId = courseResponse.data._id;
+
+            // Bước 2: Tạo Lessons
+            const lessonPromises = lessons.map(async (lesson) => {
+                const lessonData = {
+                    idLesson: lesson.idLesson || uuidv4(), // Đảm bảo idLesson luôn có
+                    idCourse: courseId,
+                    name: lesson.name, // Đổi lesson.lessonName thành lesson.name
+                    content: lesson.content || "",
+                    linkVideo: lesson.linkVideo || "", // Sử dụng linkVideo trực tiếp
+                    status: "draft",
+                };
+                console.log(lessonData)
+                return axios.post("http://localhost:5000/lessons", lessonData);
+            });
+
+            await Promise.all(lessonPromises);
+
+            enqueueSnackbar("Course and lessons created successfully!", { variant: "success" });
+
+            // Reset form
             setName("");
             setDesc("");
+            setLanguageID(languages.length > 0 ? languages[0]._id : "");
             setErrors({});
         } catch (error) {
-            const errorMessage = error.response?.data?.message || "Failed to create new course. Please try again.";
+            const errorMessage = error.response?.data?.error || "Failed to create course. Please try again.";
             enqueueSnackbar(errorMessage, { variant: "error" });
         }
     };
@@ -85,9 +119,23 @@ const CourseForm = ({ lessons }) => {
                     onChange={(e) => setDesc(e.target.value)}
                     placeholder="Course Description..."
                     className={`w-full border ${errors.desc ? "border-red-500" : "border-[#D9D9D9]"} p-2 rounded mb-4`}
-                    rows={8}
+                    rows={4}
                 />
                 {errors.desc && <p className="text-red-500 text-xs mb-4">{errors.desc}</p>}
+
+                <h2 className="font-bold mb-4 text-gray-700">Language</h2>
+                <select
+                    value={languageID}
+                    onChange={(e) => setLanguageID(e.target.value)}
+                    className={`w-full border ${errors.languageID ? "border-red-500" : "border-[#D9D9D9]"} p-2 rounded mb-4`}
+                >
+                    {languages.map((lang) => (
+                        <option key={lang._id} value={lang._id}>
+                            {lang.name}
+                        </option>
+                    ))}
+                </select>
+                {errors.languageID && <p className="text-red-500 text-xs mb-4">{errors.languageID}</p>}
 
                 {errors.lessons && <p className="text-red-500 text-xs mb-4">{errors.lessons}</p>}
 
