@@ -3,12 +3,7 @@ import CourseForm from "./CourseForm";
 import LessonList from "./LessonList";
 
 const CourseManager = () => {
-    const [lessons, setLessons] = useState([
-        { title: "Lesson 01: Introduction about XD", duration: "30 mins", description: "", file: null },
-        { title: "Lesson 02: Basics of XD Design", duration: "30 mins", description: "", file: null},
-        { title: "Lesson 03: Advanced XD Features", duration: "30 mins", description: "", file: null },
-        { title: "Lesson 04: XD Prototyping Tips", duration: "30 mins", description: "", file: null },
-    ]);
+    const [lessons, setLessons] = useState([]);
     const [editingLesson, setEditingLesson] = useState(null); // Lưu lesson đang chỉnh sửa và chỉ số
 
     const handleAddLesson = (newLesson) => {
