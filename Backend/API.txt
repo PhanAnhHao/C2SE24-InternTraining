@@ -1,0 +1,417 @@
+## API Test Quick Reference (Base URL: http://localhost:5000)
+
+**Lưu ý quan trọng:**
+* Thay thế `<..._id>` bằng `_id` thực tế từ database (sau khi chạy seed.js hoặc từ kết quả GET API).
+* Đối với các request cần xác thực, thêm Header: `Authorization: Bearer <your_jwt_token>` (lấy token từ API Login).
+* Các ObjectId mẫu dưới đây lấy từ file `seed.js`. Bạn **phải** sử dụng ObjectId thực tế tồn tại trong DB của bạn.
+
+---
+**1. Authentication**
+---
+
+* **POST /auth/register**
+    * Mục đích: Đăng ký user mới (mặc định Role Student)
+    * Body (JSON):
+        ```json
+        {
+          "username": "testuser_quick",
+          "password": "password123",
+          "email": "test_quick@example.com",
+          "userName": "Tester Quick",
+          "location": "Test City",
+          "phone": "0912345678"
+        }
+        ```
+
+* **POST /auth/login**
+    * Mục đích: Lấy JWT Token
+    * Body (JSON):
+        ```json
+        {
+          "username": "student01", // Username từ seed.js hoặc đã đăng ký
+          "password": "student123" // Password tương ứng
+        }
+        ```
+    * => Lưu lại `token` từ response.
+
+* **GET /auth/me**
+    * Mục đích: Lấy thông tin user đang đăng nhập.
+    * Headers: `Authorization: Bearer <your_jwt_token>`
+
+* **PUT /auth/edit-me**
+    * Mục đích: Cập nhật thông tin user đang đăng nhập.
+    * Headers: `Authorization: Bearer <your_jwt_token>`
+    * Body (JSON):
+        ```json
+        {
+          "userName": "Updated User Name",
+          "email": "updated_email@example.com",
+          "location": "Updated Location",
+          "phone": "0987654321"
+        }
+        ```
+    * Ghi chú: Chỉ cần cung cấp các trường cần cập nhật. Các trường không cung cấp sẽ giữ nguyên giá trị cũ.
+
+---
+**2. Accounts**
+---
+
+* **POST /api/accounts/add-account**
+    * Mục đích: Tạo Account mới với Role cụ thể (Ví dụ: Business).
+    * Body (JSON):
+        ```json
+        {
+          "username": "newbiz_quick",
+          "email": "newbiz_quick@example.com",
+          "password": "bizpass",
+          "roleId": "660edabc12eac0f2fc123403" // ObjectId của Role 'Business' từ seed.js
+        }
+        ```
+
+* **GET /api/accounts/all-accounts**
+    * Mục đích: Lấy danh sách tất cả Accounts.
+
+---
+**3. Roles**
+---
+
+* **POST /api/roles/add-role**
+    * Mục đích: Thêm Role mới.
+    * Body (JSON):
+        ```json
+        {
+          "name": "Editor",
+          "description": "Người chỉnh sửa bài viết"
+        }
+        ```
+
+---
+**4. Students**
+---
+
+* **POST /students**
+    * Mục đích: Tạo hồ sơ Student (cần `userId` của User có Role Student).
+    * Body (JSON):
+        ```json
+        {
+          "idStudent": "S_QUICK",
+          "age": 20,
+          "school": "ĐH Test",
+          "course": "Testing API",
+          "englishSkill": "Intermediate",
+          "userId": "<ObjectId_Cua_User_Co_Role_Student>" // Lấy từ GET /users hoặc DB
+        }
+        ```
+
+* **GET /students**
+    * Mục đích: Lấy danh sách Students.
+
+* **GET /students/<student_id>**
+* **PUT /students/<student_id>** (Body JSON với trường cần cập nhật)
+* **DELETE /students/<student_id>**
+
+---
+**5. Businesses**
+---
+
+* **POST /businesses**
+    * Mục đích: Tạo hồ sơ Business (cần `userId` của User có Role Business).
+    * Body (JSON):
+        ```json
+        {
+          "idBusiness": "B_QUICK",
+          "detail": "Công ty Test Nhanh",
+          "userId": "<ObjectId_Cua_User_Co_Role_Business>" // Lấy từ GET /users hoặc DB
+        }
+        ```
+
+* **GET /businesses**
+    * Mục đích: Lấy danh sách Businesses.
+
+* **GET /businesses/<business_id>**
+* **PUT /businesses/<business_id>** (Body JSON với trường cần cập nhật)
+* **DELETE /businesses/<business_id>**
+
+---
+**6. Languages**
+---
+
+* **POST /languages**
+    * Mục đích: Thêm ngôn ngữ lập trình mới.
+    * Body (JSON):
+        ```json
+        {
+          "languageId": "RUST",
+          "name": "Rust Lang"
+        }
+        ```
+
+* **GET /languages**
+    * Mục đích: Lấy danh sách Languages.
+
+* **GET /languages/<language_id>**
+* **PUT /languages/<language_id>** (Body JSON với trường cần cập nhật)
+* **DELETE /languages/<language_id>**
+
+---
+**7. Courses**
+---
+
+* **POST /courses**
+    * Mục đích: Tạo khóa học mới (cần `languageID`).
+    * Body (JSON):
+        ```json
+        {
+          "idCourse": "C_QUICK",
+          "infor": "Khóa học Test Nhanh API",
+          "languageID": "<ObjectId_Cua_Language_JS>", // Lấy từ GET /languages hoặc DB
+          "rating": 4.5
+        }
+        ```
+
+* **GET /courses**
+    * Mục đích: Lấy danh sách Courses.
+
+* **GET /courses/<course_id>**
+* **PUT /courses/<course_id>** (Body JSON với trường cần cập nhật)
+* **DELETE /courses/<course_id>**
+
+---
+**8. Lessons**
+---
+
+* **POST /lessons**
+    * Mục đích: Tạo bài học mới (cần `idCourse`, `idTest`).
+    * Body (JSON):
+        ```json
+        {
+          "idLesson": "L_QUICK",
+          "idCourse": "<ObjectId_Cua_Course_C001>", // Lấy từ GET /courses hoặc DB
+          "name": "Bài học Test Nhanh",
+          "content": "Nội dung test nhanh.",
+          "linkVideo": "[http://example.com/video_quick](http://example.com/video_quick)",
+          "status": "published",
+          "idTest": "<ObjectId_Cua_Test_JS101>" // Lấy từ GET /tests hoặc DB
+        }
+        ```
+
+* **GET /lessons**
+    * Mục đích: Lấy danh sách Lessons.
+
+* **GET /lessons/<lesson_id>**
+* **PUT /lessons/<lesson_id>** (Body JSON với trường cần cập nhật)
+* **DELETE /lessons/<lesson_id>**
+
+---
+**9. Tests**
+---
+
+* **POST /tests**
+    * Mục đích: Tạo bài test mới (cần `idLesson`, mảng `idQuestion`).
+    * Body (JSON):
+        ```json
+        {
+          "idTest": "T_QUICK",
+          "idLesson": "<ObjectId_Cua_Lesson_L001>", // Lấy từ GET /lessons hoặc DB
+          "content": "Bài Test Nhanh",
+          "idQuestion": [
+            // "<ObjectId_Cua_Question_Q001>", // Lấy từ GET /questions hoặc DB
+            // Thêm các ObjectId của Question khác nếu có
+          ]
+        }
+        ```
+
+* **GET /tests**
+    * Mục đích: Lấy danh sách Tests.
+
+* **GET /tests/<test_id>**
+* **PUT /tests/<test_id>** (Body JSON với trường cần cập nhật, ví dụ cập nhật mảng `idQuestion`)
+* **DELETE /tests/<test_id>**
+
+---
+**10. Questions**
+---
+
+* **POST /questions**
+    * Mục đích: Tạo câu hỏi mới (cần `idTest`).
+    * Body (JSON):
+        ```json
+        {
+          "idQuestion": "Q_QUICK",
+          "idTest": "<ObjectId_Cua_Test_JS101>", // Lấy từ GET /tests hoặc DB
+          "question": "Câu hỏi test nhanh?",
+          "answer": "Trả lời test nhanh."
+        }
+        ```
+
+* **GET /questions**
+    * Mục đích: Lấy danh sách Questions.
+
+* **GET /questions/<question_id>**
+* **PUT /questions/<question_id>** (Body JSON với trường cần cập nhật)
+* **DELETE /questions/<question_id>**
+
+---
+**11. Users**
+---
+
+* **POST /users**
+    * Mục đích: Tạo hồ sơ User (thường tạo tự động khi Register, nhưng có thể tạo riêng nếu cần liên kết Account đã tạo trước). Cần `idAccount`.
+    * Body (JSON):
+        ```json
+        {
+          "userName": "User Quick Test",
+          "email": "user_quick@example.com",
+          "location": "Location Quick",
+          "phone": "0987654321",
+          "idAccount": "<ObjectId_Cua_Account_Da_Tao>" // Lấy từ GET /api/accounts hoặc DB
+        }
+        ```
+
+* **GET /users**
+    * Mục đích: Lấy danh sách Users.
+
+* **GET /users/<user_id>**
+* **PUT /users/<user_id>** (Body JSON với trường cần cập nhật)
+* **DELETE /users/<user_id>**
+
+---
+**12. Test Mail**
+---
+
+* **POST /send-mail**
+    * Mục đích: Gửi email test (cần cấu hình .env).
+    * Body (JSON):
+        ```json
+        {
+          "to": "your_real_email@example.com", // Email thật để nhận thư
+          "subject": "Quick Test Email Subject",
+          "message": "Quick test email body content."
+        }
+        ```
+
+---
+**13. History**
+---
+
+* **POST /history**
+    * Mục đích: Tạo lịch sử làm bài kiểm tra của học viên.
+    * Body (JSON):
+        ```json
+        {
+          "studentId": "<ObjectId_Cua_Student>", // Lấy từ GET /students
+          "testId": "<ObjectId_Cua_Test>", // Lấy từ GET /tests
+          "score": 85,
+          "passed": true
+        }
+        ```
+
+* **GET /history**
+    * Mục đích: Lấy danh sách tất cả lịch sử làm bài.
+
+* **GET /history/<history_id>**
+    * Mục đích: Lấy thông tin chi tiết một bản ghi lịch sử cụ thể.
+
+* **GET /history/student/<student_id>**
+    * Mục đích: Lấy tất cả lịch sử làm bài của một học viên cụ thể.
+    * Ví dụ: `/history/student/6152f9e1b24a1234567890ab`
+
+* **PUT /history/<history_id>**
+    * Mục đích: Cập nhật thông tin lịch sử làm bài.
+    * Body (JSON):
+        ```json
+        {
+          "score": 90,
+          "passed": true
+        }
+        ```
+
+* **DELETE /history/<history_id>**
+    * Mục đích: Xóa một bản ghi lịch sử cụ thể.
+
+---
+**14. Answers**
+---
+
+* **POST /answers**
+    * Mục đích: Gửi câu trả lời cho câu hỏi.
+    * Body (JSON):
+        ```json
+        {
+          "content": "Đây là câu trả lời của tôi",
+          "questionId": "<ObjectId_Cua_Question>", // Lấy từ GET /questions
+          "userId": "<ObjectId_Cua_User>", // Lấy từ GET /users
+          "isCorrect": false
+        }
+        ```
+
+* **GET /answers**
+    * Mục đích: Lấy danh sách tất cả câu trả lời.
+
+* **GET /answers/<answer_id>**
+    * Mục đích: Lấy thông tin chi tiết một câu trả lời cụ thể.
+
+* **GET /answers/user/<user_id>**
+    * Mục đích: Lấy tất cả câu trả lời của một người dùng cụ thể.
+    * Ví dụ: `/answers/user/6152f9e1b24a1234567890cd`
+
+* **GET /answers/question/<question_id>**
+    * Mục đích: Lấy tất cả câu trả lời cho một câu hỏi cụ thể.
+    * Ví dụ: `/answers/question/6152f9e1b24a1234567890ef`
+
+* **PUT /answers/<answer_id>**
+    * Mục đích: Cập nhật thông tin câu trả lời.
+    * Body (JSON):
+        ```json
+        {
+          "content": "Đây là câu trả lời đã cập nhật",
+          "isCorrect": true
+        }
+        ```
+
+* **DELETE /answers/<answer_id>**
+    * Mục đích: Xóa một câu trả lời cụ thể.
+
+---
+**15. Ratings**
+---
+
+* **POST /ratings**
+    * Mục đích: Thêm đánh giá mới cho khóa học.
+    * Body (JSON):
+        ```json
+        {
+          "studentId": "<ObjectId_Cua_Student>", // Lấy từ GET /students
+          "courseId": "<ObjectId_Cua_Course>", // Lấy từ GET /courses
+          "stars": 4.5,
+          "feedback": "Khóa học rất hay và bổ ích"
+        }
+        ```
+
+* **GET /ratings**
+    * Mục đích: Lấy danh sách tất cả đánh giá.
+
+* **GET /ratings/<rating_id>**
+    * Mục đích: Lấy thông tin chi tiết một đánh giá cụ thể.
+
+* **GET /ratings/course/<course_id>**
+    * Mục đích: Lấy tất cả đánh giá cho một khóa học cụ thể và điểm trung bình.
+    * Ví dụ: `/ratings/course/6152f9e1b24a1234567891ab`
+    * Response sẽ bao gồm: danh sách đánh giá, tổng số đánh giá, và điểm trung bình.
+
+* **GET /ratings/student/<student_id>**
+    * Mục đích: Lấy tất cả đánh giá của một học viên cụ thể.
+    * Ví dụ: `/ratings/student/6152f9e1b24a1234567891cd`
+
+* **PUT /ratings/<rating_id>**
+    * Mục đích: Cập nhật thông tin đánh giá.
+    * Body (JSON):
+        ```json
+        {
+          "stars": 5,
+          "feedback": "Đánh giá đã được cập nhật, khóa học xuất sắc"
+        }
+        ```
+
+* **DELETE /ratings/<rating_id>**
+    * Mục đích: Xóa một đánh giá cụ thể.
