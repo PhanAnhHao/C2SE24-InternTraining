@@ -1,30 +1,31 @@
-import CreateLessonForm from './CreateLesson/CreateLesson.jsx'; // Import CreateLessonForm
+import CreateLessonForm from './CreateLesson/CreateLesson.jsx';
 import { useState } from "react";
 import LessonItem from './LessonItem';
 
 const colors = ["teal-300", "orange-200", "blue-100", "red-200"];
 
-const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson }) => {
+const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, editingLesson, onCancelEdit }) => {
     const [showAddLessonForm, setShowAddLessonForm] = useState(false);
-    const [currentLessonIndex, setCurrentLessonIndex] = useState(null); // Để theo dõi bài học đang được chỉnh sửa
 
     const handleAddLesson = (newLesson) => {
-        onAddLesson(newLesson); // Gọi hàm từ prop để thêm bài học
-        setShowAddLessonForm(false); // Ẩn form sau khi thêm
+        const newColorIndex = lessons.length % colors.length;
+        const lessonWithColor = { ...newLesson, color: colors[newColorIndex] };
+        onAddLesson(lessonWithColor);
+        setShowAddLessonForm(false);
     };
 
     const handleEditLesson = (index) => {
-        setCurrentLessonIndex(index);
-        setShowAddLessonForm(true); // Hiển thị form để chỉnh sửa
+        onEditLesson(index); // Gọi hàm từ CourseManager để cập nhật editingLesson
+        setShowAddLessonForm(true); // Hiển thị form
     };
 
     const handleDeleteLesson = (index) => {
-        onDeleteLesson(index); // Gọi hàm từ prop để xóa bài học
+        onDeleteLesson(index);
     };
 
     const handleCancel = () => {
-        setShowAddLessonForm(false); // Ẩn form khi hủy
-        setCurrentLessonIndex(null); // Đặt lại chỉ số bài học đang chỉnh sửa
+        setShowAddLessonForm(false);
+        onCancelEdit(); // Gọi hàm từ CourseManager để thoát chế độ chỉnh sửa
     };
 
     return (
@@ -34,7 +35,7 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson })
                 <LessonItem
                     key={idx}
                     title={lesson.title}
-                    color={lesson.color || colors[idx % colors.length]} // Sử dụng màu sắc từ bài học hoặc màu mặc định
+                    color={lesson.color || colors[idx % colors.length]}
                     onEdit={() => handleEditLesson(idx)}
                     onDelete={() => handleDeleteLesson(idx)}
                 />
@@ -42,7 +43,6 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson })
             <div
                 className="flex items-center justify-between p-3 rounded-lg mb-2 bg-gray-100 cursor-pointer"
                 onClick={() => {
-                    setCurrentLessonIndex(null); // Đảm bảo không có bài học nào được chọn khi thêm mới
                     setShowAddLessonForm(true);
                 }}
             >
@@ -54,23 +54,23 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson })
                 </div>
             </div>
 
-            {/* Hiển thị CreateLessonForm ở giữa màn hình */}
             {showAddLessonForm && (
                 <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
                     <div className="w-2/3 h-auto overflow-y-auto">
                         <CreateLessonForm
                             onSubmit={(lesson) => {
-                                if (currentLessonIndex !== null) {
-                                    // Nếu đang chỉnh sửa, gọi hàm chỉnh sửa
-                                    onEditLesson(currentLessonIndex, lesson);
+                                if (editingLesson) {
+                                    // Nếu đang chỉnh sửa, giữ nguyên màu sắc hiện tại
+                                    const updatedLesson = { ...lesson, color: editingLesson.lesson.color };
+                                    onEditLesson(editingLesson.index, updatedLesson);
                                 } else {
-                                    // Nếu thêm mới, gọi hàm thêm
-                                    const newColorIndex = lessons.length % colors.length; // Tính chỉ số màu sắc
-                                    const lessonWithColor = { ...lesson, color: colors[newColorIndex] }; // Thêm màu sắc vào bài học mới
-                                    handleAddLesson(lessonWithColor);
+                                    // Nếu thêm mới, gán màu mới
+                                    handleAddLesson(lesson);
                                 }
+                                setShowAddLessonForm(false);
                             }}
                             onCancel={handleCancel}
+                            editingLesson={editingLesson}
                         />
                     </div>
                 </div>
