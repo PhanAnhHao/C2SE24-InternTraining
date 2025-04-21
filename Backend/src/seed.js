@@ -21,6 +21,31 @@ const Lesson = mongoose.model('Lesson', new mongoose.Schema({ idLesson: String, 
 const Test = mongoose.model('Test', new mongoose.Schema({ idTest: String, idLesson: ObjectId, content: String, idQuestion: [ObjectId] }));
 const Question = mongoose.model('Question', new mongoose.Schema({ idQuestion: String, idTest: ObjectId, question: String, answer: String }));
 
+// Thêm model cho History, Answer, Rating
+const History = mongoose.model('History', new mongoose.Schema({
+  studentId: ObjectId,
+  testId: ObjectId,
+  score: Number,
+  completedAt: Date,
+  passed: Boolean
+}, { timestamps: true }));
+
+const Answer = mongoose.model('Answer', new mongoose.Schema({
+  studentId: ObjectId,
+  questionId: ObjectId,
+  testId: ObjectId,
+  studentResponse: String,
+  isCorrect: Boolean,
+  answeredAt: Date
+}, { timestamps: true }));
+
+const Rating = mongoose.model('Rating', new mongoose.Schema({
+  studentId: ObjectId,
+  courseId: ObjectId,
+  stars: Number,
+  feedback: String
+}, { timestamps: true }));
+
 async function seed() {
   try {
     await mongoose.connection.dropDatabase();
@@ -47,7 +72,7 @@ async function seed() {
       { userName: 'Đặng Thị E', email: 'e@gmail.com', location: 'Cần Thơ', phone: '0905555555', account: accounts[4]._id },
     ]);
 
-    await Student.insertMany([
+    const students = await Student.insertMany([
       { idStudent: 'S1001', age: 20, school: 'ĐH Bách Khoa', course: 'Công nghệ phần mềm', englishSkill: 'Intermediate', userId: users[1]._id },
       { idStudent: 'S1002', age: 21, school: 'ĐH Công nghệ', course: 'Hệ thống thông tin', englishSkill: 'Fluent', userId: users[2]._id },
     ]);
@@ -119,6 +144,102 @@ async function seed() {
     for (let i = 0; i < testIds.length; i++) {
       await Test.findByIdAndUpdate(testIds[i], { idQuestion: [questionIds[i]] });
     }
+
+    // Seed dữ liệu cho lịch sử kiểm tra (History)
+    await History.insertMany([
+      { 
+        studentId: students[0]._id, 
+        testId: testIds[0], 
+        score: 85, 
+        completedAt: new Date('2023-06-15'), 
+        passed: true 
+      },
+      { 
+        studentId: students[0]._id, 
+        testId: testIds[1], 
+        score: 70, 
+        completedAt: new Date('2023-06-20'), 
+        passed: true 
+      },
+      { 
+        studentId: students[1]._id, 
+        testId: testIds[0], 
+        score: 60, 
+        completedAt: new Date('2023-06-22'), 
+        passed: true 
+      },
+      { 
+        studentId: students[1]._id, 
+        testId: testIds[2], 
+        score: 45, 
+        completedAt: new Date('2023-06-25'), 
+        passed: false 
+      }
+    ]);
+
+    // Seed dữ liệu cho câu trả lời (Answer)
+    await Answer.insertMany([
+      {
+        studentId: students[0]._id,
+        questionId: questionIds[0],
+        testId: testIds[0],
+        studentResponse: 'const',
+        isCorrect: true,
+        answeredAt: new Date('2023-06-15T10:15:00')
+      },
+      {
+        studentId: students[0]._id,
+        questionId: questionIds[1],
+        testId: testIds[1],
+        studentResponse: 'function',
+        isCorrect: false,
+        answeredAt: new Date('2023-06-20T14:30:00')
+      },
+      {
+        studentId: students[1]._id,
+        questionId: questionIds[0],
+        testId: testIds[0],
+        studentResponse: 'let',
+        isCorrect: false,
+        answeredAt: new Date('2023-06-22T09:45:00')
+      },
+      {
+        studentId: students[1]._id,
+        questionId: questionIds[2],
+        testId: testIds[2],
+        studentResponse: 'Khả năng đối tượng phản hồi khác nhau cho cùng 1 phương thức',
+        isCorrect: true,
+        answeredAt: new Date('2023-06-25T16:20:00')
+      }
+    ]);
+
+    // Seed dữ liệu cho đánh giá (Rating)
+    await Rating.insertMany([
+      {
+        studentId: students[0]._id,
+        courseId: courses[0]._id,
+        stars: 5,
+        feedback: 'Khóa học rất hay và dễ hiểu!'
+      },
+      {
+        studentId: students[0]._id,
+        courseId: courses[1]._id,
+        stars: 4,
+        feedback: 'Nội dung tốt nhưng cần thêm ví dụ thực tế'
+      },
+      {
+        studentId: students[1]._id,
+        courseId: courses[0]._id,
+        stars: 3,
+        feedback: 'Khóa học còn thiếu phần thực hành'
+      },
+      {
+        studentId: students[1]._id,
+        courseId: courses[2]._id,
+        stars: 5,
+        feedback: 'Giảng viên giảng bài rất rõ ràng, dễ hiểu'
+      }
+    ]);
 
     console.log('Seed Intern Training Data thành công!');
     process.exit();

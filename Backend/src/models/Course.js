@@ -14,15 +14,20 @@ const CourseSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Language',
     required: true
-  },
-  rating: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 5
   }
 }, {
   timestamps: true
 });
+
+// Add virtual property to get ratings
+CourseSchema.virtual('ratings', {
+  ref: 'Rating',
+  localField: '_id',
+  foreignField: 'courseId'
+});
+
+// Ensure virtual fields are included when converting to JSON or objects
+CourseSchema.set('toJSON', { virtuals: true });
+CourseSchema.set('toObject', { virtuals: true });
 
 module.exports = mongoose.model('Course', CourseSchema);

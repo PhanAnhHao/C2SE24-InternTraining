@@ -139,4 +139,38 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
+// Cập nhật thông tin người dùng hiện tại
+router.put('/edit-me', authMiddleware, async (req, res) => {
+  try {
+    const { userName, email, location, phone } = req.body;
+    
+    // Tìm user dựa trên account ID từ token
+    const user = await User.findOne({ idAccount: req.user.id });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Cập nhật các trường nếu được cung cấp
+    if (userName) user.userName = userName;
+    if (email) user.email = email;
+    if (location) user.location = location;
+    if (phone) user.phone = phone;
+    
+    // Lưu thay đổi
+    const updatedUser = await user.save();
+    
+    res.json({
+      message: 'User profile updated successfully',
+      user: updatedUser
+    });
+  } catch (err) {
+    console.error("Update Profile Error:", err);
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: 'An internal server error occurred.' });
+  }
+});
+
 module.exports = router;
