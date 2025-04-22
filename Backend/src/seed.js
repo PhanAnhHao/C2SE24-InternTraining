@@ -16,7 +16,7 @@ const User = mongoose.model('User', new mongoose.Schema({ userName: String, emai
 const Student = mongoose.model('Student', new mongoose.Schema({ idStudent: String, age: Number, school: String, course: String, englishSkill: String, userId: ObjectId }));
 const Business = mongoose.model('Business', new mongoose.Schema({ idBusiness: String, type: String, detail: String, userId: ObjectId }));
 const Language = mongoose.model('Language', new mongoose.Schema({ languageId: String, name: String }));
-const Course = mongoose.model('Course', new mongoose.Schema({ idCourse: String, info: String, languageID: ObjectId, rating: Number }));
+const Course = mongoose.model('Course', new mongoose.Schema({ idCourse: String, infor: String, languageID: ObjectId }));
 const Lesson = mongoose.model('Lesson', new mongoose.Schema({ idLesson: String, idCourse: ObjectId, name: String, content: String, linkVideo: String, status: String, idTest: ObjectId }));
 const Test = mongoose.model('Test', new mongoose.Schema({ idTest: String, idLesson: ObjectId, content: String, idQuestion: [ObjectId] }));
 const Question = mongoose.model('Question', new mongoose.Schema({ idQuestion: String, idTest: ObjectId, question: String, answer: String }));
@@ -91,11 +91,11 @@ async function seed() {
     ]);
 
     const courses = await Course.insertMany([
-      { _id: new ObjectId(), idCourse: 'C001', info: 'Lập trình frontend với JavaScript', languageID: languages[0]._id, rating: 4.5 },
-      { _id: new ObjectId(), idCourse: 'C002', info: 'Lập trình Python cho AI cơ bản', languageID: languages[1]._id, rating: 4.7 },
-      { _id: new ObjectId(), idCourse: 'C003', info: 'OOP với Java', languageID: languages[2]._id, rating: 4.3 },
-      { _id: new ObjectId(), idCourse: 'C004', info: 'Phát triển ứng dụng với C#', languageID: languages[3]._id, rating: 4.6 },
-      { _id: new ObjectId(), idCourse: 'C005', info: 'Thiết kế web với HTML/CSS', languageID: languages[4]._id, rating: 4.4 },
+      { _id: new ObjectId(), idCourse: 'C001', infor: 'Lập trình frontend với JavaScript', languageID: languages[0]._id },
+      { _id: new ObjectId(), idCourse: 'C002', infor: 'Lập trình Python cho AI cơ bản', languageID: languages[1]._id },
+      { _id: new ObjectId(), idCourse: 'C003', infor: 'OOP với Java', languageID: languages[2]._id },
+      { _id: new ObjectId(), idCourse: 'C004', infor: 'Phát triển ứng dụng với C#', languageID: languages[3]._id },
+      { _id: new ObjectId(), idCourse: 'C005', infor: 'Thiết kế web với HTML/CSS', languageID: languages[4]._id },
     ]);
 
     const testIds = Array.from({ length: 10 }, () => new ObjectId());
