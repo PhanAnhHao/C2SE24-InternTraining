@@ -164,10 +164,10 @@
         {
           "idCourse": "C_QUICK",
           "infor": "Khóa học Test Nhanh API",
-          "languageID": "<ObjectId_Cua_Language_JS>", // Lấy từ GET /languages hoặc DB
-          "rating": 4.5
+          "languageID": "<ObjectId_Cua_Language_JS>" // Lấy từ GET /languages hoặc DB
         }
         ```
+    * Ghi chú: Trường `rating` đã được loại bỏ. Đánh giá khóa học bây giờ được quản lý thông qua Collection Rating.
 
 * **GET /courses**
     * Mục đích: Lấy danh sách Courses.

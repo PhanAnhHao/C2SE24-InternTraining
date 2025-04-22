@@ -4,18 +4,35 @@ const jwt = require('jsonwebtoken');
 const Account = require('../models/Account');
 const User = require('../models/User');
 const Business = require('../models/Business');
+const Student = require('../models/Student'); // Added Student model
+const crypto = require('crypto'); // For generating random student ID
 
 const router = express.Router();
 
 // Đăng ký cho Student
 router.post('/register', async (req, res) => {
   try {
-    const { username, password, email, userName, location, phone } = req.body;
+    const { 
+      username, 
+      password, 
+      email, 
+      userName, 
+      location, 
+      phone, 
+      // Optional student fields
+      age, 
+      school, 
+      course, 
+      englishSkill 
+    } = req.body;
 
     const defaultRoleId = '660edabc12eac0f2fc123402';
 
-    const existing = await Account.findOne({ email });
-    if (existing) return res.status(400).json({ error: 'Email already exists' });
+    const existing = await Account.findOne({ username });
+    if (existing) return res.status(400).json({ error: 'Username already exists' });
+
+    const emailExists = await Account.findOne({ email });
+    if (emailExists) return res.status(400).json({ error: 'Email already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -27,7 +44,6 @@ router.post('/register', async (req, res) => {
       role: defaultRoleId // Gán Role mặc định khi tạo Account
     });
 
-
     const savedAccount = await newAccount.save();
 
     const newUser = new User({
@@ -38,9 +54,28 @@ router.post('/register', async (req, res) => {
       idAccount: savedAccount._id
     });
 
-    await newUser.save();
+    const savedUser = await newUser.save();
 
-    res.status(201).json({ message: 'Register successful' });
+    // Generate a random student ID (e.g., "S_" followed by 6 random hex chars)
+    const randomId = crypto.randomBytes(3).toString('hex').toUpperCase();
+    const studentId = `S_${randomId}`;
+
+    // Create a Student record with default values if not provided
+    const newStudent = new Student({
+      idStudent: studentId,
+      age: age || 20, // Default age if not provided
+      school: school || 'Unknown', // Default school if not provided
+      course: course || 'IT', // Default course if not provided
+      englishSkill: englishSkill || 'Intermediate', // Default English skill if not provided
+      userId: savedUser._id
+    });
+
+    const savedStudent = await newStudent.save();
+
+    res.status(201).json({ 
+      message: 'Register successful',
+      studentId: savedStudent._id // Return the ID of the created student record
+    });
   } catch (err) {
     console.error("Register Error:", err); // Log lỗi ra console để debug dễ hơn
     // Trả về lỗi cụ thể hơn nếu là lỗi validation
@@ -119,17 +154,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// Lấy thông tin người dùng hiện tại
-// const authMiddleware = require('../middlewares/authMiddleware');
-// router.get('/me', authMiddleware, async (req, res) => {
-//   try {
-//     const user = await User.findOne({ idAccount: req.user.id }).populate('idAccount', 'username');
-//     res.json(user);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
 
 // Lấy thông tin người dùng hiện tại
 const authMiddleware = require('../middlewares/authMiddleware');

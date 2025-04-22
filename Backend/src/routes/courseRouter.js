@@ -39,12 +39,13 @@ router.get('/', async (req, res) => {
       let avgRating = 0;
       if (courseObj.ratings && courseObj.ratings.length > 0) {
         const sum = courseObj.ratings.reduce((acc, rating) => acc + rating.stars, 0);
-        avgRating = (sum / courseObj.ratings.length).toFixed(1);
+        // Calculate precise average and convert to number with 1 decimal place
+        avgRating = parseFloat((sum / courseObj.ratings.length).toFixed(1));
       }
       
       return {
         ...courseObj,
-        avgRating: parseFloat(avgRating),
+        avgRating: avgRating,
         ratingsCount: courseObj.ratings ? courseObj.ratings.length : 0
       };
     });
@@ -80,12 +81,13 @@ router.get('/:id', async (req, res) => {
     
     if (courseObj.ratings && courseObj.ratings.length > 0) {
       const sum = courseObj.ratings.reduce((acc, rating) => acc + rating.stars, 0);
-      avgRating = (sum / courseObj.ratings.length).toFixed(1);
+      // Calculate precise average and convert to number with 1 decimal place
+      avgRating = parseFloat((sum / courseObj.ratings.length).toFixed(1));
     }
     
     const formattedCourse = {
       ...courseObj,
-      avgRating: parseFloat(avgRating),
+      avgRating: avgRating,
       ratingsCount: courseObj.ratings ? courseObj.ratings.length : 0
     };
     

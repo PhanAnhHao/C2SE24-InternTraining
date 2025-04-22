@@ -785,7 +785,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idCourse\": \"C_POSTMAN\",\n  \"infor\": \"Khóa học Postman Nâng cao\",\n  \"languageID\": \"<ObjectId_Cua_Language_JS>\", // Thay bằng ObjectId của Language JS hoặc language khác\n  \"rating\": 4.7\n}",
+							"raw": "{\n  \"idCourse\": \"C_POSTMAN\",\n  \"infor\": \"Khóa học Postman Nâng cao\",\n  \"languageID\": \"<ObjectId_Cua_Language_JS>\" // Thay bằng ObjectId của Language JS hoặc language khác\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -871,7 +871,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"infor\": \"Khóa học Postman Nâng cao và Tự động hóa Test\",\n  \"rating\": 4.8\n}",
+							"raw": "{\n  \"infor\": \"Khóa học Postman Nâng cao và Tự động hóa Test\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
