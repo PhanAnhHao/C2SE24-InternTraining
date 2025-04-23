@@ -1,27 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-const mockQuestions = Array.from({ length: 25 }, (_, i) => ({
-    id: i + 1,
-    question: `Question ${i + 1}: What is the correct answer?`,
-    answers: [
-        `Answer A for Q${i + 1}`,
-        `Answer B for Q${i + 1}`,
-        `Answer C for Q${i + 1}`,
-        `Answer D for Q${i + 1}`,
-    ],
-}));
+import axios from "axios";
 
 const TestPage = () => {
     const navigate = useNavigate();
+    const [questions, setQuestions] = useState([]);
     const [selectedAnswers, setSelectedAnswers] = useState(() => {
         const saved = localStorage.getItem("answers");
         return saved ? JSON.parse(saved) : {};
     });
 
-    const handleAnswerSelect = (qId, ans) => {
+    useEffect(() => {
+        axios.get("http://localhost:5000/questions")
+            .then((response) => {
+                setQuestions(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching questions:", error);
+            });
+    }, []);
+
+    const handleAnswerSelect = (index, ans) => {
         setSelectedAnswers((prev) => {
-            const updated = { ...prev, [qId]: ans };
+            const updated = { ...prev, [index]: ans };
             localStorage.setItem("answers", JSON.stringify(updated));
             return updated;
         });
@@ -42,11 +43,11 @@ const TestPage = () => {
             <div className="w-1/5 border rounded-lg p-4 shadow">
                 <h2 className="text-lg font-bold mb-4">Answers Status</h2>
                 <ul className="space-y-1">
-                    {mockQuestions.map((q) => (
-                        <li key={q.id}>
-                            Question {q.id}:{" "}
-                            <span className={selectedAnswers[q.id] ? "text-green-600" : "text-red-500"}>
-                                {selectedAnswers[q.id] ? "Selected" : "Not answered"}
+                    {questions.map((_, index) => (
+                        <li key={index}>
+                            Question {index + 1}:{" "}
+                            <span className={selectedAnswers[index] ? "text-green-600" : "text-red-500"}>
+                                {selectedAnswers[index] ? "Selected" : "Not select"}
                             </span>
                         </li>
                     ))}
@@ -54,21 +55,21 @@ const TestPage = () => {
             </div>
 
             {/* Right Column */}
-            <div className="w-4/5 overflow-y-auto h-[80vh] border rounded-lg p-4 shadow space-y-6">
-                {mockQuestions.map((q) => (
-                    <div key={q.id} className="border-b pb-3">
-                        <h3 className="font-semibold mb-2">{q.question}</h3>
+            <div className="w-4/5 overflow-y-auto h-[80vh]  rounded-lg p-4 shadow space-y-6">
+                {questions.map((q, index) => (
+                    <div key={index} className="border-b pb-3">
+                        <h3 className="font-semibold mb-2">Câu hỏi {index + 1}: {q.question}</h3>
                         <div className="grid grid-cols-2 gap-2">
                             {q.answers.map((ans, idx) => (
                                 <label key={idx} className="flex items-center space-x-2">
                                     <input
                                         type="radio"
-                                        name={`question-${q.id}`}
-                                        value={ans}
-                                        checked={selectedAnswers[q.id] === ans}
-                                        onChange={() => handleAnswerSelect(q.id, ans)}
+                                        name={`question-${index}`}
+                                        value={ans.text}
+                                        checked={selectedAnswers[index] === ans.text}
+                                        onChange={() => handleAnswerSelect(index, ans.text)}
                                     />
-                                    <span>{ans}</span>
+                                    <span>{ans.text}</span>
                                 </label>
                             ))}
                         </div>
