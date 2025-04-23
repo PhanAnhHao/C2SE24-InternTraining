@@ -1,38 +1,56 @@
 const mongoose = require('mongoose');
 
 const QuestionSchema = new mongoose.Schema({
-  idQuestion: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  content: {
-    type: String,
-    required: true
-  },
-  correct: {
-    type: String,
-    required: true
-  },
-  testId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Test',
-    required: true
-  }
-  // answer field removed - now managed through Answer collection
+    idQuestion: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    idTest: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Test',
+        required: true
+    },
+    question: {
+        type: String,
+        required: true
+    },
+    options: {
+        type: [String],
+        required: true,
+        validate: [
+            function(options) {
+                return options.length >= 2; // At least 2 options required
+            },
+            'Multiple choice questions need at least 2 options'
+        ]
+    },
+    correctAnswerIndex: {
+        type: Number,
+        required: true,
+        min: 0,
+        validate: [
+            function(value) {
+                return value < this.options.length;
+            },
+            'Correct answer index must be less than the number of options'
+        ]
+    },
+    answer: {
+        type: String,
+        required: true
+    }
 }, {
-  timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-// Virtual property to get answers when needed
+// Virtual for answers - establishes relationship without storing in document
 QuestionSchema.virtual('answers', {
-  ref: 'Answer',
-  localField: '_id',
-  foreignField: 'questionId'
+    ref: 'Answer',
+    localField: '_id',
+    foreignField: 'questionId'
 });
-
-// Ensure the virtual field is included when converting to JSON
-QuestionSchema.set('toJSON', { virtuals: true });
-QuestionSchema.set('toObject', { virtuals: true });
 
 module.exports = mongoose.model('Question', QuestionSchema);

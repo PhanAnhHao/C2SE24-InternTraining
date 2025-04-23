@@ -1,16 +1,16 @@
 ## API Test Quick Reference (Base URL: http://localhost:5000)
 
-**Lưu ý quan trọng:**
-* Thay thế `<..._id>` bằng `_id` thực tế từ database (sau khi chạy seed.js hoặc từ kết quả GET API).
-* Đối với các request cần xác thực, thêm Header: `Authorization: Bearer <your_jwt_token>` (lấy token từ API Login).
-* Các ObjectId mẫu dưới đây lấy từ file `seed.js`. Bạn **phải** sử dụng ObjectId thực tế tồn tại trong DB của bạn.
+**Important note:**
+* Replace `<..._id>` with actual `_id` values from the database (after running seed.js or from GET API results).
+* For requests requiring authentication, add Header: `Authorization: Bearer <your_jwt_token>` (get token from Login API).
+* The sample ObjectIds below are from `seed.js`. You **must** use actual ObjectIds that exist in your DB.
 
 ---
 **1. Authentication**
 ---
 
 * **POST /auth/register**
-    * Mục đích: Đăng ký user mới (mặc định Role Student)
+    * Purpose: Register a new user (default Role: Student)
     * Body (JSON):
         ```json
         {
@@ -21,31 +21,31 @@
           "location": "Test City",
           "phone": "0912345678",
           "age": 22,
-          "school": "Đại học ABC",
-          "course": "Công nghệ thông tin",
+          "school": "ABC University",
+          "course": "Information Technology",
           "englishSkill": "Advanced"
         }
         ```
-    * Lưu ý: Các trường `age`, `school`, `course`, và `englishSkill` là tùy chọn. Nếu không cung cấp, hệ thống sẽ tự động tạo Student record với các giá trị mặc định.
-    * Kết quả trả về: Bao gồm studentId của Student record được tạo tự động.
+    * Note: Fields `age`, `school`, `course`, and `englishSkill` are optional. If not provided, the system will automatically create a Student record with default values.
+    * Return result: Includes the studentId of the automatically created Student record.
 
 * **POST /auth/login**
-    * Mục đích: Lấy JWT Token
+    * Purpose: Get JWT Token
     * Body (JSON):
         ```json
         {
-          "username": "student01", // Username từ seed.js hoặc đã đăng ký
-          "password": "student123" // Password tương ứng
+          "username": "student01", // Username from seed.js or registered
+          "password": "student123" // Corresponding password
         }
         ```
-    * => Lưu lại `token` từ response.
+    * => Save the `token` from the response.
 
 * **GET /auth/me**
-    * Mục đích: Lấy thông tin user đang đăng nhập.
+    * Purpose: Get information about the currently logged-in user.
     * Headers: `Authorization: Bearer <your_jwt_token>`
 
 * **PUT /auth/edit-me**
-    * Mục đích: Cập nhật thông tin user đang đăng nhập.
+    * Purpose: Update information for the currently logged-in user.
     * Headers: `Authorization: Bearer <your_jwt_token>`
     * Body (JSON):
         ```json
@@ -56,38 +56,38 @@
           "phone": "0987654321"
         }
         ```
-    * Ghi chú: Chỉ cần cung cấp các trường cần cập nhật. Các trường không cung cấp sẽ giữ nguyên giá trị cũ.
+    * Note: Only provide fields that need updating. Fields not provided will retain their original values.
 
 ---
 **2. Accounts**
 ---
 
 * **POST /api/accounts/add-account**
-    * Mục đích: Tạo Account mới với Role cụ thể (Ví dụ: Business).
+    * Purpose: Create a new Account with a specific Role (Example: Business).
     * Body (JSON):
         ```json
         {
           "username": "newbiz_quick",
           "email": "newbiz_quick@example.com",
           "password": "bizpass",
-          "roleId": "660edabc12eac0f2fc123403" // ObjectId của Role 'Business' từ seed.js
+          "roleId": "660edabc12eac0f2fc123403" // ObjectId of 'Business' Role from seed.js
         }
         ```
 
 * **GET /api/accounts/all-accounts**
-    * Mục đích: Lấy danh sách tất cả Accounts.
+    * Purpose: Get a list of all Accounts.
 
 ---
 **3. Roles**
 ---
 
 * **POST /api/roles/add-role**
-    * Mục đích: Thêm Role mới.
+    * Purpose: Add a new Role.
     * Body (JSON):
         ```json
         {
           "name": "Editor",
-          "description": "Người chỉnh sửa bài viết"
+          "description": "Content editor"
         }
         ```
 
@@ -96,24 +96,24 @@
 ---
 
 * **POST /students**
-    * Mục đích: Tạo hồ sơ Student (cần `userId` của User có Role Student).
+    * Purpose: Create a Student profile (requires `userId` of a User with Student Role).
     * Body (JSON):
         ```json
         {
           "idStudent": "S_QUICK",
           "age": 20,
-          "school": "ĐH Test",
+          "school": "Test University",
           "course": "Testing API",
           "englishSkill": "Intermediate",
-          "userId": "<ObjectId_Cua_User_Co_Role_Student>" // Lấy từ GET /users hoặc DB
+          "userId": "<ObjectId_Of_User_With_Student_Role>" // Get from GET /users or DB
         }
         ```
 
 * **GET /students**
-    * Mục đích: Lấy danh sách Students.
+    * Purpose: Get list of Students.
 
 * **GET /students/<student_id>**
-* **PUT /students/<student_id>** (Body JSON với trường cần cập nhật)
+* **PUT /students/<student_id>** (JSON Body with fields to update)
 * **DELETE /students/<student_id>**
 
 ---
@@ -121,25 +121,25 @@
 ---
 
 * **POST /businesses**
-    * Mục đích: Tạo hồ sơ Business (cần `userId` của User có Role Business).
+    * Purpose: Create a Business profile (requires `userId` of a User with Business Role).
     * Body (JSON):
         ```json
         {
           "idBusiness": "B_QUICK",
-          "detail": "Công ty Test Nhanh",
-          "userId": "<ObjectId_Cua_User_Co_Role_Business>" // Lấy từ GET /users hoặc DB
+          "detail": "Quick Test Company",
+          "userId": "<ObjectId_Of_User_With_Business_Role>" // Get from GET /users or DB
         }
         ```
 
 * **GET /businesses**
-    * Mục đích: Lấy danh sách Businesses.
+    * Purpose: Get list of Businesses.
 
 * **GET /businesses/<business_id>**
-* **PUT /businesses/<business_id>** (Body JSON với trường cần cập nhật)
+* **PUT /businesses/<business_id>** (JSON Body with fields to update)
 * **DELETE /businesses/<business_id>**
 
 * **POST /auth/register-business**
-    * Mục đích: Đăng ký tài khoản doanh nghiệp (Role Business)
+    * Purpose: Register a business account (Role: Business)
     * Body (JSON):
         ```json
         {
@@ -152,15 +152,15 @@
           "detail": "A company specializing in software development"
         }
         ```
-    * Lưu ý: idBusiness được tạo tự động với định dạng "BUS" theo sau là 5 chữ số ngẫu nhiên (ví dụ: BUS12345)
-    * Kết quả trả về: Bao gồm businessId được tạo tự động.
+    * Note: idBusiness is automatically generated with the format "BUS" followed by 5 random digits (e.g., BUS12345)
+    * Return result: Includes the automatically generated businessId.
 
 ---
 **6. Languages**
 ---
 
 * **POST /languages**
-    * Mục đích: Thêm ngôn ngữ lập trình mới.
+    * Purpose: Add a new programming language.
     * Body (JSON):
         ```json
         {
@@ -170,10 +170,10 @@
         ```
 
 * **GET /languages**
-    * Mục đích: Lấy danh sách Languages.
+    * Purpose: Get list of Languages.
 
 * **GET /languages/<language_id>**
-* **PUT /languages/<language_id>** (Body JSON với trường cần cập nhật)
+* **PUT /languages/<language_id>** (JSON Body with fields to update)
 * **DELETE /languages/<language_id>**
 
 ---
@@ -181,22 +181,22 @@
 ---
 
 * **POST /courses**
-    * Mục đích: Tạo khóa học mới (cần `languageID`).
+    * Purpose: Create a new course (requires `languageID`).
     * Body (JSON):
         ```json
         {
           "idCourse": "C_QUICK",
-          "infor": "Khóa học Test Nhanh API",
-          "languageID": "<ObjectId_Cua_Language_JS>" // Lấy từ GET /languages hoặc DB
+          "infor": "Quick API Test Course",
+          "languageID": "<ObjectId_Of_JS_Language>" // Get from GET /languages or DB
         }
         ```
-    * Ghi chú: Trường `rating` đã được loại bỏ. Đánh giá khóa học bây giờ được quản lý thông qua Collection Rating.
+    * Note: The `rating` field has been removed. Course ratings are now managed through the Rating Collection.
 
 * **GET /courses**
-    * Mục đích: Lấy danh sách Courses.
+    * Purpose: Get list of Courses.
 
 * **GET /courses/<course_id>**
-* **PUT /courses/<course_id>** (Body JSON với trường cần cập nhật)
+* **PUT /courses/<course_id>** (JSON Body with fields to update)
 * **DELETE /courses/<course_id>**
 
 ---
@@ -204,25 +204,25 @@
 ---
 
 * **POST /lessons**
-    * Mục đích: Tạo bài học mới (cần `idCourse`, `idTest`).
+    * Purpose: Create a new lesson (requires `idCourse`, `idTest`).
     * Body (JSON):
         ```json
         {
           "idLesson": "L_QUICK",
-          "idCourse": "<ObjectId_Cua_Course_C001>", // Lấy từ GET /courses hoặc DB
-          "name": "Bài học Test Nhanh",
-          "content": "Nội dung test nhanh.",
+          "idCourse": "<ObjectId_Of_Course_C001>", // Get from GET /courses or DB
+          "name": "Quick Test Lesson",
+          "content": "Quick test content.",
           "linkVideo": "[http://example.com/video_quick](http://example.com/video_quick)",
           "status": "published",
-          "idTest": "<ObjectId_Cua_Test_JS101>" // Lấy từ GET /tests hoặc DB
+          "idTest": "<ObjectId_Of_Test_JS101>" // Get from GET /tests or DB
         }
         ```
 
 * **GET /lessons**
-    * Mục đích: Lấy danh sách Lessons.
+    * Purpose: Get list of Lessons.
 
 * **GET /lessons/<lesson_id>**
-* **PUT /lessons/<lesson_id>** (Body JSON với trường cần cập nhật)
+* **PUT /lessons/<lesson_id>** (JSON Body with fields to update)
 * **DELETE /lessons/<lesson_id>**
 
 ---
@@ -230,25 +230,25 @@
 ---
 
 * **POST /tests**
-    * Mục đích: Tạo bài test mới (cần `idLesson`, mảng `idQuestion`).
+    * Purpose: Create a new test (requires `idLesson`, array of `idQuestion`).
     * Body (JSON):
         ```json
         {
           "idTest": "T_QUICK",
-          "idLesson": "<ObjectId_Cua_Lesson_L001>", // Lấy từ GET /lessons hoặc DB
-          "content": "Bài Test Nhanh",
+          "idLesson": "<ObjectId_Of_Lesson_L001>", // Get from GET /lessons or DB
+          "content": "Quick Test",
           "idQuestion": [
-            // "<ObjectId_Cua_Question_Q001>", // Lấy từ GET /questions hoặc DB
-            // Thêm các ObjectId của Question khác nếu có
+            // "<ObjectId_Of_Question_Q001>", // Get from GET /questions or DB
+            // Add other Question ObjectIds if available
           ]
         }
         ```
 
 * **GET /tests**
-    * Mục đích: Lấy danh sách Tests.
+    * Purpose: Get list of Tests.
 
 * **GET /tests/<test_id>**
-* **PUT /tests/<test_id>** (Body JSON với trường cần cập nhật, ví dụ cập nhật mảng `idQuestion`)
+* **PUT /tests/<test_id>** (JSON Body with fields to update, e.g. update `idQuestion` array)
 * **DELETE /tests/<test_id>**
 
 ---
@@ -256,22 +256,29 @@
 ---
 
 * **POST /questions**
-    * Mục đích: Tạo câu hỏi mới (cần `idTest`).
+    * Purpose: Create a new question (requires `idTest`).
     * Body (JSON):
         ```json
         {
           "idQuestion": "Q_QUICK",
-          "idTest": "<ObjectId_Cua_Test_JS101>", // Lấy từ GET /tests hoặc DB
-          "question": "Câu hỏi test nhanh?",
-          "answer": "Trả lời test nhanh."
+          "idTest": "<ObjectId_Of_Test_JS101>", // Get from GET /tests or DB
+          "question": "Quick test question?",
+          "options": [
+            "Option A", 
+            "Option B", 
+            "Option C", 
+            "Option D"
+          ],
+          "correctAnswerIndex": 2, // Index of correct option (0-based)
+          "answer": "Option C" // The text of the correct answer
         }
         ```
 
 * **GET /questions**
-    * Mục đích: Lấy danh sách Questions.
+    * Purpose: Get list of Questions.
 
 * **GET /questions/<question_id>**
-* **PUT /questions/<question_id>** (Body JSON với trường cần cập nhật)
+* **PUT /questions/<question_id>** (JSON Body with fields to update)
 * **DELETE /questions/<question_id>**
 
 ---
@@ -279,7 +286,7 @@
 ---
 
 * **POST /users**
-    * Mục đích: Tạo hồ sơ User (thường tạo tự động khi Register, nhưng có thể tạo riêng nếu cần liên kết Account đã tạo trước). Cần `idAccount`.
+    * Purpose: Create a User profile (usually created automatically during Registration, but can be created separately if needed to link to a pre-created Account). Requires `idAccount`.
     * Body (JSON):
         ```json
         {
@@ -287,15 +294,15 @@
           "email": "user_quick@example.com",
           "location": "Location Quick",
           "phone": "0987654321",
-          "idAccount": "<ObjectId_Cua_Account_Da_Tao>" // Lấy từ GET /api/accounts hoặc DB
+          "idAccount": "<ObjectId_Of_Created_Account>" // Get from GET /api/accounts or DB
         }
         ```
 
 * **GET /users**
-    * Mục đích: Lấy danh sách Users.
+    * Purpose: Get list of Users.
 
 * **GET /users/<user_id>**
-* **PUT /users/<user_id>** (Body JSON với trường cần cập nhật)
+* **PUT /users/<user_id>** (JSON Body with fields to update)
 * **DELETE /users/<user_id>**
 
 ---
@@ -303,11 +310,11 @@
 ---
 
 * **POST /send-mail**
-    * Mục đích: Gửi email test (cần cấu hình .env).
+    * Purpose: Send a test email (requires .env configuration).
     * Body (JSON):
         ```json
         {
-          "to": "your_real_email@example.com", // Email thật để nhận thư
+          "to": "your_real_email@example.com", // Real email to receive mail
           "subject": "Quick Test Email Subject",
           "message": "Quick test email body content."
         }
@@ -318,29 +325,29 @@
 ---
 
 * **POST /history**
-    * Mục đích: Tạo lịch sử làm bài kiểm tra của học viên.
+    * Purpose: Create a test-taking history record for a student.
     * Body (JSON):
         ```json
         {
-          "studentId": "<ObjectId_Cua_Student>", // Lấy từ GET /students
-          "testId": "<ObjectId_Cua_Test>", // Lấy từ GET /tests
+          "studentId": "<ObjectId_Of_Student>", // Get from GET /students
+          "testId": "<ObjectId_Of_Test>", // Get from GET /tests
           "score": 85,
           "passed": true
         }
         ```
 
 * **GET /history**
-    * Mục đích: Lấy danh sách tất cả lịch sử làm bài.
+    * Purpose: Get a list of all test history records.
 
 * **GET /history/<history_id>**
-    * Mục đích: Lấy thông tin chi tiết một bản ghi lịch sử cụ thể.
+    * Purpose: Get detailed information about a specific history record.
 
 * **GET /history/student/<student_id>**
-    * Mục đích: Lấy tất cả lịch sử làm bài của một học viên cụ thể.
-    * Ví dụ: `/history/student/6152f9e1b24a1234567890ab`
+    * Purpose: Get all test history for a specific student.
+    * Example: `/history/student/6152f9e1b24a1234567890ab`
 
 * **PUT /history/<history_id>**
-    * Mục đích: Cập nhật thông tin lịch sử làm bài.
+    * Purpose: Update a test history record.
     * Body (JSON):
         ```json
         {
@@ -350,91 +357,93 @@
         ```
 
 * **DELETE /history/<history_id>**
-    * Mục đích: Xóa một bản ghi lịch sử cụ thể.
+    * Purpose: Delete a specific history record.
 
 ---
 **14. Answers**
 ---
 
 * **POST /answers**
-    * Mục đích: Gửi câu trả lời cho câu hỏi.
+    * Purpose: Submit an answer to a question.
     * Body (JSON):
         ```json
         {
-          "content": "Đây là câu trả lời của tôi",
-          "questionId": "<ObjectId_Cua_Question>", // Lấy từ GET /questions
-          "userId": "<ObjectId_Cua_User>", // Lấy từ GET /users
-          "isCorrect": false
+          "content": "Option B", // Text of the selected answer
+          "questionId": "<ObjectId_Of_Question>", // Get from GET /questions
+          "userId": "<ObjectId_Of_User>", // Get from GET /users
+          "selectedOptionIndex": 1, // Index of the selected option (0-based)
+          "isCorrect": false // Whether the selected answer is correct
         }
         ```
 
 * **GET /answers**
-    * Mục đích: Lấy danh sách tất cả câu trả lời.
+    * Purpose: Get a list of all answers.
 
 * **GET /answers/<answer_id>**
-    * Mục đích: Lấy thông tin chi tiết một câu trả lời cụ thể.
+    * Purpose: Get detailed information about a specific answer.
 
 * **GET /answers/user/<user_id>**
-    * Mục đích: Lấy tất cả câu trả lời của một người dùng cụ thể.
-    * Ví dụ: `/answers/user/6152f9e1b24a1234567890cd`
+    * Purpose: Get all answers from a specific user.
+    * Example: `/answers/user/6152f9e1b24a1234567890cd`
 
 * **GET /answers/question/<question_id>**
-    * Mục đích: Lấy tất cả câu trả lời cho một câu hỏi cụ thể.
-    * Ví dụ: `/answers/question/6152f9e1b24a1234567890ef`
+    * Purpose: Get all answers for a specific question.
+    * Example: `/answers/question/6152f9e1b24a1234567890ef`
 
 * **PUT /answers/<answer_id>**
-    * Mục đích: Cập nhật thông tin câu trả lời.
+    * Purpose: Update an answer.
     * Body (JSON):
         ```json
         {
-          "content": "Đây là câu trả lời đã cập nhật",
+          "content": "Option A",
+          "selectedOptionIndex": 0,
           "isCorrect": true
         }
         ```
 
 * **DELETE /answers/<answer_id>**
-    * Mục đích: Xóa một câu trả lời cụ thể.
+    * Purpose: Delete a specific answer.
 
 ---
 **15. Ratings**
 ---
 
 * **POST /ratings**
-    * Mục đích: Thêm đánh giá mới cho khóa học.
+    * Purpose: Add a new rating for a course.
     * Body (JSON):
         ```json
         {
-          "studentId": "<ObjectId_Cua_Student>", // Lấy từ GET /students
-          "courseId": "<ObjectId_Cua_Course>", // Lấy từ GET /courses
+          "studentId": "<ObjectId_Of_Student>", // Get from GET /students
+          "courseId": "<ObjectId_Of_Course>", // Get from GET /courses
           "stars": 4.5,
-          "feedback": "Khóa học rất hay và bổ ích"
+          "feedback": "The course was very helpful and informative"
         }
         ```
 
 * **GET /ratings**
-    * Mục đích: Lấy danh sách tất cả đánh giá.
+    * Purpose: Get a list of all ratings.
 
 * **GET /ratings/<rating_id>**
-    * Mục đích: Lấy thông tin chi tiết một đánh giá cụ thể.
+    * Purpose: Get detailed information about a specific rating.
 
 * **GET /ratings/course/<course_id>**
-    * Mục đích: Lấy tất cả đánh giá cho một khóa học cụ thể và điểm trung bình.
-    * Ví dụ: `/ratings/course/6152f9e1b24a1234567891ab`
-    * Response sẽ bao gồm: danh sách đánh giá, tổng số đánh giá, và điểm trung bình.
+    * Purpose: Get all ratings for a specific course and the average rating.
+    * Example: `/ratings/course/6152f9e1b24a1234567891ab`
+    * Response will include: list of ratings, total number of ratings, and average rating.
 
 * **GET /ratings/student/<student_id>**
-    * Mục đích: Lấy tất cả đánh giá của một học viên cụ thể.
-    * Ví dụ: `/ratings/student/6152f9e1b24a1234567891cd`
+    * Purpose: Get all ratings from a specific student.
+    * Example: `/ratings/student/6152f9e1b24a1234567891cd`
 
 * **PUT /ratings/<rating_id>**
-    * Mục đích: Cập nhật thông tin đánh giá.
+    * Purpose: Update a rating.
     * Body (JSON):
         ```json
         {
           "stars": 5,
-          "feedback": "Đánh giá đã được cập nhật, khóa học xuất sắc"
+          "feedback": "Updated rating, the course is excellent"
         }
         ```
 
 * **DELETE /ratings/<rating_id>**
-    * Mục đích: Xóa một đánh giá cụ thể.
+    * Purpose: Delete a specific rating.
