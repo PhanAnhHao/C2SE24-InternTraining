@@ -24,10 +24,24 @@ const TestPage = () => {
         }));
     };
 
+    // useEffect(() => {
+    //     axios.get("http://localhost:5000/questions")
+    //         .then((response) => {
+    //             const questionsWithAnswers = addFakeAnswers(response.data);
+    //             setQuestions(questionsWithAnswers);
+    //         })
+    //         .catch((error) => {
+    //             console.error("Error fetching questions:", error);
+    //         });
+    // }, []);
+
     useEffect(() => {
         axios.get("http://localhost:5000/questions")
             .then((response) => {
-                const questionsWithAnswers = addFakeAnswers(response.data);
+                const questionsWithAnswers = response.data.map((q) => ({
+                    question: q.question,
+                    answers: q.options.map((opt) => ({ text: opt }))
+                }));
                 setQuestions(questionsWithAnswers);
             })
             .catch((error) => {
@@ -51,19 +65,37 @@ const TestPage = () => {
     return (
         <div className="flex p-4 gap-4">
             {/* Left Column */}
+            {/* Left Column */}
             <div className="w-1/5 border rounded-lg p-4 shadow">
                 <h2 className="text-lg font-bold mb-4">Answers Status</h2>
-                <ul className="space-y-1">
-                    {questions.map((_, index) => (
-                        <li key={index}>
-                            Question {index + 1}:{" "}
-                            <span className={selectedAnswers[index] ? "text-green-600" : "text-red-500"}>
-                                {selectedAnswers[index] ? "Selected" : "Not select"}
-                            </span>
-                        </li>
-                    ))}
+                <ul className="space-y-4">
+                    {questions.map((q, index) => {
+                        const optionLabels = ["A", "B", "C", "D"];
+                        return (
+                            <li key={index} className="flex items-center space-x-3">
+                                <span className="font-medium whitespace-nowrap">Question {index + 1}:</span>
+                                <div className="flex items-center space-x-2">
+                                    {q.answers.map((ans, idx) => (
+                                        <label key={idx} className="flex items-center space-x-1">
+                                            <input
+                                                type="radio"
+                                                name={`sidebar-question-${index}`}
+                                                value={ans.text}
+                                                checked={selectedAnswers[index] === ans.text}
+                                                readOnly
+                                            />
+                                            <span>{optionLabels[idx]}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
             </div>
+
+
+
 
             {/* Right Column */}
             <div className="w-4/5 p-4 shadow space-y-6">
@@ -71,18 +103,22 @@ const TestPage = () => {
                     <div key={index} className="border-b pb-3">
                         <h3 className="font-semibold mb-2">Question {index + 1}: {q.question}</h3>
                         <div className="flex flex-col gap-2">
-                            {q.answers.map((ans, idx) => (
-                                <label key={idx} className="flex items-center space-x-2 break-words w-full">
-                                    <input
-                                        type="radio"
-                                        name={`question-${index}`}
-                                        value={ans.text}
-                                        checked={selectedAnswers[index] === ans.text}
-                                        onChange={() => handleAnswerSelect(index, ans.text)}
-                                    />
-                                    <span>{ans.text}</span>
-                                </label>
-                            ))}
+                            {q.answers.map((ans, idx) => {
+                                const optionLabels = ["A", "B", "C", "D"];
+                                return (
+                                    <label key={idx} className="flex items-center space-x-2 break-words w-full">
+                                        <input
+                                            type="radio"
+                                            name={`question-${index}`}
+                                            value={ans.text}
+                                            checked={selectedAnswers[index] === ans.text}
+                                            onChange={() => handleAnswerSelect(index, ans.text)}
+                                        />
+                                        <span>{`${optionLabels[idx]}. ${ans.text}`}</span>
+                                    </label>
+                                );
+                            })}
+
                         </div>
                     </div>
                 ))}

@@ -1199,7 +1199,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idQuestion\": \"Q_POSTMAN\",\n  \"idTest\": \"<ObjectId_Cua_Test>\", // Thay bằng ObjectId của Test\n  \"question\": \"Biến Collection trong Postman dùng để làm gì?\",\n  \"answer\": \"Lưu trữ giá trị dùng chung trong một Collection.\"\n}",
+							"raw": "{\n  \"idQuestion\": \"Q_POSTMAN\",\n  \"idTest\": \"<ObjectId_Cua_Test>\", // Thay bằng ObjectId của Test\n  \"question\": \"Biến Collection trong Postman dùng để làm gì?\",\n  \"options\": [\n    \"Lưu trữ giá trị dùng chung trong một Collection\",\n    \"Lưu trữ giá trị cho các môi trường khác nhau\",\n    \"Lưu trữ giá trị tạm thời\",\n    \"Lưu trữ giá trị vĩnh viễn\"\n  ],\n  \"correctAnswerIndex\": 0\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1215,7 +1215,7 @@
 								"questions"
 							]
 						},
-						"description": "Tạo Question mới (cần idTest hợp lệ)"
+						"description": "Tạo câu hỏi trắc nghiệm với nhiều lựa chọn (Multiple choice). correctAnswerIndex là chỉ số của đáp án đúng trong mảng options (bắt đầu từ 0)."
 					},
 					"response": []
 				},
@@ -1328,334 +1328,6 @@
 			]
 		},
 		{
-			"name": "Users",
-			"item": [
-				{
-					"name": "Create User Profile",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"userName\": \"Manual User Profile\",\n  \"email\": \"manual@example.com\", \n  \"location\": \"Manual Location\",\n  \"phone\": \"0911223344\",\n  \"idAccount\": \"<ObjectId_Cua_Account_Da_Tao>\" // Thay bằng ObjectId của Account đã tạo mà chưa có User Profile\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/users",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users"
-							]
-						},
-						"description": "Tạo User Profile riêng (cần idAccount hợp lệ)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Users",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Lưu ID của user đầu tiên vào biến collection 'userId'",
-									"if (pm.response.code === 200) {",
-									"    const users = pm.response.json();",
-									"    if (users && users.length > 0) {",
-									"        pm.collectionVariables.set(\"userId\", users[0]._id);",
-									"        console.log(`Saved first user ID to collection variable 'userId': ${users[0]._id}`);",
-									"    } else {",
-									"        console.log('No users found to save ID.');",
-									"    }",
-									"} else {",
-									"    console.log('Failed to get users.');",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/users",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users"
-							]
-						},
-						"description": "Lấy danh sách Users. Lưu _id user đầu tiên vào {{userId}}."
-					},
-					"response": []
-				},
-				{
-					"name": "Get User by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/users/{{userId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users",
-								"{{userId}}"
-							]
-						},
-						"description": "Lấy thông tin User theo {{userId}}"
-					},
-					"response": []
-				},
-				{
-					"name": "Update User",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"location\": \"Updated User Location\",\n  \"phone\": \"0999999999\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/users/{{userId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users",
-								"{{userId}}"
-							]
-						},
-						"description": "Cập nhật thông tin User theo {{userId}}"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete User",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/users/{{userId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"users",
-								"{{userId}}"
-							]
-						},
-						"description": "Xóa User theo {{userId}}"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Test Mail",
-			"item": [
-				{
-					"name": "Send Test Mail",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"to\": \"your_real_email@example.com\",\n  \"subject\": \"Postman Collection Test Mail\",\n  \"message\": \"This email was sent via the Postman collection.\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/send-mail",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"send-mail"
-							]
-						},
-						"description": "Gửi email test (cần cấu hình .env và email người nhận thật)"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "History",
-			"item": [
-				{
-					"name": "Create History",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"studentId\": \"<ObjectId_Of_Student>\",\n  \"testId\": \"<ObjectId_Of_Test>\",\n  \"score\": 85,\n  \"passed\": true\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/history",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"history"
-							]
-						},
-						"description": "Tạo lịch sử làm bài với điểm số"
-					},
-					"response": []
-				},
-				{
-					"name": "Get All History",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Lưu ID của history đầu tiên vào biến collection 'historyId'",
-									"if (pm.response.code === 200) {",
-									"    const histories = pm.response.json();",
-									"    if (histories && histories.length > 0) {",
-									"        pm.collectionVariables.set(\"historyId\", histories[0]._id);",
-									"        console.log(`Saved first history ID to collection variable 'historyId': ${histories[0]._id}`);",
-									"    } else {",
-									"        console.log('No history found to save ID.');",
-									"    }",
-									"} else {",
-									"    console.log('Failed to get history.');",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/history",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"history"
-							]
-						},
-						"description": "Lấy tất cả lịch sử làm bài. Lưu _id history đầu tiên vào {{historyId}}."
-					},
-					"response": []
-				},
-				{
-					"name": "Get History by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/history/{{historyId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"history",
-								"{{historyId}}"
-							]
-						},
-						"description": "Lấy thông tin chi tiết của history theo ID"
-					},
-					"response": []
-				},
-				{
-					"name": "Get History by Student",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/history/student/{{studentId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"history",
-								"student",
-								"{{studentId}}"
-							]
-						},
-						"description": "Lấy lịch sử làm bài của một học viên cụ thể"
-					},
-					"response": []
-				},
-				{
-					"name": "Update History",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"score\": 90,\n  \"passed\": true\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/history/{{historyId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"history",
-								"{{historyId}}"
-							]
-						},
-						"description": "Cập nhật thông tin lịch sử làm bài theo ID"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete History",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/history/{{historyId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"history",
-								"{{historyId}}"
-							]
-						},
-						"description": "Xóa history theo ID"
-					},
-					"response": []
-				}
-			]
-		},
-		{
 			"name": "Answers",
 			"item": [
 				{
@@ -1665,7 +1337,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"content\": \"Đây là câu trả lời của tôi\",\n  \"questionId\": \"<ObjectId_Of_Question>\",\n  \"userId\": \"<ObjectId_Of_User>\",\n  \"isCorrect\": false\n}",
+							"raw": "{\n  \"content\": \"Đây là câu trả lời của tôi\",\n  \"questionId\": \"<ObjectId_Of_Question>\",\n  \"userId\": \"<ObjectId_Of_User>\",\n  \"selectedOptionIndex\": 0,\n  \"isCorrect\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1681,7 +1353,35 @@
 								"answers"
 							]
 						},
-						"description": "Gửi câu trả lời cho câu hỏi"
+						"description": "Gửi câu trả lời cho câu hỏi. Với câu hỏi trắc nghiệm, selectedOptionIndex chỉ định lựa chọn của người dùng (chỉ số trong mảng options)"
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Test Answers",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"testId\": \"<ObjectId_Of_Test>\",\n  \"userId\": \"<ObjectId_Of_Student>\",\n  \"answers\": [\n    {\n      \"questionId\": \"<ObjectId_Of_Question1>\",\n      \"selectedOptionIndex\": 0\n    },\n    {\n      \"questionId\": \"<ObjectId_Of_Question2>\",\n      \"selectedOptionIndex\": 1\n    },\n    {\n      \"questionId\": \"<ObjectId_Of_Question3>\",\n      \"selectedOptionIndex\": 2\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/answers/submit-test",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answers",
+								"submit-test"
+							]
+						},
+						"description": "Submit answers for a complete test. This endpoint will automatically score each question, calculate the total score, and save the results to the history collection."
 					},
 					"response": []
 				},
@@ -2006,6 +1706,158 @@
 							]
 						},
 						"description": "Xóa đánh giá theo ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "History",
+			"item": [
+				{
+					"name": "Save Test Result",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentId\": \"<ObjectId_Of_Student>\",\n  \"testId\": \"<ObjectId_Of_Test>\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/history",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history"
+							]
+						},
+						"description": "Calculate and save test results to history. This will find all the student's answers for questions in the test, calculate the score, and save the results."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/history",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history"
+							]
+						},
+						"description": "Get all test history entries"
+					},
+					"response": []
+				},
+				{
+					"name": "Get History by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/history/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "<ObjectId_Of_History>"
+								}
+							]
+						},
+						"description": "Get a specific history entry by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get History by Student",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/history/student/:studentId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history",
+								"student",
+								":studentId"
+							],
+							"variable": [
+								{
+									"key": "studentId",
+									"value": "<ObjectId_Of_Student>"
+								}
+							]
+						},
+						"description": "Get all test history for a specific student"
+					},
+					"response": []
+				},
+				{
+					"name": "Get History by Test",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/history/test/:testId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history",
+								"test",
+								":testId"
+							],
+							"variable": [
+								{
+									"key": "testId",
+									"value": "<ObjectId_Of_Test>"
+								}
+							]
+						},
+						"description": "Get all history entries for a specific test"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete History",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/history/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "<ObjectId_Of_History>"
+								}
+							]
+						},
+						"description": "Delete a history entry"
 					},
 					"response": []
 				}
