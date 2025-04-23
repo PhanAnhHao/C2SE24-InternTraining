@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"newuser_postman\",\n  \"password\": \"password123\",\n  \"email\": \"newuser_postman@example.com\",\n  \"userName\": \"Postman Tester\",\n  \"location\": \"Postman City\",\n  \"phone\": \"0999888777\"\n}",
+							"raw": "{\n  \"username\": \"newuser_postman\",\n  \"password\": \"password123\",\n  \"email\": \"newuser_postman@example.com\",\n  \"userName\": \"Postman Tester\",\n  \"location\": \"Postman City\",\n  \"phone\": \"0999888777\",\n  \"age\": 22,\n  \"school\": \"Đại học Postman\",\n  \"course\": \"API Testing\",\n  \"englishSkill\": \"Advanced\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -33,7 +33,7 @@
 								"register"
 							]
 						},
-						"description": "Đăng ký người dùng mới (mặc định Role Student)"
+						"description": "Đăng ký người dùng mới (mặc định Role Student). Tự động tạo student record với ID sinh viên ngẫu nhiên. Các trường age, school, course, và englishSkill là tùy chọn, nếu không cung cấp sẽ dùng giá trị mặc định."
 					},
 					"response": []
 				},
@@ -44,7 +44,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"business_user\",\n  \"password\": \"password123\",\n  \"email\": \"business@example.com\",\n  \"userName\": \"Business Company\",\n  \"location\": \"Business City\",\n  \"phone\": \"0999888555\",\n  \"idBusiness\": \"BUS12345\",\n  \"detail\": \"A company specializing in software development\"\n}",
+							"raw": "{\n  \"username\": \"business_user\",\n  \"password\": \"password123\",\n  \"email\": \"business@example.com\",\n  \"userName\": \"Business Company\",\n  \"location\": \"Business City\",\n  \"phone\": \"0999888555\",\n  \"detail\": \"A company specializing in software development\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -61,7 +61,7 @@
 								"register-business"
 							]
 						},
-						"description": "Đăng ký tài khoản doanh nghiệp (Role Business)"
+						"description": "Đăng ký tài khoản doanh nghiệp (Role Business). idBusiness được tạo tự động với định dạng BUSxxxxx (ví dụ: BUS12345)."
 					},
 					"response": []
 				},
@@ -1869,7 +1869,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"exec": [
+									"exec": [
 									"// Lưu ID của rating đầu tiên vào biến collection 'ratingId'",
 									"if (pm.response.code === 200) {",
 									"    const ratings = pm.response.json();",
