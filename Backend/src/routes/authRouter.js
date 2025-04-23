@@ -63,7 +63,7 @@ router.post('/register', async (req, res) => {
     // Create a Student record with default values if not provided
     const newStudent = new Student({
       idStudent: studentId,
-      age: age || 20, // Default age if not provided
+      age: age || 18, // Default age if not provided
       school: school || 'Unknown', // Default school if not provided
       course: course || 'IT', // Default course if not provided
       englishSkill: englishSkill || 'Intermediate', // Default English skill if not provided
@@ -89,12 +89,15 @@ router.post('/register', async (req, res) => {
 // Đăng ký cho Business
 router.post('/register-business', async (req, res) => {
   try {
-    const { username, password, email, userName, location, phone, idBusiness, detail } = req.body;
+    const { username, password, email, userName, location, phone, detail } = req.body;
 
     const defaultRoleId = '660edabc12eac0f2fc123403';
 
-    const existing = await Account.findOne({ email });
-    if (existing) return res.status(400).json({ error: 'Email already exists' });
+    const existing = await Account.findOne({ username });
+    if (existing) return res.status(400).json({ error: 'Username already exists' });
+
+    const emailExists = await Account.findOne({ email });
+    if (emailExists) return res.status(400).json({ error: 'Email already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -116,15 +119,22 @@ router.post('/register-business', async (req, res) => {
 
     const savedUser = await newUser.save();
 
+    // Generate a random business ID with format BUS12345
+    const randomNumbers = Math.floor(10000 + Math.random() * 90000); // Generate a 5-digit number
+    const businessId = `BUS${randomNumbers}`;
+
     const newBusiness = new Business({
-      idBusiness,
+      idBusiness: businessId, // Use the generated business ID
       detail,
       userId: savedUser._id
     });
 
-    await newBusiness.save();
+    const savedBusiness = await newBusiness.save();
 
-    res.status(201).json({ message: 'Business registration successful' });
+    res.status(201).json({ 
+      message: 'Business registration successful',
+      businessId: savedBusiness.idBusiness // Return the generated business ID
+    });
   } catch (err) {
     console.error("Business Registration Error:", err);
     if (err.name === 'ValidationError') {

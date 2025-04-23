@@ -19,9 +19,15 @@
           "email": "test_quick@example.com",
           "userName": "Tester Quick",
           "location": "Test City",
-          "phone": "0912345678"
+          "phone": "0912345678",
+          "age": 22,
+          "school": "Đại học ABC",
+          "course": "Công nghệ thông tin",
+          "englishSkill": "Advanced"
         }
         ```
+    * Lưu ý: Các trường `age`, `school`, `course`, và `englishSkill` là tùy chọn. Nếu không cung cấp, hệ thống sẽ tự động tạo Student record với các giá trị mặc định.
+    * Kết quả trả về: Bao gồm studentId của Student record được tạo tự động.
 
 * **POST /auth/login**
     * Mục đích: Lấy JWT Token
@@ -131,6 +137,23 @@
 * **GET /businesses/<business_id>**
 * **PUT /businesses/<business_id>** (Body JSON với trường cần cập nhật)
 * **DELETE /businesses/<business_id>**
+
+* **POST /auth/register-business**
+    * Mục đích: Đăng ký tài khoản doanh nghiệp (Role Business)
+    * Body (JSON):
+        ```json
+        {
+          "username": "business_user",
+          "password": "password123",
+          "email": "business@example.com",
+          "userName": "Business Company",
+          "location": "Business City",
+          "phone": "0999888555",
+          "detail": "A company specializing in software development"
+        }
+        ```
+    * Lưu ý: idBusiness được tạo tự động với định dạng "BUS" theo sau là 5 chữ số ngẫu nhiên (ví dụ: BUS12345)
+    * Kết quả trả về: Bao gồm businessId được tạo tự động.
 
 ---
 **6. Languages**
