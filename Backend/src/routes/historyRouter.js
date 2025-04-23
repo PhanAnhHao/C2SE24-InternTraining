@@ -1,20 +1,73 @@
 const express = require('express');
 const router = express.Router();
 const History = require('../models/History');
+const Test = require('../models/Test');
+const Answer = require('../models/Answer');
+const Question = require('../models/Question');
 const mongoose = require('mongoose');
 
-// CREATE - Add test history for a student
+// CREATE - Save test result to history
 router.post('/', async (req, res) => {
   try {
-    const newHistory = new History(req.body);
-    await newHistory.save();
-    res.status(201).json(newHistory);
+    const { studentId, testId } = req.body;
+    
+    // Validate required fields
+    if (!studentId || !testId) {
+      return res.status(400).json({ error: 'Student ID and Test ID are required' });
+    }
+    
+    // Validate IDs
+    if (!mongoose.Types.ObjectId.isValid(studentId) || !mongoose.Types.ObjectId.isValid(testId)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
+    
+    // Get the test with its questions
+    const test = await Test.findById(testId);
+    if (!test) {
+      return res.status(404).json({ error: 'Test not found' });
+    }
+    
+    // Get all answers from this student for this test's questions
+    const answers = await Answer.find({
+      userId: studentId,
+      questionId: { $in: test.idQuestion }
+    });
+    
+    // Calculate score
+    const totalQuestions = test.idQuestion.length;
+    const correctAnswers = answers.filter(answer => answer.isCorrect).length;
+    const score = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+    
+    // Determine if passed (e.g., score >= 70%)
+    const passThreshold = 70; // Can be configured as needed
+    const passed = score >= passThreshold;
+    
+    // Create or update history entry
+    const history = new History({
+      studentId,
+      testId,
+      score,
+      completedAt: new Date(),
+      passed
+    });
+    
+    await history.save();
+    
+    res.status(201).json({
+      history,
+      details: {
+        totalQuestions,
+        correctAnswers,
+        score,
+        passed
+      }
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// READ ALL - Get all test history records
+// READ ALL - Get all history entries
 router.get('/', async (req, res) => {
   try {
     const histories = await History.find()
@@ -26,14 +79,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-// READ BY ID - Get a specific history record
+// READ BY ID - Get a specific history entry
 router.get('/:id', async (req, res) => {
   try {
     const history = await History.findById(req.params.id)
       .populate('studentId', 'idStudent')
       .populate('testId', 'idTest content');
     
-    if (!history) return res.status(404).json({ message: 'History record not found' });
+    if (!history) return res.status(404).json({ message: 'History not found' });
     res.json(history);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -58,26 +111,33 @@ router.get('/student/:studentId', async (req, res) => {
   }
 });
 
-// UPDATE - Update a history record
-router.put('/:id', async (req, res) => {
+// READ BY TEST - Get all history entries for a specific test
+router.get('/test/:testId', async (req, res) => {
   try {
-    const updated = await History.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: 'History record not found' });
-    res.json(updated);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+    const testId = req.params.testId;
+    if (!mongoose.Types.ObjectId.isValid(testId)) {
+      return res.status(400).json({ error: 'Invalid test ID format' });
+    }
 
-// DELETE - Delete a history record
-router.delete('/:id', async (req, res) => {
-  try {
-    const deleted = await History.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: 'History record not found' });
-    res.json({ message: 'History record deleted successfully' });
+    const histories = await History.find({ testId })
+      .populate('studentId', 'idStudent')
+      .sort({ completedAt: -1 });
+    
+    res.json(histories);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-module.exports = router; 
+// DELETE - Delete a history entry
+router.delete('/:id', async (req, res) => {
+  try {
+    const deleted = await History.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'History not found' });
+    res.json({ message: 'History deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;
