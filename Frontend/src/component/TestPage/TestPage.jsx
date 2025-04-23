@@ -6,14 +6,29 @@ const TestPage = () => {
     const navigate = useNavigate();
     const [questions, setQuestions] = useState([]);
     const [selectedAnswers, setSelectedAnswers] = useState(() => {
+        const user = localStorage.getItem("user");
         const saved = localStorage.getItem("answers");
-        return saved ? JSON.parse(saved) : {};
+        return user && saved ? JSON.parse(saved) : {};
     });
+
+    // Fake answers generator
+    const addFakeAnswers = (rawQuestions) => {
+        return rawQuestions.map((q) => ({
+            ...q,
+            answers: [
+                { text: "Answer A" },
+                { text: "Answer B" },
+                { text: "Answer C" },
+                { text: "Answer D" },
+            ],
+        }));
+    };
 
     useEffect(() => {
         axios.get("http://localhost:5000/questions")
             .then((response) => {
-                setQuestions(response.data);
+                const questionsWithAnswers = addFakeAnswers(response.data);
+                setQuestions(questionsWithAnswers);
             })
             .catch((error) => {
                 console.error("Error fetching questions:", error);
@@ -21,11 +36,7 @@ const TestPage = () => {
     }, []);
 
     const handleAnswerSelect = (index, ans) => {
-        setSelectedAnswers((prev) => {
-            const updated = { ...prev, [index]: ans };
-            localStorage.setItem("answers", JSON.stringify(updated));
-            return updated;
-        });
+        setSelectedAnswers((prev) => ({ ...prev, [index]: ans }));
     };
 
     const handleSave = () => {
@@ -55,13 +66,13 @@ const TestPage = () => {
             </div>
 
             {/* Right Column */}
-            <div className="w-4/5 overflow-y-auto h-[80vh]  rounded-lg p-4 shadow space-y-6">
+            <div className="w-4/5 p-4 shadow space-y-6">
                 {questions.map((q, index) => (
                     <div key={index} className="border-b pb-3">
-                        <h3 className="font-semibold mb-2">Câu hỏi {index + 1}: {q.question}</h3>
-                        <div className="grid grid-cols-2 gap-2">
+                        <h3 className="font-semibold mb-2">Question {index + 1}: {q.question}</h3>
+                        <div className="flex flex-col gap-2">
                             {q.answers.map((ans, idx) => (
-                                <label key={idx} className="flex items-center space-x-2">
+                                <label key={idx} className="flex items-center space-x-2 break-words w-full">
                                     <input
                                         type="radio"
                                         name={`question-${index}`}

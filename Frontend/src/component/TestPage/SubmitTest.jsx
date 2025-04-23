@@ -7,7 +7,7 @@ const SubmitTest = () => {
     const handleConfirm = () => {
         localStorage.removeItem("answers");
         alert("Your test has been submitted successfully!");
-        navigate("/"); 
+        navigate("/");
     };
 
     const handlePrevious = () => {
@@ -15,7 +15,7 @@ const SubmitTest = () => {
     };
 
     return (
-        <div className="h-screen flex items-center justify-center bg-gray-100">
+        <div className="h-screen flex items-start pt-[10vh] justify-center bg-gray-100">
             <div className="bg-white p-8 rounded-lg shadow-xl w-[400px] text-center">
                 <h2 className="text-xl font-bold mb-4">Confirm Submission</h2>
                 <p className="mb-6">Are you sure you want to submit the test?</p>
