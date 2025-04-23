@@ -33,7 +33,7 @@ const HeroContent = () => {
                     <Button
                         variant="contained"
                         sx={{ borderRadius: "80px", backgroundColor: "#7fcfd1" }}
-                        onClick={() => navigate("/user-login")}
+                        onClick={() => navigate("/login")}
                     >{
                             loggedIn ? "Go to course" : "Join for free"
                         }
