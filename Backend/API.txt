@@ -230,7 +230,7 @@
 ---
 
 * **POST /tests**
-    * Purpose: Create a new test (requires `idLesson`, array of `idQuestion`).
+    * Purpose: Create a new test.
     * Body (JSON):
         ```json
         {
@@ -245,11 +245,24 @@
         ```
 
 * **GET /tests**
-    * Purpose: Get list of Tests.
+    * Purpose: Get list of Tests with populated lesson and question information.
 
 * **GET /tests/<test_id>**
-* **PUT /tests/<test_id>** (JSON Body with fields to update, e.g. update `idQuestion` array)
+    * Purpose: Get a specific test by ID with populated lesson and question information.
+
+* **PUT /tests/<test_id>**
+    * Purpose: Update a specific test.
+    * Body (JSON - include only fields to update):
+        ```json
+        {
+          "idLesson": "<new_lesson_id>",
+          "content": "Updated Test Content",
+          "idQuestion": ["<question_id_1>", "<question_id_2>"]
+        }
+        ```
+
 * **DELETE /tests/<test_id>**
+    * Purpose: Delete a specific test.
 
 ---
 **10. Questions**

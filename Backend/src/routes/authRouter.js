@@ -89,7 +89,11 @@ router.post('/register', async (req, res) => {
 // Đăng ký cho Business
 router.post('/register-business', async (req, res) => {
   try {
-    const { username, password, email, userName, location, phone, detail } = req.body;
+    const { username, password, email, userName, location, phone, detail, type } = req.body;
+
+    if (!type) {
+      return res.status(400).json({ error: 'Business type is required' });
+    }
 
     const defaultRoleId = '660edabc12eac0f2fc123403';
 
@@ -125,6 +129,7 @@ router.post('/register-business', async (req, res) => {
 
     const newBusiness = new Business({
       idBusiness: businessId, // Use the generated business ID
+      type, // Added the type field
       detail,
       userId: savedUser._id
     });

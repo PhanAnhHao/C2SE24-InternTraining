@@ -44,7 +44,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"business_user\",\n  \"password\": \"password123\",\n  \"email\": \"business@example.com\",\n  \"userName\": \"Business Company\",\n  \"location\": \"Business City\",\n  \"phone\": \"0999888555\",\n  \"detail\": \"A company specializing in software development\"\n}",
+							"raw": "{\n  \"username\": \"business_user\",\n  \"password\": \"password123\",\n  \"email\": \"business@example.com\",\n  \"userName\": \"Business Company\",\n  \"location\": \"Business City\",\n  \"phone\": \"0999888555\",\n  \"detail\": \"A company specializing in software development\",\n  \"type\": \"Technology\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -509,7 +509,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idBusiness\": \"B_POSTMAN\",\n  \"detail\": \"Công ty Postman Solutions\",\n  \"userId\": \"<ObjectId_User_Co_Role_Business>\" // Lấy từ GET /users hoặc DB\n}",
+							"raw": "{\n  \"idBusiness\": \"B_POSTMAN\",\n  \"type\": \"Consulting\",\n  \"detail\": \"Công ty Postman Solutions\",\n  \"userId\": \"<ObjectId_User_Co_Role_Business>\" // Lấy từ GET /users hoặc DB\n}",
 							"options": {
 								"raw": {
 									"language": "json"

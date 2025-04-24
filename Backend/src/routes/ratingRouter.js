@@ -19,7 +19,13 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const ratings = await Rating.find()
-      .populate('studentId', 'idStudent')
+      .populate({
+        path: 'studentId',
+        populate: {
+          path: 'userId',
+          select: 'userName'
+        }
+      })
       .populate('courseId', 'idCourse infor');
     res.json(ratings);
   } catch (err) {
@@ -31,7 +37,13 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const rating = await Rating.findById(req.params.id)
-      .populate('studentId', 'idStudent')
+      .populate({
+        path: 'studentId',
+        populate: {
+          path: 'userId',
+          select: 'userName'
+        }
+      })
       .populate('courseId', 'idCourse infor');
     
     if (!rating) return res.status(404).json({ message: 'Rating not found' });
@@ -50,7 +62,13 @@ router.get('/course/:courseId', async (req, res) => {
     }
 
     const ratings = await Rating.find({ courseId })
-      .populate('studentId', 'idStudent')
+      .populate({
+        path: 'studentId',
+        populate: {
+          path: 'userId',
+          select: 'userName'
+        }
+      })
       .sort({ createdAt: -1 });
     
     // Calculate average rating
@@ -77,6 +95,13 @@ router.get('/student/:studentId', async (req, res) => {
     }
 
     const ratings = await Rating.find({ studentId })
+      .populate({
+        path: 'studentId',
+        populate: {
+          path: 'userId',
+          select: 'userName'
+        }
+      })
       .populate('courseId', 'idCourse infor')
       .sort({ createdAt: -1 });
     
@@ -108,4 +133,4 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;
