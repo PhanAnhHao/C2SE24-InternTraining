@@ -111,10 +111,10 @@ const LoginPage = () => {
                 </div>
 
                 {/* Right - login form */}
-                <div className="w-full md:w-1/2 flex items-center justify-center p-5 bg-white">
+                <div className="w-full md:w-1/2 flex items-center justify-center px-5 bg-white">
                     <div className="w-full max-w-md mx-auto px-6 py-8 bg-white rounded-lg shadow-md ml-40">
                         <div className="text-center mb-8">
-                            <h1 className="text-2xl font-semibold mb-4">Welcome to Lorem!</h1>
+                            <h1 className="text-2xl font-semibold mb-4">Welcome to Intern Training!</h1>
                             <div className="flex justify-center space-x-4 mb-6">
                                 <div className="w-32">
                                     <button className="w-full bg-teal-400 text-white px-6 py-2 rounded-full hover:bg-teal-500 transition-colors">
@@ -127,7 +127,6 @@ const LoginPage = () => {
                                     </button>
                                 </Link>
                             </div>
-                            <p className="text-gray-600">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="w-full">

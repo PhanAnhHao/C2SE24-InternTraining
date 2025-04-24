@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "../../common/Button.jsx";
+import {FaStar} from "react-icons/fa";
 
 const Table = ({ courses, onSelectCourse, onSelectStudentList }) => {
     return (
@@ -21,9 +22,9 @@ const Table = ({ courses, onSelectCourse, onSelectStudentList }) => {
                         className={`border-t ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100 transition-all duration-200`}
                     >
                         <td className="p-2 font-semibold">{index + 1}</td>
-                        <td className="p-2">{course.info}</td>
+                        <td className="p-2">{course.infor}</td>
                         <td className="p-2">{course.languageID?.name || "N/A"}</td>
-                        <td className="p-2">{course.rating}</td>
+                        <td className="p-2  font-medium">{course.avgRating}</td>
                         <td className="p-2 flex gap-2">
                             <Button onClick={() => onSelectCourse(course._id)}>
                                 View Lessons
