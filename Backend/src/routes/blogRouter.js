@@ -38,7 +38,7 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
       tags: processedTags,
       status: status || 'published',
       userId: user._id, // Use the User ID, not the Account ID
-      image: req.file ? `/uploads/blogs/${req.file.filename}` : 'default-blog-image.jpg'
+      image: req.file ? req.file.filename : 'default-blog-image.jpg'
     });
     
     const savedBlog = await newBlog.save();
@@ -185,7 +185,7 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
       if (blog.image && blog.image !== 'default-blog-image.jpg' && fs.existsSync(path.join(__dirname, '..', '..', blog.image))) {
         fs.unlinkSync(path.join(__dirname, '..', '..', blog.image));
       }
-      req.body.image = `/uploads/blogs/${req.file.filename}`;
+      req.body.image = req.file.filename; // Update to new image filename
     }
     
     // Update the blog
