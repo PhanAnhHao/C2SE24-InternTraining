@@ -19,6 +19,15 @@ const HeroContent = () => {
             setLoggedIn(false);
         }
     }, [loggedIn]);
+
+    const handleHeroNavigateButton = () => {
+        if (loggedIn === true) {
+            navigate("/course");
+        } else {
+            navigate("/login");
+        }
+    }
+
     return (
         <div className='grid grid-cols-12 bg-[#49BBBD] py-0 rounded-b-[21%] h-[800px]'>
             <motion.div initial={{ x: 0 }} whileInView={{ x: 50, transition: { duration: 1.5 } }} className='left-content col-span-6 text-white px-[120px] py-[200px]'>
@@ -33,7 +42,7 @@ const HeroContent = () => {
                     <Button
                         variant="contained"
                         sx={{ borderRadius: "80px", backgroundColor: "#7fcfd1" }}
-                        onClick={() => navigate("/login")}
+                        onClick={() => handleHeroNavigateButton()}
                     >{
                             loggedIn ? "Go to course" : "Join for free"
                         }

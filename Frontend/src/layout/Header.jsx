@@ -33,7 +33,12 @@ const Header = () => {
                 <nav className="hidden md:flex space-x-8 text-gray-600">
                     <a href="#" className="hover:text-black">Home</a>
                     <a href="/course" className="hover:text-black">Courses</a>
-                    <a href="#" className="hover:text-black">Your Courses</a>
+                    {
+                        loggedIn
+                            ?
+                            <a href="#" className="hover:text-black">Your Courses</a>
+                            : <></>
+                    }
                     <a href="#" className="hover:text-black">Blog</a>
                     <a href="#" className="hover:text-black">About Us</a>
                 </nav>
