@@ -22,6 +22,7 @@ import TestPage from './component/TestPage/TestPage.jsx';
 import SubmitTest from './component/TestPage/SubmitTest.jsx';
 import ChangePassword from './component/ChangePassword/ChangePassword.jsx';
 import OnlineLearningPage from "./pages/OnlineLearningPage.jsx";
+import CreateBlog from './component/BlogPage/CreateBlog/CreateBlog.jsx';
 
 const NotFound = () => {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path="/test-page" element={<TestPage />} />
           <Route path="/submit-test" element={<SubmitTest />} />
           <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/create-blog" element={<CreateBlog />} />
 
         </Route>
         <Route path="/login" element={<LoginPage />} />
