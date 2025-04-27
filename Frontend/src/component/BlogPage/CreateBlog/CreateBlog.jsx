@@ -15,6 +15,14 @@ const CreateBlog = () => {
     const [error, setError] = useState(null);
     const [preview, setPreview] = useState(null);
 
+    const tagOptions = [
+        "Web Development",
+        "React",
+        "Next.js",
+        "JavaScript",
+        "Frontend"
+    ];
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -48,8 +56,8 @@ const CreateBlog = () => {
             setError('Content is required');
             return false;
         }
-        if (!formData.tags.trim()) {
-            setError('At least one tag is required');
+        if (!formData.tags) {
+            setError('Please select a tag');
             return false;
         }
         return true;
@@ -67,45 +75,34 @@ const CreateBlog = () => {
             const formDataToSend = new FormData();
             formDataToSend.append('title', formData.title.trim());
             formDataToSend.append('content', formData.content.trim());
-
-            const tagsArray = formData.tags
-                .split(',')
-                .map(tag => tag.trim())
-                .filter(tag => tag.length > 0);
-
-            if (tagsArray.length === 0) {
-                setError('At least one tag is required');
-                setLoading(false);
-                return;
-            }
-
-            formDataToSend.append('tags', JSON.stringify(tagsArray));
+            formDataToSend.append('tags', formData.tags);
             formDataToSend.append('status', formData.status);
 
+            // Xử lý ảnh
             if (formData.image) {
-                formDataToSend.append('image', formData.image);
+                formDataToSend.append('image', formData.image, formData.image.name);
             }
 
-            // Thêm userId vào form data
-            const token = localStorage.getItem('token');
-            if (!token) {
+            // Lấy userId từ localStorage
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
                 setError('User not logged in.');
                 setLoading(false);
                 return;
             }
-            formDataToSend.append('token', token);
+            formDataToSend.append('userId', userId);
 
-            // Gửi request
+            // Gửi request với headers phù hợp
             const response = await axios.post('http://localhost:5000/blogs', formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                },
-                // withCredentials: true,
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (response.data) {
                 alert('Blog created successfully!');
-                navigate('/blogs');
+                navigate('/blog-page');
             }
         } catch (err) {
             const errorMessage = err.response?.data?.message || 'Failed to create blog. Please try again.';
@@ -115,7 +112,6 @@ const CreateBlog = () => {
             setLoading(false);
         }
     };
-
 
     return (
         <div className="max-w-4xl mx-auto p-6">
@@ -162,18 +158,23 @@ const CreateBlog = () => {
 
                 <div className="space-y-2">
                     <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
-                        Tags (comma-separated) <span className="text-red-500">*</span>
+                        Tags <span className="text-red-500">*</span>
                     </label>
-                    <input
-                        type="text"
+                    <select
                         id="tags"
                         name="tags"
                         value={formData.tags}
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                        placeholder="Web Development, React, JavaScript"
-                    />
+                    >
+                        <option value="">Select a tag</option>
+                        {tagOptions.map((tag) => (
+                            <option key={tag} value={tag}>
+                                {tag}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className="space-y-2">
@@ -226,8 +227,7 @@ const CreateBlog = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className={`px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 ${loading ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
+                        className={`px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         {loading ? 'Creating...' : 'Create Blog'}
                     </button>

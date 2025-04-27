@@ -16,9 +16,12 @@ const RelatedBlog = () => {
     const getImageUrl = (imagePath) => {
         if (!imagePath) return theme_log;
         if (imagePath.startsWith('http')) return imagePath;
-        return imagePath.startsWith('/uploads')
-            ? `http://localhost:5000${imagePath}`
-            : `http://localhost:5000/uploads/${imagePath}`;
+
+        // Nếu là default image thì trả về ảnh mặc định
+        if (imagePath === 'default-blog-image.jpg') return theme_log;
+
+        // Xử lý đường dẫn ảnh từ uploads/blogs
+        return `http://localhost:5000/uploads/blogs/${imagePath}`;
     };
 
     useEffect(() => {

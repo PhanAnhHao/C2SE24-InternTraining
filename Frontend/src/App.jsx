@@ -22,6 +22,8 @@ import TestPage from './component/TestPage/TestPage.jsx';
 import SubmitTest from './component/TestPage/SubmitTest.jsx';
 import ChangePassword from './component/ChangePassword/ChangePassword.jsx';
 import CreateBlog from './component/BlogPage/CreateBlog/CreateBlog.jsx';
+import OnlineLearningPage from "./pages/OnlineLearningPage.jsx";
+
 const NotFound = () => {
   return (
     <div className="page-not-found" role="alert" >
@@ -62,6 +64,7 @@ function App() {
 
 
         <Route path="/business/create-course" element={<CreateCoursePage />} />
+        <Route path="/online-learning" element={<OnlineLearningPage />} />
 
         {/*Test*/}
 
