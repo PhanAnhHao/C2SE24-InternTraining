@@ -36,6 +36,13 @@ const TestPage = () => {
     // }, []);
 
     useEffect(() => {
+        // Load saved answers from localStorage
+        const savedAnswers = localStorage.getItem("answers");
+        if (savedAnswers) {
+            setSelectedAnswers(JSON.parse(savedAnswers));
+        }
+
+        // Fetch questions
         axios.get("http://localhost:5000/questions")
             .then((response) => {
                 const questionsWithAnswers = response.data.map((q) => ({
@@ -56,6 +63,7 @@ const TestPage = () => {
     const handleSave = () => {
         localStorage.setItem("answers", JSON.stringify(selectedAnswers));
         alert("Answers saved!");
+        window.location.reload(); // Reload the page after saving
     };
 
     const handleSubmit = () => {
