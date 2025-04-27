@@ -2,55 +2,28 @@
 // To run the seed: node seed.js or node src/seed.js (if .env is outside src)
 require('dotenv').config();
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
+const Role = require('./models/Role');
+const Account = require('./models/Account');
+const User = require('./models/User');
+const Student = require('./models/Student');
+const Business = require('./models/Business');
+const Language = require('./models/Language');
+const Course = require('./models/Course');
+const Lesson = require('./models/Lesson');
+const Test = require('./models/Test');
+const Question = require('./models/Question');
+const Answer = require('./models/Answer');
+const History = require('./models/History');
+const Rating = require('./models/Rating');
+const Blog = require('./models/Blog');
+
+const bcrypt = require('bcrypt');
 
 const uri = process.env.MONGO_URI || 'mongodb+srv://PhanAnhHao:anhhao1234567@clustertandinh.ass8o.mongodb.net/test?retryWrites=true&w=majority';
 mongoose.connect(uri)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection failed:', err));
-
-const ObjectId = mongoose.Types.ObjectId;
-
-const Role = mongoose.model('Role', new mongoose.Schema({ name: String, description: String }));
-const Account = mongoose.model('Account', new mongoose.Schema({ username: String, password: String, email: String, role: ObjectId }));
-const User = mongoose.model('User', new mongoose.Schema({ userName: String, email: String, location: String, phone: String, account: ObjectId }));
-const Student = mongoose.model('Student', new mongoose.Schema({ idStudent: String, age: Number, school: String, course: String, englishSkill: String, userId: ObjectId }));
-const Business = mongoose.model('Business', new mongoose.Schema({ idBusiness: String, type: String, detail: String, userId: ObjectId }));
-const Language = mongoose.model('Language', new mongoose.Schema({ languageId: String, name: String }));
-const Course = mongoose.model('Course', new mongoose.Schema({ idCourse: String, infor: String, languageID: ObjectId }));
-const Lesson = mongoose.model('Lesson', new mongoose.Schema({ idLesson: String, idCourse: ObjectId, name: String, content: String, linkVideo: String, status: String, idTest: ObjectId }));
-const Test = mongoose.model('Test', new mongoose.Schema({ idTest: String, idLesson: ObjectId, content: String, idQuestion: [ObjectId] }));
-const Question = mongoose.model('Question', new mongoose.Schema({ 
-  idQuestion: String, 
-  idTest: ObjectId, 
-  question: String, 
-  options: [String],
-  correctAnswerIndex: Number,
-  answer: String 
-}));
-
-// Models for History, Answer, Rating
-const History = mongoose.model('History', new mongoose.Schema({
-  studentId: ObjectId,
-  testId: ObjectId,
-  score: Number,
-  completedAt: Date,
-  passed: Boolean
-}, { timestamps: true }));
-
-const Answer = mongoose.model('Answer', new mongoose.Schema({
-  content: String,
-  questionId: ObjectId,
-  userId: ObjectId,
-  selectedOptionIndex: Number,
-  isCorrect: Boolean
-}, { timestamps: true }));
-
-const Rating = mongoose.model('Rating', new mongoose.Schema({
-  studentId: ObjectId,
-  courseId: ObjectId,
-  stars: Number,
-  feedback: String
-}, { timestamps: true }));
 
 async function seed() {
   try {
@@ -73,13 +46,13 @@ async function seed() {
     ]);
 
     const users = await User.insertMany([
-      { userName: 'John Smith', email: 'a@gmail.com', location: 'Hanoi', phone: '0901111111', account: accounts[0]._id },
-      { userName: 'Emily Johnson', email: 'b@gmail.com', location: 'Ho Chi Minh City', phone: '0902222222', account: accounts[1]._id },
-      { userName: 'Michael Williams', email: 'c@gmail.com', location: 'Da Nang', phone: '0903333333', account: accounts[2]._id },
-      { userName: 'Sophia Lee', email: 'd@gmail.com', location: 'Hue', phone: '0904444444', account: accounts[3]._id },
-      { userName: 'Daniel Nguyen', email: 'e@gmail.com', location: 'Nha Trang', phone: '0905555555', account: accounts[4]._id },
-      { userName: 'Sarah Brown', email: 'f@gmail.com', location: 'Hue', phone: '0906666666', account: accounts[5]._id },
-      { userName: 'David Jones', email: 'g@gmail.com', location: 'Can Tho', phone: '0907777777', account: accounts[6]._id },
+      { userName: 'John Smith', email: 'a@gmail.com', location: 'Hanoi', phone: '0901111111', idAccount: accounts[0]._id },
+      { userName: 'Emily Johnson', email: 'b@gmail.com', location: 'Ho Chi Minh City', phone: '0902222222', idAccount: accounts[1]._id },
+      { userName: 'Michael Williams', email: 'c@gmail.com', location: 'Da Nang', phone: '0903333333', idAccount: accounts[2]._id },
+      { userName: 'Sophia Lee', email: 'd@gmail.com', location: 'Hue', phone: '0904444444', idAccount: accounts[3]._id },
+      { userName: 'Daniel Nguyen', email: 'e@gmail.com', location: 'Nha Trang', phone: '0905555555', idAccount: accounts[4]._id },
+      { userName: 'Sarah Brown', email: 'f@gmail.com', location: 'Hue', phone: '0906666666', idAccount: accounts[5]._id },
+      { userName: 'David Jones', email: 'g@gmail.com', location: 'Can Tho', phone: '0907777777', idAccount: accounts[6]._id },
     ]);
 
     const students = await Student.insertMany([
@@ -1062,6 +1035,112 @@ async function seed() {
     
     await Rating.insertMany(ratingRecords);
 
+    // Seed Blogs
+    const blogs = await Blog.insertMany([
+      {
+        title: 'The Future of Web Development: React vs Next.js',
+        content: `<p>As web technologies continue to evolve, developers must stay informed about the most efficient tools and frameworks available. React has long been a dominant force in frontend development, but Next.js is quickly gaining traction for its powerful features.</p>
+                 <p>In this article, we'll compare React and Next.js and help you decide which might be best for your projects.</p>
+                 <h2>Key Advantages of Next.js</h2>
+                 <ul>
+                   <li>Built-in server-side rendering for improved SEO and performance</li>
+                   <li>Automatic code splitting for faster page loads</li>
+                   <li>Simplified routing with file-system based router</li>
+                   <li>API routes that make backend development easier</li>
+                   <li>Static site generation for lightning-fast static websites</li>
+                 </ul>
+                 <p>While React remains an excellent choice for many applications, Next.js provides additional features that can significantly enhance user experience and developer productivity.</p>`,
+        image: 'default-blog-image.jpg',
+        tags: ['Web Development', 'React', 'Next.js', 'JavaScript', 'Frontend'],
+        userId: users[2]._id,
+        views: 251,
+        status: 'published'
+      },
+      {
+        title: 'Effective Learning Strategies for New Programmers',
+        content: `<p>Learning to code can be a challenging journey, especially for those new to programming concepts. The right learning strategies can make all the difference in your progress.</p>
+                 <p>Here are some proven techniques to help you master programming more effectively and efficiently.</p>
+                 <h2>Top Learning Strategies</h2>
+                 <ol>
+                   <li><strong>Build projects from day one</strong> - Don't just read or watch tutorials; apply what you learn by building small projects.</li>
+                   <li><strong>Code daily</strong> - Consistency is key. Even 30 minutes of coding per day is better than 8 hours once a week.</li>
+                   <li><strong>Understand the fundamentals</strong> - Focus on learning core concepts rather than just memorizing syntax.</li>
+                   <li><strong>Join a community</strong> - Engage with other learners through forums, Discord servers, or local meetups.</li>
+                   <li><strong>Teach others</strong> - Explaining concepts to others is one of the best ways to solidify your own understanding.</li>
+                 </ol>
+                 <p>Remember that learning to code is a marathon, not a sprint. Be patient with yourself and celebrate small victories along the way.</p>`,
+        image: 'default-blog-image.jpg',
+        tags: ['Programming', 'Learning', 'Education', 'Beginners', 'Tech Career'],
+        userId: users[1]._id,
+        views: 189,
+        status: 'published'
+      },
+      {
+        title: 'Cloud Computing in 2024: AWS vs Azure vs Google Cloud',
+        content: `<p>The cloud computing landscape continues to evolve rapidly, with the major providers constantly introducing new services and features to stay competitive.</p>
+                 <p>Let's examine how AWS, Azure, and Google Cloud compare in 2024 and what factors might influence your choice of platform.</p>
+                 <h2>Market Leaders Comparison</h2>
+                 <h3>AWS</h3>
+                 <p>Still maintains the largest market share with the most comprehensive set of services. Particularly strong in:</p>
+                 <ul>
+                   <li>Extensive service catalog with the most mature offerings</li>
+                   <li>Global infrastructure with the most regions</li>
+                   <li>Advanced networking capabilities</li>
+                 </ul>
+                 <h3>Microsoft Azure</h3>
+                 <p>Continues to grow rapidly with strong enterprise integration:</p>
+                 <ul>
+                   <li>Seamless integration with Microsoft products</li>
+                   <li>Hybrid cloud solutions with Azure Arc</li>
+                   <li>Strong enterprise support and compliance offerings</li>
+                 </ul>
+                 <h3>Google Cloud</h3>
+                 <p>Gaining traction with data and ML strengths:</p>
+                 <ul>
+                   <li>Industry-leading data analytics and machine learning tools</li>
+                   <li>Strong Kubernetes support (as the original creators)</li>
+                   <li>Innovative pricing models and cost optimization tools</li>
+                 </ul>
+                 <p>The right choice depends on your specific needs, existing technology stack, and long-term goals.</p>`,
+        image: 'default-blog-image.jpg',
+        tags: ['Cloud Computing', 'AWS', 'Azure', 'Google Cloud', 'Infrastructure'],
+        userId: users[3]._id,
+        views: 172,
+        status: 'published'
+      },
+      {
+        title: 'Essential Skills for Full-Stack Developers in 2024',
+        content: `<p>The full-stack development landscape is constantly evolving, requiring developers to continuously update their skillsets to remain competitive in the job market.</p>
+                 <p>Here are the essential skills that every full-stack developer should focus on in 2024.</p>
+                 <h2>Frontend Skills</h2>
+                 <ul>
+                   <li><strong>JavaScript Frameworks</strong>: React, Vue, or Angular with component-based architecture</li>
+                   <li><strong>TypeScript</strong>: For type safety and improved developer experience</li>
+                   <li><strong>Modern CSS</strong>: Flexbox, Grid, CSS-in-JS, and responsive design principles</li>
+                   <li><strong>Web Performance</strong>: Optimization techniques for faster loading and rendering</li>
+                 </ul>
+                 <h2>Backend Skills</h2>
+                 <ul>
+                   <li><strong>Node.js</strong>: For JavaScript-based backend development</li>
+                   <li><strong>API Development</strong>: RESTful and GraphQL API design patterns</li>
+                   <li><strong>Database Knowledge</strong>: Both SQL and NoSQL database management</li>
+                   <li><strong>Authentication & Security</strong>: JWT, OAuth, and HTTPS implementation</li>
+                 </ul>
+                 <h2>DevOps & Infrastructure</h2>
+                 <ul>
+                   <li><strong>Containerization</strong>: Docker and container orchestration with Kubernetes</li>
+                   <li><strong>CI/CD</strong>: Automated testing and deployment pipelines</li>
+                   <li><strong>Cloud Services</strong>: Experience with AWS, Azure, or Google Cloud</li>
+                 </ul>
+                 <p>Continuous learning remains one of the most important skills for any developer. Allocate time regularly to explore new technologies and deepen your understanding of core concepts.</p>`,
+        image: 'default-blog-image.jpg',
+        tags: ['Full-Stack Development', 'Programming', 'Career', 'Web Development', 'Technology'],
+        userId: users[4]._id,
+        views: 258,
+        status: 'published'
+      }
+    ]);
+    
     console.log('Database seeded successfully');
     process.exit(0);
   } catch (error) {

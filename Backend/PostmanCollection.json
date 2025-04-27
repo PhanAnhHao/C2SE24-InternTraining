@@ -1862,6 +1862,307 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Blogs",
+			"item": [
+				{
+					"name": "Create Blog Post",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "The Future of Web Development: React vs Next.js",
+									"type": "text"
+								},
+								{
+									"key": "content",
+									"value": "<p>As web technologies continue to evolve, developers must stay informed about the most efficient tools and frameworks available. React has long been a dominant force in frontend development, but Next.js is quickly gaining traction for its powerful features.</p>\n<p>In this article, we'll compare React and Next.js and help you decide which might be best for your projects.</p>\n<h2>Key Advantages of Next.js</h2>\n<ul>\n<li>Built-in server-side rendering for improved SEO and performance</li>\n<li>Automatic code splitting for faster page loads</li>\n<li>Simplified routing with file-system based router</li>\n<li>API routes that make backend development easier</li>\n<li>Static site generation for lightning-fast static websites</li>\n</ul>\n<p>While React remains an excellent choice for many applications, Next.js provides additional features that can significantly enhance user experience and developer productivity.</p>",
+									"type": "text"
+								},
+								{
+									"key": "tags",
+									"value": "Web Development,React,Next.js,JavaScript,Frontend",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "published",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/path/to/your/image.jpg",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/blogs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"blogs"
+							]
+						},
+						"description": "Create a new blog post with form-data. For the image field, enable it and select a file when needed. Authentication is required. The system automatically finds the User ID associated with your Account ID in the JWT token and assigns it to the blog post."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Blogs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Lưu ID của blog đầu tiên vào biến collection 'blogId'",
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response && response.blogs && response.blogs.length > 0) {",
+									"        pm.collectionVariables.set(\"blogId\", response.blogs[0]._id);",
+									"        console.log(`Saved first blog ID to collection variable 'blogId': ${response.blogs[0]._id}`);",
+									"    } else {",
+									"        console.log('No blogs found to save ID.');",
+									"    }",
+									"} else {",
+									"    console.log('Failed to get blogs.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/blogs?page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"blogs"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "tag",
+									"value": "JavaScript",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "React",
+									"disabled": true
+								},
+								{
+									"key": "author",
+									"value": "{{userId}}",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all published blogs with pagination. Use query parameters to filter results. The first blog's ID will be saved to {{blogId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Blog by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/blogs/{{blogId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"blogs",
+								"{{blogId}}"
+							]
+						},
+						"description": "Get a specific blog post with related blogs. This will increment the view count."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Blog",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Advanced Features in Next.js 14: A Practical Guide",
+									"type": "text"
+								},
+								{
+									"key": "content",
+									"value": "<p>Next.js 14 introduces several powerful features that can significantly improve your development workflow and application performance.</p><p>Let's explore these features with practical examples.</p>",
+									"type": "text"
+								},
+								{
+									"key": "tags",
+									"value": "Next.js,Web Development,React,JavaScript,Server Components",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "published",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/path/to/your/image.jpg",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/blogs/{{blogId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"blogs",
+								"{{blogId}}"
+							]
+						},
+						"description": "Update a blog post with form-data. Only the blog author can update. Authentication is required. The system validates that the User ID associated with your Account token matches the User ID of the blog author."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Blog",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/blogs/{{blogId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"blogs",
+								"{{blogId}}"
+							]
+						},
+						"description": "Delete a blog post. Only the blog author can delete. Authentication is required. The system validates that the User ID associated with your Account token matches the User ID of the blog author."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User's Blogs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/blogs/user/blogs?page=1&limit=10&status=published",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"blogs",
+								"user",
+								"blogs"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": "published"
+								}
+							]
+						},
+						"description": "Get blogs created by the authenticated user. Filter by status (published or draft). Authentication is required. The system automatically finds the User ID associated with your Account token and returns only blogs created by that user."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Popular Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/blogs/tags/popular",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"blogs",
+								"tags",
+								"popular"
+							]
+						},
+						"description": "Get popular tags sorted by usage count."
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -1968,6 +2269,12 @@
 			"value": "",
 			"type": "string",
 			"description": "ObjectId của một Rating (lấy từ GET /ratings)"
+		},
+		{
+			"key": "blogId",
+			"value": "",
+			"type": "string",
+			"description": "ObjectId của một Blog (lấy từ GET /blogs)"
 		}
 	]
 }

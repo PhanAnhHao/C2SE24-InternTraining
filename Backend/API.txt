@@ -460,3 +460,79 @@
 
 * **DELETE /ratings/<rating_id>**
     * Purpose: Delete a specific rating.
+
+---
+**16. Blogs**
+---
+
+* **POST /blogs**
+    * Purpose: Create a new blog post.
+    * Authentication: Required
+    * Headers: `Authorization: Bearer <your_jwt_token>`
+    * Body (form-data):
+        ```
+        title: "The Future of Web Development: React vs Next.js"
+        content: "<p>As web technologies continue to evolve, developers must stay informed about the most efficient tools and frameworks available.</p><p>In this article, we'll compare React and Next.js and help you decide which might be best for your projects.</p>"
+        tags: "Web Development,React,Next.js,JavaScript,Frontend"
+        image: [file upload]
+        status: "published" 
+        ```
+    * Note: `status` can be either "published" or "draft". Tags can be a comma-separated string or an array.
+    * Note: For image upload, use form-data and set the field type to file for the image field.
+    * **Authentication Note**: The API uses JWT tokens that contain Account IDs. The system automatically finds the associated User ID from the Account ID in your token and assigns it to the blog.
+
+* **GET /blogs**
+    * Purpose: Get a list of published blog posts with pagination.
+    * Query Parameters:
+        * `page`: Page number (default 1)
+        * `limit`: Number of blogs per page (default 10)
+        * `tag`: Filter by tag name (e.g., "JavaScript")
+        * `search`: Search in title and content
+        * `author`: Filter by author's user ID
+
+* **GET /blogs/:id**
+    * Purpose: Get a specific blog post with related blogs based on tags.
+    * Note: This will increment the view count for the blog.
+
+* **PUT /blogs/:id**
+    * Purpose: Update a blog post.
+    * Authentication: Required (only blog author can update)
+    * Headers: `Authorization: Bearer <your_jwt_token>`
+    * Body (form-data):
+        ```
+        title: "Advanced Features in Next.js 14: A Practical Guide"
+        content: "<p>Next.js 14 introduces several powerful features that can significantly improve your development workflow and application performance.</p><p>Let's explore these features with practical examples.</p>"
+        tags: "Next.js,Web Development,React,JavaScript,Server Components"
+        image: [file upload] (optional)
+        status: "published"
+        ```
+    * **Authentication Note**: The system validates that the User ID associated with your Account token matches the User ID of the blog author.
+
+* **DELETE /blogs/:id**
+    * Purpose: Delete a blog post.
+    * Authentication: Required (only blog author can delete)
+    * Headers: `Authorization: Bearer <your_jwt_token>`
+    * **Authentication Note**: The system validates that the User ID associated with your Account token matches the User ID of the blog author.
+
+* **GET /blogs/user/blogs**
+    * Purpose: Get blogs created by the authenticated user.
+    * Authentication: Required
+    * Headers: `Authorization: Bearer <your_jwt_token>`
+    * Query Parameters:
+        * `status`: Filter by status ("published" or "draft")
+        * `page`: Page number (default 1)
+        * `limit`: Number of blogs per page (default 10)
+    * **Authentication Note**: The system automatically finds the User ID associated with your Account token and returns only blogs created by that user.
+
+* **GET /blogs/tags/popular**
+    * Purpose: Get popular tags sorted by usage count.
+    * Response example:
+        ```json
+        [
+          { "tag": "JavaScript", "count": 12 },
+          { "tag": "Web Development", "count": 10 },
+          { "tag": "React", "count": 8 },
+          { "tag": "Programming", "count": 7 },
+          { "tag": "Node.js", "count": 6 }
+        ]
+        ```

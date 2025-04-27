@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 const accountRoutes = require('./routes/accountRouter'); // Route cho bảng account
 const roleRoutes = require('./routes/roleRouter'); // Route cho bảng role
 const studentRouter = require('./routes/studentRouter');
@@ -14,6 +15,7 @@ const testMailRouter = require('./routes/testMailRouter');
 const historyRouter = require('./routes/historyRouter'); // New router for History
 const answerRouter = require('./routes/answerRouter'); // New router for Answer
 const ratingRouter = require('./routes/ratingRouter'); // New router for Rating
+const blogRouter = require('./routes/blogRouter'); // New router for Blog
 const cors = require("cors");
 
 
@@ -22,6 +24,17 @@ require('dotenv').config();
 const app = express();
 app.use(express.json()); // Để phân tích JSON trong body của request
 app.use(cors());
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
+// Create uploads directory if it doesn't exist
+const fs = require('fs');
+const uploadDir = path.join(__dirname, '..', 'uploads', 'blogs');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 // Kết nối đến MongoDB
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
@@ -44,6 +57,7 @@ app.use('/send-mail', testMailRouter);
 app.use('/history', historyRouter);
 app.use('/answers', answerRouter);
 app.use('/ratings', ratingRouter);
+app.use('/blogs', blogRouter); // Add the blog routes
 
 // Chạy server
 const PORT = process.env.PORT || 5000;
