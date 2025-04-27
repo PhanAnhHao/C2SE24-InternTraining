@@ -12,18 +12,18 @@ const router = express.Router();
 // Đăng ký cho Student
 router.post('/register', async (req, res) => {
   try {
-    const { 
-      username, 
-      password, 
-      email, 
-      userName, 
-      location, 
-      phone, 
+    const {
+      username,
+      password,
+      email,
+      userName,
+      location,
+      phone,
       // Optional student fields
-      age, 
-      school, 
-      course, 
-      englishSkill 
+      age,
+      school,
+      course,
+      englishSkill
     } = req.body;
 
     const defaultRoleId = '660edabc12eac0f2fc123402';
@@ -72,7 +72,7 @@ router.post('/register', async (req, res) => {
 
     const savedStudent = await newStudent.save();
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'Register successful',
       studentId: savedStudent._id // Return the ID of the created student record
     });
@@ -136,7 +136,7 @@ router.post('/register-business', async (req, res) => {
 
     const savedBusiness = await newBusiness.save();
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'Business registration successful',
       businessId: savedBusiness.idBusiness // Return the generated business ID
     });
@@ -164,7 +164,7 @@ router.post('/login', async (req, res) => {
       expiresIn: '1d'
     });
 
-    res.json({ token });
+    res.json({ token, userId: account._id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -193,23 +193,23 @@ router.get('/me', authMiddleware, async (req, res) => {
 router.put('/edit-me', authMiddleware, async (req, res) => {
   try {
     const { userName, email, location, phone } = req.body;
-    
+
     // Tìm user dựa trên account ID từ token
     const user = await User.findOne({ idAccount: req.user.id });
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    
+
     // Cập nhật các trường nếu được cung cấp
     if (userName) user.userName = userName;
     if (email) user.email = email;
     if (location) user.location = location;
     if (phone) user.phone = phone;
-    
+
     // Lưu thay đổi
     const updatedUser = await user.save();
-    
+
     res.json({
       message: 'User profile updated successfully',
       user: updatedUser
