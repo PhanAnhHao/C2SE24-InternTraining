@@ -3,6 +3,7 @@ import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AvatarDropdown from "./AvatarDropdown";
+import { NavLink } from "react-router-dom";
 
 const Header = () => {
     const navigate = useNavigate();
@@ -39,7 +40,9 @@ const Header = () => {
                             <a href="#" className="hover:text-black">Your Courses</a>
                             : <></>
                     }
-                    <a href="#" className="hover:text-black">Blog</a>
+                    <NavLink to="/blog-page" className="hover:text-black" activeClassName="font-bold">
+                        Blog
+                    </NavLink>
                     <a href="#" className="hover:text-black">About Us</a>
                 </nav>
 

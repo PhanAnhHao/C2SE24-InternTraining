@@ -1,6 +1,4 @@
 import React from "react";
-import Header from "../layout/Header";
-import Footer from "../layout/Footer";
 import Introduce from "../component/BlogPage/Introduce/Introduce";
 import BlogList from "../component/BlogPage/BlogList/BlogList";
 import RelatedBlog from "../component/BlogPage/RelatedBlog/RelatedBlog";
