@@ -61,6 +61,11 @@ const RelatedBlog = () => {
         }
     };
 
+    const handleBlogClick = (blogId) => {
+        navigate(`/blogs/${blogId}`);
+        window.location.reload();
+    };
+
     const stripHtml = (html) => {
         const tmp = document.createElement("div");
         tmp.innerHTML = html;
@@ -82,9 +87,14 @@ const RelatedBlog = () => {
             </div>
             <div className="flex space-x-6 overflow-hidden">
                 {blogs.slice(index, index + step).map((blog) => (
-                    <div key={blog._id} className="bg-white p-4 rounded-lg shadow-lg w-1/3 h-auto">
+                    <div
+                        key={blog._id}
+                        onClick={() => navigate(`/blogs/${blog._id}`)}
+                        className="bg-white p-4 rounded-lg shadow-lg w-1/3 h-auto cursor-pointer hover:shadow-xl transition"
+                    >
                         <div className="relative h-48 overflow-hidden rounded-lg">
                             <img
+                                onClick={() => handleBlogClick(blog._id)}
                                 src={blog.image}
                                 alt={blog.title}
                                 className="w-full h-full object-cover"
