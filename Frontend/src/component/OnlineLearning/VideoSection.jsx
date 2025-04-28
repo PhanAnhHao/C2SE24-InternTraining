@@ -3,18 +3,20 @@ import VideoDescription from "./VideoDescription";
 
 const VideoSection = ({ selectedLesson }) => {
     return (
-        <div className="p-6 w-3/4">
+        <div className="px-6 py-2 w-3/4">
             <VideoPlayer
                 videoUrl={selectedLesson.videoUrl}
                 title={selectedLesson.title.toUpperCase()}
                 subtitle="Kiến thức nền tảng"
             />
-            <VideoDescription
-                title={selectedLesson.title}
-                updateDate="11/2022" // You can make this dynamic if needed
-                description={selectedLesson.description}
+            <div className="px-2">
+                <VideoDescription
+                    title={selectedLesson.title}
+                    updateDate="11/2022" // You can make this dynamic if needed
+                    description={selectedLesson.description}
 
-            />
+                />
+            </div>
         </div>
     );
 };

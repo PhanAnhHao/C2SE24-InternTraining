@@ -1,10 +1,10 @@
 
 const VideoPlayer = ({ videoUrl, title = "", subtitle = "" }) => {
     return (
-        <div className="relative w-full bg-black rounded-lg overflow-hidden">
+        <div className="relative w-full rounded-lg overflow-hidden">
             {/* Video Embed */}
             <iframe
-                className="w-full h-[450px]"
+                className="w-full h-[500px]"
                 src={videoUrl}
                 title={title}
                 frameBorder="0"

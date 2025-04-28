@@ -59,24 +59,21 @@ export const mockData = [
     },
 ];
 
-const CourseContentList = ({ lessons = mockData, setSelectedLesson }) => {
-    const [selectedLessonId, setSelectedLessonId] = useState(null);
-
+const CourseContentList = ({ lessons = mockData, setSelectedLesson, selectedLesson }) => {
     const handleSelectLesson = (lesson) => {
         setSelectedLesson(lesson); // Update the parent state (for VideoSection)
-        setSelectedLessonId(lesson.id); // Update local state to highlight the selected lesson
     };
 
     return (
-        <div className="text-sm w-1/4 px-2 py-6 bg-[#F3FAFF] min-h-screen">
-            <h3 className="text-lg font-bold mb-4 text-gray-700">Nội dung khóa học</h3>
+        <div className="text-sm w-1/4 px-4 bg-[#F3FAFF] min-h-screen border-l border-gray-300">
+            <h3 className="text-lg font-bold mb-4 text-gray-700">Course content</h3>
             <ul className="space-y-2">
                 {lessons.map((lesson) => (
                     <LessonItem
                         key={lesson.id}
                         lesson={lesson}
                         onSelect={() => handleSelectLesson(lesson)}
-                        isSelected={lesson.id === selectedLessonId}
+                        isSelected={selectedLesson && lesson.id === selectedLesson.id}
                     />
                 ))}
             </ul>

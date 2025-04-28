@@ -3,7 +3,7 @@
 const VideoDescription = ({ title, updateDate, description, links = [] }) => {
     return (
         <div className="mt-6">
-            <h2 className="text-2xl font-bold">{title}</h2>
+            <h2 className="text-2xl font-semibold">{title}</h2>
             <p className="text-gray-500 mt-1">Cập nhật chương trình {updateDate}</p>
             <p className="mt-4 text-gray-700 whitespace-pre-line">{description}</p>
 
