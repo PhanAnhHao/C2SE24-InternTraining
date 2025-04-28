@@ -8,9 +8,9 @@ const LessonItem = ({ lesson, onSelect, isSelected }) => {
             onClick={isActive ? onSelect : null}
             className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ease-in-out ${
                 isSelected
-                    ? "bg-teal-500 text-white shadow-md scale-105"
+                    ? "bg-teal-600 text-white shadow-md scale-105"
                     : isActive
-                        ? "bg-teal-300 hover:bg-teal-500 text-white"
+                        ? "bg-teal-400 hover:bg-teal-600 text-white"
                         : "bg-teal-100 cursor-not-allowed text-gray-600"
             }`}
         >

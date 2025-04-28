@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import VideoSection from '../component/OnlineLearning/VideoSection.jsx';
 import CourseContentList from "../component/OnlineLearning/CourseContentList.jsx";
 import Header from "../component/OnlineLearning/Header.jsx";
+import LessonNavigation from "../component/OnlineLearning/LessonNavigation.jsx";
 
 // Import mockData from CourseContentList
 import { mockData } from "../component/OnlineLearning/CourseContentList.jsx";
 
 const OnlineLearningPage = () => {
     const [selectedLesson, setSelectedLesson] = useState(null);
+    const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
 
     useEffect(() => {
         if (mockData && mockData.length > 0) {
@@ -15,20 +17,55 @@ const OnlineLearningPage = () => {
         }
     }, []);
 
+    const handlePreviousLesson = () => {
+        if (currentLessonIndex > 0) {
+            const newIndex = currentLessonIndex - 1;
+            setCurrentLessonIndex(newIndex);
+            setSelectedLesson(mockData[newIndex]);
+        }
+    };
+
+    const handleNextLesson = () => {
+        if (currentLessonIndex < mockData.length - 1) {
+            const nextIndex = currentLessonIndex + 1;
+            const nextLesson = mockData[nextIndex];
+
+            if (nextLesson.status === "locked") {
+                alert("Bạn cần phải hoàn thành bài học trước để mở khóa bài này!");
+                return;
+            }
+
+            setCurrentLessonIndex(nextIndex);
+            setSelectedLesson(nextLesson);
+        }
+    };
+
     return (
-        <div className="flex flex-col min-h-screen bg-gray-50">
-            <Header />
-            <div className="flex flex-1">
+        <div className="flex flex-col min-h-screen bg-gray-50 overflow-x-hidden">
+            {/* Header cố định ở đầu trang */}
+            <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-md">
+                <Header lessons={mockData} />
+            </div>
+            {/* Thêm padding-top để nội dung không bị che bởi header */}
+            <div className="flex flex-1 pt-16">
                 {selectedLesson ? (
                     <VideoSection selectedLesson={selectedLesson} />
                 ) : (
                     <div>Loading...</div>
                 )}
-                <CourseContentList setSelectedLesson={setSelectedLesson} />
+                <CourseContentList
+                    setSelectedLesson={setSelectedLesson}
+                    selectedLesson={selectedLesson}
+                />
             </div>
+            <LessonNavigation
+                currentLessonIndex={currentLessonIndex}
+                totalLessons={mockData.length}
+                onPrevious={handlePreviousLesson}
+                onNext={handleNextLesson}
+            />
         </div>
     );
 };
-
 
 export default OnlineLearningPage;
