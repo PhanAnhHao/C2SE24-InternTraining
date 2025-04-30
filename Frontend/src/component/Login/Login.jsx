@@ -63,6 +63,7 @@ const LoginPage = () => {
 
             if (data.token) {
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('userId', data.userId);
 
                 // Save user role to localStorage
                 if (data.role && data.role.name) {

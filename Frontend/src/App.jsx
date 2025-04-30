@@ -21,6 +21,8 @@ import Profile from './component/Profile/Profile.jsx';
 import TestPage from './component/TestPage/TestPage.jsx';
 import SubmitTest from './component/TestPage/SubmitTest.jsx';
 import ChangePassword from './component/ChangePassword/ChangePassword.jsx';
+import CreateBlog from './component/BlogPage/CreateBlog/CreateBlog.jsx';
+import OnlineLearningPage from "./pages/OnlineLearningPage.jsx";
 
 const NotFound = () => {
   return (
@@ -39,11 +41,15 @@ function App() {
           <Route path="/course" element={<CoursePage />} />
           <Route path="/course/1" element={<CourseDetailPage />} />
           <Route path="/blog-page" element={<BlogPage />} />
-          <Route path="/blog-detail" element={<BlogDetail />} />
+          {/* <Route path="/blog-detail" element={<BlogDetail />} />     */}
+          <Route path="/blogs/:blogId" element={<BlogDetail />} />
+
+
           <Route path="/profile" element={<Profile />} />
           <Route path="/test-page" element={<TestPage />} />
           <Route path="/submit-test" element={<SubmitTest />} />
           <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/create-blog" element={<CreateBlog />} />
 
         </Route>
         <Route path="/login" element={<LoginPage />} />
