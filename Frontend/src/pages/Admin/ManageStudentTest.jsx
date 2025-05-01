@@ -2,6 +2,20 @@ import { useState, useEffect } from "react";
 import { FaClipboardList } from "react-icons/fa";
 import axios from "axios";
 import { useSnackbar } from "notistack";
+import {
+    TextField,
+    Button,
+    IconButton,
+    Checkbox,
+    FormControlLabel,
+    Card,
+    CardContent,
+    Typography,
+} from "@mui/material";
+import { Add, Delete } from "@mui/icons-material";
+import { v4 as uuidv4 } from 'uuid';
+import { useDispatch, useSelector } from 'react-redux';
+import { createTest } from '../../redux/slices/testSlice';
 
 const ManageStudentTest = () => {
     const [tests, setTests] = useState([]);
@@ -10,7 +24,7 @@ const ManageStudentTest = () => {
     const [editForm, setEditForm] = useState({});
     const [showForm, setShowForm] = useState(false);
     const [lessons, setLessons] = useState([]);
-    const [questions, setQuestions] = useState([]);
+    // const [questions, setQuestions] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
 
     const [form, setForm] = useState({
@@ -30,7 +44,7 @@ const ManageStudentTest = () => {
     useEffect(() => {
         fetchTests();
         fetchLessons();
-        fetchQuestions();
+        // fetchQuestions();
     }, []);
     const fetchTests = async () => {
         try {
@@ -51,14 +65,14 @@ const ManageStudentTest = () => {
         }
     };
 
-    const fetchQuestions = async () => {
-        try {
-            const response = await axios.get("http://localhost:5000/questions");
-            setQuestions(response.data);
-        } catch (error) {
-            console.error("Error fetching questions:", error);
-        }
-    };
+    // const fetchQuestions = async () => {
+    //     try {
+    //         const response = await axios.get("http://localhost:5000/questions");
+    //         setQuestions(response.data);
+    //     } catch (error) {
+    //         console.error("Error fetching questions:", error);
+    //     }
+    // };
 
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this test?")) {
@@ -131,18 +145,18 @@ const ManageStudentTest = () => {
         setForm({ ...form, [name]: value });
     };
 
-    const handleQuestionChange = (e) => {
-        // For multi-select of questions
-        setForm(prev => ({
-            ...prev,
-            idQuestion: Array.from(e.target.selectedOptions, option => option.value)
-        }));
-    };
+    // const handleQuestionChange = (e) => {
+    //     // For multi-select of questions
+    //     setForm(prev => ({
+    //         ...prev,
+    //         idQuestion: Array.from(e.target.selectedOptions, option => option.value)
+    //     }));
+    // };
 
     const validateForm = () => {
         const { idTest, idLesson, content } = form;
 
-        if (!idTest || !idLesson || !content) {
+        if (!idTest || !content) {
             enqueueSnackbar("Please fill in all required fields", { variant: "warning" });
             return false;
         }
@@ -173,6 +187,101 @@ const ManageStudentTest = () => {
             enqueueSnackbar("Failed to add test", { variant: "error" });
             console.error("Error adding test:", error);
         }
+    };
+
+
+    // Add question
+    const dispatch = useDispatch();
+    const { loading, error } = useSelector((state) => state.tests);
+    const [questions, setQuestions] = useState([{
+
+        idTest: "", // sẽ gán khi submit
+        question: "",
+        options: [""],
+        correctAnswerIndex: 0,
+    },]);
+
+    const addQuestion = () => {
+        setQuestions([
+            ...questions,
+            {
+                idQuestion: "",
+                idTest: "", // sẽ gán khi submit
+                question: "",
+                options: [""],
+                correctAnswerIndex: 0,
+            },
+        ]);
+    };
+
+    const removeQuestion = (qIndex) => {
+        const updated = [...questions];
+        updated.splice(qIndex, 1);
+        setQuestions(updated);
+    };
+
+    const handleQuestionChange = (qIndex, value) => {
+        const updated = [...questions];
+        updated[qIndex].question = value;
+        setQuestions(updated);
+    };
+
+    const handleAnswerChange = (qIndex, aIndex, value) => {
+        const updated = [...questions];
+        updated[qIndex].options[aIndex] = value;
+        setQuestions(updated);
+    };
+
+    const addAnswer = (qIndex) => {
+        const updated = [...questions];
+        updated[qIndex].options.push("");
+        setQuestions(updated);
+    };
+
+    const removeAnswer = (qIndex, aIndex) => {
+        const updated = [...questions];
+        updated[qIndex].options.splice(aIndex, 1);
+
+        if (updated[qIndex].correctAnswerIndex === aIndex) {
+            updated[qIndex].correctAnswerIndex = 0;
+        } else if (updated[qIndex].correctAnswerIndex > aIndex) {
+            updated[qIndex].correctAnswerIndex -= 1;
+        }
+
+        setQuestions(updated);
+    };
+
+    const handleCorrectChange = (qIndex, aIndex) => {
+        const updated = [...questions];
+        updated[qIndex].correctAnswerIndex = aIndex;
+        setQuestions(updated);
+    };
+
+    const handleSaveTest = () => {
+        const testId = form.idTest;
+
+        if (!testId || !form.content) {
+            alert("Vui lòng điền đầy đủ thông tin Test ID và nội dung bài test.");
+            return;
+        }
+
+        const finalQuestions = questions.map((q, index) => ({
+            idQuestion: `Q_${testId}_${index + 1}`,
+            idTest: testId,
+            question: q.question,
+            options: q.options,
+            correctAnswerIndex: q.correctAnswerIndex,
+        }));
+
+        const testPayload = {
+            idTest: testId,
+            content: form.content,
+            questions: finalQuestions,
+        };
+
+        console.log("Payload to submit:", testPayload);
+
+        dispatch(createTest(testPayload));
     };
 
     return (
@@ -242,38 +351,66 @@ const ManageStudentTest = () => {
                                 />
                             </div>
                             <div className="col-span-1 md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Questions</label>
-                                <select
-                                    multiple
-                                    name="idQuestion"
-                                    value={form.idQuestion}
-                                    onChange={handleQuestionChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md h-32"
-                                >
-                                    {questions.map(question => (
-                                        <option key={question._id} value={question._id}>
-                                            {question.idQuestion} - {question.content?.substring(0, 50) || 'Không có nội dung'}...
-                                        </option>
-                                    ))}
-                                </select>
-                                <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple questions</p>
+                                {questions.map((question, qIndex) => (
+                                    <Card key={qIndex} className="mb-4 w-full">
+                                        <CardContent>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <Typography variant="h6">Question {qIndex + 1}</Typography>
+                                                <IconButton color="error" onClick={() => removeQuestion(qIndex)}>
+                                                    <Delete />
+                                                </IconButton>
+                                            </div>
+
+                                            <TextField
+                                                fullWidth
+                                                label="Question Content"
+                                                value={question.question}
+                                                onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+                                                margin="normal"
+                                            />
+
+                                            {question.options.map((option, aIndex) => (
+                                                <div key={aIndex} className="flex items-center gap-4 mb-3">
+                                                    <TextField
+                                                        label={`Answer ${aIndex + 1}`}
+                                                        value={option}
+                                                        onChange={(e) => handleAnswerChange(qIndex, aIndex, e.target.value)}
+                                                        fullWidth
+                                                    />
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={question.correctAnswerIndex === aIndex}
+                                                                onChange={() => handleCorrectChange(qIndex, aIndex)}
+                                                            />
+                                                        }
+                                                        label="Correct"
+                                                    />
+                                                    <IconButton onClick={() => removeAnswer(qIndex, aIndex)}>
+                                                        <Delete />
+                                                    </IconButton>
+                                                </div>
+                                            ))}
+
+                                            <Button onClick={() => addAnswer(qIndex)} startIcon={<Add />} sx={{ color: "#4FD1C5" }}>
+                                                Add Answer
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+
+                                <Button onClick={addQuestion} variant="outlined" startIcon={<Add />} sx={{ borderColor: "4FD1C5", color: "#4FD1C5", marginBottom: 2 }}>
+                                    Add Question
+                                </Button>
+
+                                <br />
+                                <Button variant="contained" sx={{ bgcolor: "#4FD1C5" }} onClick={handleSaveTest}>
+                                    Save Test
+                                </Button>
                             </div>
                         </div>
-                        <div className="flex justify-end mt-4 space-x-2">
-                            <button
-                                onClick={() => setShowForm(false)}
-                                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleAdd}
-                                className="px-4 py-2 bg-[#4FD1C5] text-white rounded-md hover:bg-teal-500"
-                            >
-                                Add Test
-                            </button>
-                        </div>
                     </div>
+
                 )}
 
                 <div className="mt-6 overflow-x-auto">
@@ -305,9 +442,12 @@ const ManageStudentTest = () => {
                                                     </option>
                                                 ))}
                                             </select>
-                                        ) : (
-                                            test.idLesson.idLesson
-                                        )}
+                                        ) :
+                                            // (
+                                            //     test.idLesson.idLesson
+                                            // )
+                                            <></>
+                                        }
                                     </td>
                                     <td className="py-3 px-4">
                                         {editingId === test._id ? (
