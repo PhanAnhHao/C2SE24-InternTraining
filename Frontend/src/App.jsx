@@ -41,35 +41,31 @@ function App() {
           <Route path="/course" element={<CoursePage />} />
           <Route path="/course/1" element={<CourseDetailPage />} />
           <Route path="/blog-page" element={<BlogPage />} />
-          {/* <Route path="/blog-detail" element={<BlogDetail />} />     */}
           <Route path="/blogs/:blogId" element={<BlogDetail />} />
 
 
           <Route path="/profile" element={<Profile />} />
-          <Route path="/test-page" element={<TestPage />} />
+          <Route path="/test-page/:testId" element={<TestPage />} />
           <Route path="/submit-test" element={<SubmitTest />} />
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/create-blog" element={<CreateBlog />} />
+
+          <Route path="/online-learning" element={<OnlineLearningPage />} />
 
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
-          <Route path="/admin/accounts" element={<ManageAccount />} />
-          <Route path="/admin/students-test" element={<ManageStudentTest />} />
-          <Route path="/admin/courses" element={<ManageCourse />} />
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
-          <Route path="/admin/reviews" element={<ManageReviews />} />
+        <Route path="/dashboard" element={<AdminLayout />}>
+          <Route path="/dashboard/online-learning" element={<OnlineLearningManager />} />
+          <Route path="/dashboard/accounts" element={<ManageAccount />} />
+          <Route path="/dashboard/students-test" element={<ManageStudentTest />} />
+          <Route path="/dashboard/courses" element={<ManageCourse />} />
+          <Route path="/dashboard/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/online-learning" element={<OnlineLearningManager />} />
+          <Route path="/dashboard/reviews" element={<ManageReviews />} />
+          <Route path="/dashboard/create-course" element={<CreateCoursePage />} />
         </Route>
-
-
-        <Route path="/business/create-course" element={<CreateCoursePage />} />
-        <Route path="/online-learning" element={<OnlineLearningPage />} />
-
-        {/*Test*/}
 
         <Route path="*" element={<NotFound />} />
       </Routes>

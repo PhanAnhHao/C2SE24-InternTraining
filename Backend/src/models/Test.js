@@ -4,12 +4,11 @@ const TestSchema = new mongoose.Schema({
   idTest: {
     type: String,
     required: true,
-    unique: true
   },
   idLesson: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Lesson',
-    required: true
+    required: false
   },
   content: {
     type: String,
@@ -18,7 +17,7 @@ const TestSchema = new mongoose.Schema({
   idQuestion: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Question'
-  }]
+  }],
 }, {
   timestamps: true
 });
