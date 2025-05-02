@@ -1,11 +1,11 @@
 import { useState } from "react";
 import CourseForm from "./CourseForm";
 import LessonList from "./LessonList";
-
+import {useNavigate} from "react-router-dom";
 const CourseManager = () => {
     const [lessons, setLessons] = useState([]);
     const [editingLesson, setEditingLesson] = useState(null); // Lưu lesson đang chỉnh sửa và chỉ số
-
+    const navigate = useNavigate();
     const handleAddLesson = (newLesson) => {
         if (editingLesson !== null) {
             // Nếu đang chỉnh sửa, cập nhật lesson thay vì thêm mới
@@ -46,6 +46,7 @@ const CourseManager = () => {
                 onDeleteLesson={handleDeleteLesson}
                 editingLesson={editingLesson}
                 onCancelEdit={handleCancelEdit}
+                onBack={() => navigate(-1)}
             />
             <CourseForm lessons={lessons} />
         </div>

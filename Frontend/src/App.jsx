@@ -61,11 +61,11 @@ function App() {
           <Route path="/dashboard/accounts" element={<ManageAccount />} />
           <Route path="/dashboard/students-test" element={<ManageStudentTest />} />
           <Route path="/dashboard/courses" element={<ManageCourse />} />
-          <Route path="/dashboard/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/online-learning" element={<OnlineLearningManager />} />
           <Route path="/dashboard/reviews" element={<ManageReviews />} />
-          <Route path="/dashboard/create-course" element={<CreateCoursePage />} />
         </Route>
+          <Route path="/dashboard/courses/create-course" element={<CreateCoursePage />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
