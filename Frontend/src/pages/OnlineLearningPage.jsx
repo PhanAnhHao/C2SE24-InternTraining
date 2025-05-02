@@ -46,8 +46,8 @@ const OnlineLearningPage = () => {
             <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-md">
                 <Header lessons={mockData} />
             </div>
-            {/* Thêm padding-top để nội dung không bị che bởi header */}
-            <div className="flex flex-1 pt-16">
+
+            <div className="flex flex-1">
                 {selectedLesson ? (
                     <VideoSection selectedLesson={selectedLesson} />
                 ) : (
