@@ -18,12 +18,12 @@ const Sidebar = () => {
     const [activeItem, setActiveItem] = useState("Dashboard");
 
     const menuItems = [
-        { name: "Dashboard", icon: <FaHome />, path: "/admin/dashboard" },
-        { name: "Manage account", icon: <FaUsers />, path: "/admin/accounts" },
-        { name: "Manage Student Test", icon: <FaUserGraduate />, path: "/admin/students-test" },
-        { name: "Manage Course", icon: <FaBook />, path: "/admin/courses" },
-        { name: "Manage Online Learning", icon: <FaChalkboardTeacher />, path: "/admin/online-learning" },
-        { name: "Manage Review Rating", icon: <FaStar />, path: "/admin/reviews" },
+        { name: "Dashboard", icon: <FaHome />, path: "/dashboard" },
+        { name: "Manage account", icon: <FaUsers />, path: "/dashboard/accounts" },
+        { name: "Manage Student Test", icon: <FaUserGraduate />, path: "/dashboard/students-test" },
+        { name: "Manage Course", icon: <FaBook />, path: "/dashboard/courses" },
+        { name: "Manage Online Learning", icon: <FaChalkboardTeacher />, path: "/dashboard/online-learning" },
+        { name: "Manage Review Rating", icon: <FaStar />, path: "/dashboard/reviews" },
     ];
 
     const handleNavigation = (path, name) => {
