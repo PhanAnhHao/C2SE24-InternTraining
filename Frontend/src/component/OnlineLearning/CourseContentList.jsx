@@ -65,7 +65,7 @@ const CourseContentList = ({ lessons = mockData, setSelectedLesson, selectedLess
     };
 
     return (
-        <div className="text-sm w-1/4 px-4 bg-[#F3FAFF] min-h-screen border-l border-gray-300">
+        <div className="text-sm w-1/4 px-4 pt-4 bg-[#F3FAFF] min-h-screen border-l border-gray-300">
             <h3 className="text-lg font-bold mb-4 text-gray-700">Course content</h3>
             <ul className="space-y-2">
                 {lessons.map((lesson) => (
