@@ -15,10 +15,12 @@ import {
 import { Add, Delete } from "@mui/icons-material";
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from 'react-redux';
-import { createTest } from '../../redux/slices/testSlice';
+import { createTest, deleteTest, getAllTests, updateTest } from '../../redux/slices/testSlice';
+import { getAllCourses } from '../../redux/slices/courseSlice';
+import { toast } from "react-toastify";
 
 const ManageStudentTest = () => {
-    const [tests, setTests] = useState([]);
+    // const [tests, setTests] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState({});
@@ -29,17 +31,17 @@ const ManageStudentTest = () => {
 
     const [form, setForm] = useState({
         idTest: '',
-        idLesson: '',
+        idCourse: '',
         content: '',
         idQuestion: []
     });
 
-    const testsPerPage = 10;
-    const totalPages = Math.ceil(tests.length / testsPerPage);
+    // const testsPerPage = 10;
+    // const totalPages = Math.ceil(tests.length / testsPerPage);
 
-    const indexOfLastTest = currentPage * testsPerPage;
-    const indexOfFirstTest = indexOfLastTest - testsPerPage;
-    const currentTests = tests.slice(indexOfFirstTest, indexOfLastTest);
+    // const indexOfLastTest = currentPage * testsPerPage;
+    // const indexOfFirstTest = indexOfLastTest - testsPerPage;
+    // const currentTests = tests.slice(indexOfFirstTest, indexOfLastTest);
 
     useEffect(() => {
         fetchTests();
@@ -47,13 +49,13 @@ const ManageStudentTest = () => {
         // fetchQuestions();
     }, []);
     const fetchTests = async () => {
-        try {
-            const response = await axios.get("http://localhost:5000/tests");
-            setTests(response.data);
-        } catch (error) {
-            enqueueSnackbar("Failed to fetch tests", { variant: "error" });
-            console.error("Error fetching tests:", error);
-        }
+        // try {
+        //     const response = await axios.get("http://localhost:5000/tests");
+        //     setTests(response.data);
+        // } catch (error) {
+        //     enqueueSnackbar("Failed to fetch tests", { variant: "error" });
+        //     console.error("Error fetching tests:", error);
+        // }
     };
 
     const fetchLessons = async () => {
@@ -75,26 +77,26 @@ const ManageStudentTest = () => {
     // };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this test?")) {
-            try {
-                await axios.delete(`http://localhost:5000/tests/${id}`);
-                setTests(tests.filter(test => test._id !== id));
-                enqueueSnackbar("Test deleted successfully", { variant: "success" });
-            } catch (error) {
-                enqueueSnackbar("Failed to delete test", { variant: "error" });
-                console.error("Error deleting test:", error);
-            }
-        }
+        // if (window.confirm("Are you sure you want to delete this test?")) {
+        //     try {
+        //         await axios.delete(`http://localhost:5000/tests/${id}`);
+        //         setTests(tests.filter(test => test._id !== id));
+        //         enqueueSnackbar("Test deleted successfully", { variant: "success" });
+        //     } catch (error) {
+        //         enqueueSnackbar("Failed to delete test", { variant: "error" });
+        //         console.error("Error deleting test:", error);
+        //     }
+        // }
     };
 
     const handleEditClick = (test) => {
-        setEditingId(test._id);
-        setEditForm({
-            idTest: test.idTest,
-            idLesson: test.idLesson._id,
-            content: test.content,
-            idQuestion: test.idQuestion.map(q => q._id)
-        });
+        // setEditingId(test._id);
+        // setEditForm({
+        //     idTest: test.idTest,
+        //     idLesson: test.idLesson._id,
+        //     content: test.content,
+        //     idQuestion: test.idQuestion.map(q => q._id)
+        // });
     };
 
     const handleEditChange = (e) => {
@@ -190,16 +192,25 @@ const ManageStudentTest = () => {
     };
 
 
-    // Add question
+    // Add/remove question
     const dispatch = useDispatch();
-    const { loading, error } = useSelector((state) => state.tests);
+    const { tests, testLoading, testError } = useSelector((state) => state.tests);
+    const { courses, courseLoading, courseError } = useSelector((state) => state.courses);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [idDBTest, setIdDBTest] = useState("");
     const [questions, setQuestions] = useState([{
-
         idTest: "", // sẽ gán khi submit
         question: "",
         options: [""],
         correctAnswerIndex: 0,
     },]);
+
+    const testsPerPage = 10;
+    const totalPages = Math.ceil(tests.length / testsPerPage);
+
+    const indexOfLastTest = currentPage * testsPerPage;
+    const indexOfFirstTest = indexOfLastTest - testsPerPage;
+    const currentTests = tests.slice(indexOfFirstTest, indexOfLastTest);
 
     const addQuestion = () => {
         setQuestions([
@@ -215,58 +226,102 @@ const ManageStudentTest = () => {
     };
 
     const removeQuestion = (qIndex) => {
+        // Tạo một bản sao của mảng questions
         const updated = [...questions];
+
+        // Xóa câu hỏi tại vị trí qIndex
         updated.splice(qIndex, 1);
+
+        // Cập nhật lại state
         setQuestions(updated);
     };
 
+
     const handleQuestionChange = (qIndex, value) => {
-        const updated = [...questions];
-        updated[qIndex].question = value;
-        setQuestions(updated);
+        const updatedQuestions = [...questions];
+        updatedQuestions[qIndex].question = value;  // Cập nhật câu hỏi
+        setQuestions(updatedQuestions);  // Cập nhật lại state
     };
 
     const handleAnswerChange = (qIndex, aIndex, value) => {
-        const updated = [...questions];
-        updated[qIndex].options[aIndex] = value;
-        setQuestions(updated);
+        const updatedQuestions = [...questions];
+        updatedQuestions[qIndex].options[aIndex] = value;  // Cập nhật đáp án
+        setQuestions(updatedQuestions);  // Cập nhật lại state
     };
 
     const addAnswer = (qIndex) => {
+        // Tạo một bản sao của mảng questions
         const updated = [...questions];
-        updated[qIndex].options.push("");
+
+        // Thêm một đáp án rỗng vào câu hỏi
+        updated[qIndex].options = [...updated[qIndex].options, ""];
+
+        // Cập nhật state
         setQuestions(updated);
     };
+
 
     const removeAnswer = (qIndex, aIndex) => {
+        // Tạo một bản sao của mảng questions
         const updated = [...questions];
-        updated[qIndex].options.splice(aIndex, 1);
 
+        // Tạo bản sao của mảng options trong câu hỏi hiện tại
+        updated[qIndex].options = updated[qIndex].options.filter((_, index) => index !== aIndex);
+
+        // Nếu đáp án đúng là đáp án bị xóa, phải cập nhật lại correctAnswerIndex
         if (updated[qIndex].correctAnswerIndex === aIndex) {
-            updated[qIndex].correctAnswerIndex = 0;
+            updated[qIndex].correctAnswerIndex = 0;  // Đặt lại đáp án đúng về 0
         } else if (updated[qIndex].correctAnswerIndex > aIndex) {
-            updated[qIndex].correctAnswerIndex -= 1;
+            updated[qIndex].correctAnswerIndex -= 1;  // Giảm index của đáp án đúng
         }
 
+        // Cập nhật lại state
         setQuestions(updated);
     };
+
 
     const handleCorrectChange = (qIndex, aIndex) => {
-        const updated = [...questions];
-        updated[qIndex].correctAnswerIndex = aIndex;
-        setQuestions(updated);
+        const updatedQuestions = [...questions];
+        updatedQuestions[qIndex].correctAnswerIndex = aIndex;  // Cập nhật đáp án đúng
+        setQuestions(updatedQuestions);  // Cập nhật lại state
     };
 
-    const handleSaveTest = () => {
-        const testId = form.idTest;
+    const handleEditTest = (test) => {
+        setForm({
+            idTest: test.idTest,
+            idCourse: test.idCourse || test?.course?._id,  // Sử dụng _id của course nếu có
+            content: test.content,
+        });
 
-        if (!testId || !form.content) {
-            alert("Vui lòng điền đầy đủ thông tin Test ID và nội dung bài test.");
+        // Map lại câu hỏi (questions) theo đúng format
+        const mappedQuestions = test.questions.map((q) => ({
+            idQuestion: q.idQuestion || "",
+            idTest: test.idTest,
+            question: q.question || "",
+            options: q.options || [""],  // Nếu không có options, tạo một array trống
+            correctAnswerIndex: q.correctAnswerIndex || 0,  // Nếu không có chỉ định đúng, mặc định là 0
+        }));
+
+        setQuestions(mappedQuestions);  // Set câu hỏi đã được map
+        setIsEditMode(true);            // Đặt chế độ là Edit
+        setShowForm(true);              // Hiển thị form
+        setIdDBTest(test.id);           // Lưu lại id của bài test để update
+    };
+
+
+    const handleSaveTest = async () => {
+        const testId = form.idTest;
+        const idCourse = form.idCourse;
+
+        // Kiểm tra thông tin đầu vào
+        if (!testId || !form.content || !idCourse) {
+            alert("Vui lòng điền đầy đủ thông tin Test ID, nội dung bài test, và khóa học.");
             return;
         }
 
+        // Xử lý các câu hỏi
         const finalQuestions = questions.map((q, index) => ({
-            idQuestion: `Q_${testId}_${index + 1}`,
+            idQuestion: q.idQuestion || `Q_${testId}_${index + 1}`, // Tạo id cho câu hỏi nếu chưa có
             idTest: testId,
             question: q.question,
             options: q.options,
@@ -275,14 +330,51 @@ const ManageStudentTest = () => {
 
         const testPayload = {
             idTest: testId,
+            idCourse: idCourse,
             content: form.content,
             questions: finalQuestions,
         };
 
         console.log("Payload to submit:", testPayload);
 
-        dispatch(createTest(testPayload));
+        try {
+            if (isEditMode) {
+                // Cập nhật bài kiểm tra
+                const resultAction = await dispatch(updateTest({ id: idDBTest, data: testPayload }));
+
+                if (updateTest.fulfilled.match(resultAction)) {
+                    toast.success("Cập nhật bài kiểm tra thành công!");
+                    dispatch(getAllTests());  // Lấy lại danh sách bài kiểm tra
+                } else {
+                    toast.error(resultAction.payload || "Cập nhật thất bại!");
+                }
+            } else {
+                // Tạo bài kiểm tra mới
+                const resultAction = await dispatch(createTest(testPayload));
+
+                if (createTest.fulfilled.match(resultAction)) {
+                    toast.success("Tạo bài kiểm tra thành công!");
+                    dispatch(getAllTests());  // Lấy lại danh sách bài kiểm tra mới
+                } else {
+                    toast.error(resultAction.payload || "Tạo thất bại!");
+                }
+            }
+        } catch (error) {
+            toast.error("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+            console.error("Error during save test:", error);
+        }
     };
+
+
+    useEffect(() => {
+        dispatch(getAllCourses());
+        dispatch(getAllTests());
+    }, []);
+
+    const handleDeleteTest = async (id) => {
+        await dispatch(deleteTest(id));
+        dispatch(getAllTests());
+    }
 
     return (
         <div className="flex flex-col">
@@ -294,12 +386,9 @@ const ManageStudentTest = () => {
                 <div className="flex justify-end mb-4 mt-4">
                     <button
                         onClick={() => {
-                            setForm({
-                                idTest: '',
-                                idLesson: '',
-                                content: '',
-                                idQuestion: []
-                            });
+                            setForm({ idTest: '', idCourse: '', content: '' });
+                            setQuestions([{ idTest: '', question: '', options: [''], correctAnswerIndex: 0 }]);
+                            setIsEditMode(false);
                             setShowForm(true);
                         }}
                         className="px-4 py-2 bg-[#4FD1C5] text-white rounded hover:bg-teal-500 transition"
@@ -310,7 +399,9 @@ const ManageStudentTest = () => {
 
                 {showForm && (
                     <div className="bg-white p-6 mb-6 rounded-lg shadow-md">
-                        <h2 className="text-xl font-semibold mb-4">Add New Test</h2>
+                        <h2 className="text-xl font-semibold mb-4">
+                            {isEditMode ? 'Edit Test' : 'Add New Test'}
+                        </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Test ID</label>
@@ -321,20 +412,21 @@ const ManageStudentTest = () => {
                                     onChange={handleFormChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                     placeholder="Enter test ID"
+                                    disabled={isEditMode}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Lesson</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Course</label>
                                 <select
-                                    name="idLesson"
-                                    value={form.idLesson}
+                                    name="idCourse"
+                                    value={form.idCourse}
                                     onChange={handleFormChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                 >
-                                    <option value="">Select a lesson</option>
-                                    {lessons.map(lesson => (
-                                        <option key={lesson._id} value={lesson._id}>
-                                            {lesson.idLesson} - {lesson.content}
+                                    <option value="">Select a course</option>
+                                    {courses.map(course => (
+                                        <option key={course._id} value={course._id}>
+                                            {course.idCourse} - {course.infor}
                                         </option>
                                     ))}
                                 </select>
@@ -398,7 +490,6 @@ const ManageStudentTest = () => {
                                         </CardContent>
                                     </Card>
                                 ))}
-
                                 <Button onClick={addQuestion} variant="outlined" startIcon={<Add />} sx={{ borderColor: "4FD1C5", color: "#4FD1C5", marginBottom: 2 }}>
                                     Add Question
                                 </Button>
@@ -418,106 +509,36 @@ const ManageStudentTest = () => {
                         <thead className="bg-[#4FD1C5] text-white">
                             <tr>
                                 <th className="py-3 px-4 text-left">Test ID</th>
-                                <th className="py-3 px-4 text-left">Lesson ID</th>
+                                <th className="py-3 px-4 text-left">Course ID</th>
                                 <th className="py-3 px-4 text-left">Content</th>
-                                <th className="py-3 px-4 text-left">Questions</th>
                                 <th className="py-3 px-4 text-left">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {currentTests.map((test, index) => (
-                                <tr key={test._id} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                            {testLoading === true ? <>Loading...</> : currentTests.map((test, index) => (
+                                <tr key={test.id} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
                                     <td className="py-3 px-4">{test.idTest}</td>
                                     <td className="py-3 px-4">
-                                        {editingId === test._id ? (
-                                            <select
-                                                name="idLesson"
-                                                value={editForm.idLesson}
-                                                onChange={handleEditChange}
-                                                className="w-full border p-1 rounded"
-                                            >
-                                                {lessons.map(lesson => (
-                                                    <option key={lesson._id} value={lesson._id}>
-                                                        {lesson.idLesson}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        ) :
-                                            // (
-                                            //     test.idLesson.idLesson
-                                            // )
-                                            <></>
-                                        }
+                                        {test?.course?.idCourse}
                                     </td>
                                     <td className="py-3 px-4">
-                                        {editingId === test._id ? (
-                                            <input
-                                                name="content"
-                                                value={editForm.content}
-                                                onChange={handleEditChange}
-                                                className="border p-1 rounded w-full"
-                                            />
-                                        ) : (
-                                            test.content
-                                        )}
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        {editingId === test._id ? (
-                                            <select
-                                                multiple
-                                                name="idQuestion"
-                                                value={editForm.idQuestion}
-                                                onChange={handleEditQuestionChange}
-                                                className="border p-1 rounded w-full h-20"
-                                            >
-                                                {questions.map(question => (
-                                                    <option key={question._id} value={question._id}>
-                                                        {question.idQuestion}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        ) : (
-                                            <div className="max-h-20 overflow-y-auto">
-                                                {test.idQuestion.map((q, i) => (
-                                                    <div key={i} className="text-sm">
-                                                        {q.idQuestion}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                        {test.content}
                                     </td>
                                     <td className="py-3 px-4 space-x-2">
-                                        {editingId === test._id ? (
-                                            <>
-                                                <button
-                                                    className="bg-green-500 text-white px-3 py-1 rounded"
-                                                    onClick={handleEditSubmit}
-                                                >
-                                                    Save
-                                                </button>
-                                                <button
-                                                    className="bg-gray-400 text-white px-3 py-1 rounded"
-                                                    onClick={() => setEditingId(null)}
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <button
-                                                    className="bg-blue-500 text-white px-3 py-1 rounded"
-                                                    onClick={() => handleEditClick(test)}
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    className="bg-red-500 text-white px-3 py-1 rounded"
-                                                    onClick={() => handleDelete(test._id)}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </>
-                                        )}
+                                        <>
+                                            <button
+                                                className="bg-blue-500 text-white px-3 py-1 rounded"
+                                                onClick={() => handleEditTest(test)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="bg-red-500 text-white px-3 py-1 rounded"
+                                                onClick={() => handleDeleteTest(test.id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </>
                                     </td>
                                 </tr>
                             ))}
@@ -544,7 +565,7 @@ const ManageStudentTest = () => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

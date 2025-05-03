@@ -35,7 +35,7 @@ const Sidebar = () => {
         <div className="w-72 h-screen p-6 flex flex-col justify-between">
             {/* Logo */}
             <div>
-                <div className="flex items-center cursor-pointer py-2">
+                <div className="flex items-center cursor-pointer py-2" onClick={() => navigate("/")}>
                     <div className="relative w-12 h-12 flex items-center justify-center border-4 border-[#4FD1C5] transform rotate-45">
                         <span className="text-2xl font-bold text-gray-700 transform -rotate-45">IT</span>
                     </div>
