@@ -5,10 +5,10 @@ const TestSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  idLesson: {
+  idCourse: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Lesson',
-    required: false
+    ref: 'Course',
+    required: true
   },
   content: {
     type: String,
