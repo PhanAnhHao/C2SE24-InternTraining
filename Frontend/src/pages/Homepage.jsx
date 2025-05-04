@@ -18,7 +18,7 @@ const Homepage = () => {
             <OurFeatures />
             <hr className='mx-[100px] text-gray-300 my-10' />
             <CategoryList />
-            <RecommendList />
+            {/*<RecommendList />*/}
             <Testimonial />
         </div>
     )

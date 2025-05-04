@@ -4,7 +4,7 @@ import LessonItem from './LessonItem';
 
 const colors = ["teal-300", "orange-200", "blue-100", "red-200"];
 
-const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, editingLesson, onCancelEdit }) => {
+const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, editingLesson, onCancelEdit,  onBack   }) => {
     const [showAddLessonForm, setShowAddLessonForm] = useState(false);
 
     const handleAddLesson = (newLesson) => {
@@ -30,7 +30,19 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
 
     return (
         <div className="w-1/3 p-4 relative">
-            <h2 className="text-lg font-bold mb-4">Lesson List</h2>
+            <div className="flex items-center mb-4">
+                <button
+                    onClick={onBack}
+                    className="mr-3 text-lg text-white px-6 rounded-lg bg-teal-400 hover:text-teal-600 flex items-center"
+                >
+                    <svg className="w-8 h-8 p-2  mr-1" fill="none" stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+                    </svg>
+
+                </button>
+                <h2 className="text-lg font-bold">Lesson List</h2>
+            </div>
+
             {lessons.map((lesson, idx) => (
                 <LessonItem
                     key={idx}
@@ -47,7 +59,8 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
                 }}
             >
                 <div className="flex items-center">
-                    <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     <p className="text-sm font-medium">Add Lesson</p>
@@ -60,7 +73,7 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
                         <CreateLessonForm
                             onSubmit={(lesson) => {
                                 if (editingLesson) {
-                                    const updatedLesson = { ...lesson, color: editingLesson.lesson.color };
+                                    const updatedLesson = {...lesson, color: editingLesson.lesson.color};
                                     onEditLesson(editingLesson.index, updatedLesson);
                                 } else {
                                     handleAddLesson(lesson);

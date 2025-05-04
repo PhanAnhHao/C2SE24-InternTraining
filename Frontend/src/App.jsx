@@ -6,6 +6,8 @@ import CoursePage from "./pages/CoursePage.jsx";
 import CourseDetailPage from "./pages/CourseDetailPage.jsx";
 import BlogPage from "./pages/BlogPage.jsx";
 import "./App.css";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Homepage from './pages/Homepage.jsx';
 import Layout from './Layout.jsx';
 import AdminLayout from "./AdminLayout.jsx";
@@ -34,45 +36,57 @@ const NotFound = () => {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Homepage />} />
-          <Route path="/course" element={<CoursePage />} />
-          <Route path="/course/1" element={<CourseDetailPage />} />
-          <Route path="/blog-page" element={<BlogPage />} />
-          {/* <Route path="/blog-detail" element={<BlogDetail />} />     */}
-          <Route path="/blogs/:blogId" element={<BlogDetail />} />
+    <>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Homepage />} />
+            <Route path="/course" element={<CoursePage />} />
+            <Route path="/course/1" element={<CourseDetailPage />} />
+            <Route path="/blog-page" element={<BlogPage />} />
+            <Route path="/blogs/:blogId" element={<BlogDetail />} />
 
 
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/test-page" element={<TestPage />} />
-          <Route path="/submit-test" element={<SubmitTest />} />
-          <Route path="/change-password" element={<ChangePassword />} />
-          <Route path="/create-blog" element={<CreateBlog />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/test-page/:testId" element={<TestPage />} />
+            <Route path="/submit-test" element={<SubmitTest />} />
+            <Route path="/change-password" element={<ChangePassword />} />
+            <Route path="/create-blog" element={<CreateBlog />} />
 
-        </Route>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+            <Route path="/online-learning" element={<OnlineLearningPage />} />
 
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
-          <Route path="/admin/accounts" element={<ManageAccount />} />
-          <Route path="/admin/students-test" element={<ManageStudentTest />} />
-          <Route path="/admin/courses" element={<ManageCourse />} />
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/online-learning" element={<OnlineLearningManager />} />
-          <Route path="/admin/reviews" element={<ManageReviews />} />
-        </Route>
+          </Route>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
+          <Route path="/dashboard" element={<AdminLayout />}>
+            <Route path="/dashboard/online-learning" element={<OnlineLearningManager />} />
+            <Route path="/dashboard/accounts" element={<ManageAccount />} />
+            <Route path="/dashboard/students-test" element={<ManageStudentTest />} />
+            <Route path="/dashboard/courses" element={<ManageCourse />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/online-learning" element={<OnlineLearningManager />} />
+            <Route path="/dashboard/reviews" element={<ManageReviews />} />
+          </Route>
+          <Route path="/dashboard/courses/create-course" element={<CreateCoursePage />} />
 
-        <Route path="/business/create-course" element={<CreateCoursePage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
 
-        {/*Test*/}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </>
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
   );
 }
 

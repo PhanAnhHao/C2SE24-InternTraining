@@ -18,12 +18,12 @@ const Sidebar = () => {
     const [activeItem, setActiveItem] = useState("Dashboard");
 
     const menuItems = [
-        { name: "Dashboard", icon: <FaHome />, path: "/admin/dashboard" },
-        { name: "Manage account", icon: <FaUsers />, path: "/admin/accounts" },
-        { name: "Manage Student Test", icon: <FaUserGraduate />, path: "/admin/students-test" },
-        { name: "Manage Course", icon: <FaBook />, path: "/admin/courses" },
-        { name: "Manage Online Learning", icon: <FaChalkboardTeacher />, path: "/admin/online-learning" },
-        { name: "Manage Review Rating", icon: <FaStar />, path: "/admin/reviews" },
+        { name: "Dashboard", icon: <FaHome />, path: "/dashboard" },
+        { name: "Manage account", icon: <FaUsers />, path: "/dashboard/accounts" },
+        { name: "Manage Student Test", icon: <FaUserGraduate />, path: "/dashboard/students-test" },
+        { name: "Manage Course", icon: <FaBook />, path: "/dashboard/courses" },
+        { name: "Manage Online Learning", icon: <FaChalkboardTeacher />, path: "/dashboard/online-learning" },
+        { name: "Manage Review Rating", icon: <FaStar />, path: "/dashboard/reviews" },
     ];
 
     const handleNavigation = (path, name) => {
@@ -35,7 +35,7 @@ const Sidebar = () => {
         <div className="w-72 h-screen p-6 flex flex-col justify-between">
             {/* Logo */}
             <div>
-                <div className="flex items-center cursor-pointer py-2">
+                <div className="flex items-center cursor-pointer py-2" onClick={() => navigate("/")}>
                     <div className="relative w-12 h-12 flex items-center justify-center border-4 border-[#4FD1C5] transform rotate-45">
                         <span className="text-2xl font-bold text-gray-700 transform -rotate-45">IT</span>
                     </div>
