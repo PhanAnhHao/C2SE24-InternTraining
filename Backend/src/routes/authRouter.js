@@ -65,7 +65,7 @@ router.post('/register', async (req, res) => {
       idStudent: studentId,
       age: age || 18, // Default age if not provided
       school: school || 'Unknown', // Default school if not provided
-      course: course || 'IT', // Default course if not provided
+      course: course ? (Array.isArray(course) ? course : [course]) : ['IT'], // Ensure course is an array
       englishSkill: englishSkill || 'Intermediate', // Default English skill if not provided
       userId: savedUser._id
     });
