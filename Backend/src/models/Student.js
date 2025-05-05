@@ -15,8 +15,8 @@ const StudentSchema = new mongoose.Schema({
         required: true,
     },
     course: {
-        type: String,
-        required: true,
+        type: [String],
+        default: [],
     },
     englishSkill: {
         type: String,
@@ -25,9 +25,9 @@ const StudentSchema = new mongoose.Schema({
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Tên model User
+        ref: 'Account', // Changed from 'User' to 'Account'
         required: true,
-        unique: true, // mỗi Student chỉ gắn với một User duy nhất
+        unique: true, // mỗi Student chỉ gắn với một Account duy nhất
     }
 }, {
     timestamps: true

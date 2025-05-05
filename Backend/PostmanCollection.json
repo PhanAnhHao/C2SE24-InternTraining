@@ -371,7 +371,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idStudent\": \"S_POSTMAN\",\n  \"age\": 21,\n  \"school\": \"Đại học Postman\",\n  \"course\": \"API Testing\",\n  \"englishSkill\": \"Advanced\",\n  \"userId\": \"<ObjectId_User_Co_Role_Student>\" // Lấy từ GET /users hoặc DB\n}",
+							"raw": "{\n  \"idStudent\": \"S_POSTMAN\",\n  \"age\": 21,\n  \"school\": \"Đại học Postman\",\n  \"course\": [\"API Testing\", \"Web Development\"],\n  \"englishSkill\": \"Advanced\",\n  \"userId\": \"<ObjectId_User_Co_Role_Student>\" // Lấy từ GET /users hoặc DB\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -785,7 +785,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idCourse\": \"C_POSTMAN\",\n  \"infor\": \"Khóa học Postman Nâng cao\",\n  \"languageID\": \"<ObjectId_Cua_Language_JS>\" // Thay bằng ObjectId của Language JS hoặc language khác\n}",
+							"raw": "{\n  \"idCourse\": \"C_POSTMAN\",\n  \"infor\": \"Khóa học Postman Nâng cao\",\n  \"languageID\": \"<ObjectId_Cua_Language_JS>\", // Thay bằng ObjectId của Language JS hoặc language khác\n  \"businessId\": \"{{businessId}}\" // Thay bằng ObjectId của Business\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -801,7 +801,7 @@
 								"courses"
 							]
 						},
-						"description": "Tạo Course mới (cần languageID hợp lệ)"
+						"description": "Tạo Course mới (cần languageID hợp lệ và businessId)"
 					},
 					"response": []
 				},
@@ -839,9 +839,37 @@
 							],
 							"path": [
 								"courses"
+							],
+							"query": [
+								{
+									"key": "businessId",
+									"value": "{{businessId}}",
+									"description": "Filter courses by business ID",
+									"disabled": true
+								}
 							]
 						},
-						"description": "Lấy danh sách Courses. Lưu _id course đầu tiên vào {{courseId}}."
+						"description": "Lấy danh sách Courses. Có thể lọc theo businessId. Lưu _id course đầu tiên vào {{courseId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Courses by Business ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/business/{{businessId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"business",
+								"{{businessId}}"
+							]
+						},
+						"description": "Lấy danh sách khóa học thuộc về một business cụ thể"
 					},
 					"response": []
 				},
@@ -1118,6 +1146,26 @@
 							]
 						},
 						"description": "Lấy danh sách Tests. Lưu _id test đầu tiên vào {{testId}}."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tests by Business ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tests/business/{{businessId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tests",
+								"business",
+								"{{businessId}}"
+							]
+						},
+						"description": "Lấy tất cả bài tests thuộc về các khóa học của một business cụ thể. Kết quả được tổ chức theo khóa học và bài học."
 					},
 					"response": []
 				},
@@ -2159,6 +2207,287 @@
 							]
 						},
 						"description": "Get popular tags sorted by usage count."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "View Requests",
+			"item": [
+				{
+					"name": "Create View Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentId\": \"{{studentId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/view-requests/request",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "view-requests", "request"]
+						},
+						"description": "Create a new view request for a student profile"
+					},
+					"response": []
+				},
+				{
+					"name": "Handle View Request Response (Approve/Reject)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"approve\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/view-requests/response/:requestToken",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "view-requests", "response", ":requestToken"],
+							"variable": [
+								{
+									"key": "requestToken",
+									"value": "",
+									"description": "Token from the email URL"
+								}
+							]
+						},
+						"description": "Handle student's response to view request (approve or reject)"
+					},
+					"response": []
+				},
+				{
+					"name": "Access Student Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/view-requests/access/:accessToken",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "view-requests", "access", ":accessToken"],
+							"variable": [
+								{
+									"key": "accessToken",
+									"value": "",
+									"description": "Access token received in approval email"
+								}
+							]
+						},
+						"description": "Access student profile using the token received in approval email"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Student Lesson Progress",
+			"item": [
+				{
+					"name": "Get All Progress Records",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/progress",
+							"host": ["{{baseUrl}}"],
+							"path": ["progress"]
+						},
+						"description": "Get all student lesson progress records in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Progress for Student",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/progress/student/{{studentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["progress", "student", "{{studentId}}"]
+						},
+						"description": "Get all progress records for a specific student across all lessons"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Progress Overview for Student",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/progress/student/{{studentId}}/overview",
+							"host": ["{{baseUrl}}"],
+							"path": ["progress", "student", "{{studentId}}", "overview"]
+						},
+						"description": "Get summarized progress statistics grouped by course for a specific student"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Progress for Lesson",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/progress/lesson/{{lessonId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["progress", "lesson", "{{lessonId}}"]
+						},
+						"description": "Get all student progress records for a specific lesson"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific Progress Record",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/progress/{{studentId}}/{{lessonId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["progress", "{{studentId}}", "{{lessonId}}"]
+						},
+						"description": "Get progress record for a specific student-lesson pair"
+					},
+					"response": []
+				},
+				{
+					"name": "Create/Update Progress Record",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"lessonId\": \"{{lessonId}}\",\n  \"status\": \"in_progress\",\n  \"progress\": 45,\n  \"watchTime\": 900,\n  \"notes\": \"Student is making good progress, completed first exercises\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/progress",
+							"host": ["{{baseUrl}}"],
+							"path": ["progress"]
+						},
+						"description": "Create or update a progress record. If a record already exists for the student-lesson pair, it will be updated."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Progress Record",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/progress/{{studentId}}/{{lessonId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["progress", "{{studentId}}", "{{lessonId}}"]
+						},
+						"description": "Delete a specific progress record"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Lesson with Progress",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}?studentId={{studentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["lessons", "{{lessonId}}"],
+							"query": [
+								{
+									"key": "studentId",
+									"value": "{{studentId}}",
+									"description": "Optional student ID to include progress info"
+								}
+							]
+						},
+						"description": "Get lesson details with student progress information (if studentId is provided)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Course Lessons with Progress",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/course/{{courseId}}?studentId={{studentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["lessons", "course", "{{courseId}}"],
+							"query": [
+								{
+									"key": "studentId",
+									"value": "{{studentId}}",
+									"description": "Optional student ID to include progress info"
+								}
+							]
+						},
+						"description": "Get all lessons for a course with student progress information (if studentId is provided)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Course with Progress Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/{{courseId}}?studentId={{studentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["courses", "{{courseId}}"],
+							"query": [
+								{
+									"key": "studentId",
+									"value": "{{studentId}}",
+									"description": "Optional student ID to include progress summary"
+								}
+							]
+						},
+						"description": "Get course details with progress summary for a specific student (if studentId is provided)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Business Courses with Progress",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/business/{{businessId}}?studentId={{studentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["courses", "business", "{{businessId}}"],
+							"query": [
+								{
+									"key": "studentId",
+									"value": "{{studentId}}",
+									"description": "Optional student ID to include progress information"
+								}
+							]
+						},
+						"description": "Get all courses for a business with progress summary for a specific student (if studentId is provided)"
 					},
 					"response": []
 				}
