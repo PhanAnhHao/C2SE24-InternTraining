@@ -22,11 +22,11 @@
           "phone": "0912345678",
           "age": 22,
           "school": "ABC University",
-          "course": "Information Technology",
+          "course": ["Information Technology", "Web Development"],
           "englishSkill": "Advanced"
         }
         ```
-    * Note: Fields `age`, `school`, `course`, and `englishSkill` are optional. If not provided, the system will automatically create a Student record with default values.
+    * Note: Fields `age`, `school`, `course`, and `englishSkill` are optional. If not provided, the system will automatically create a Student record with default values. The `course` field is now an array of strings.
     * Return result: Includes the studentId of the automatically created Student record.
 
 * **POST /auth/login**
@@ -103,7 +103,7 @@
           "idStudent": "S_QUICK",
           "age": 20,
           "school": "Test University",
-          "course": "Testing API",
+          "course": ["Testing API", "Web Development"],
           "englishSkill": "Intermediate",
           "userId": "<ObjectId_Of_User_With_Student_Role>" // Get from GET /users or DB
         }

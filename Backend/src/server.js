@@ -16,9 +16,9 @@ const historyRouter = require('./routes/historyRouter'); // New router for Histo
 const answerRouter = require('./routes/answerRouter'); // New router for Answer
 const ratingRouter = require('./routes/ratingRouter'); // New router for Rating
 const blogRouter = require('./routes/blogRouter'); // New router for Blog
+const viewRequestRouter = require('./routes/viewRequestRouter');
+const studentLessonProgressRouter = require('./routes/studentLessonProgressRouter'); // New router for tracking student lesson progress
 const cors = require("cors");
-
-
 require('dotenv').config();
 
 const app = express();
@@ -58,7 +58,8 @@ app.use('/history', historyRouter);
 app.use('/answers', answerRouter);
 app.use('/ratings', ratingRouter);
 app.use('/blogs', blogRouter); // Add the blog routes
-
+app.use('/api/view-requests', viewRequestRouter);
+app.use('/progress', studentLessonProgressRouter); // Add the student lesson progress routes
 // Chạy server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -17,6 +17,7 @@ const Answer = require('./models/Answer');
 const History = require('./models/History');
 const Rating = require('./models/Rating');
 const Blog = require('./models/Blog');
+const StudentLessonProgress = require('./models/StudentLessonProgress');
 
 const bcrypt = require('bcrypt');
 
@@ -56,10 +57,10 @@ async function seed() {
     ]);
 
     const students = await Student.insertMany([
-      { idStudent: 'S1001', age: 20, school: 'Bach Khoa University', course: 'Software Engineering', englishSkill: 'Intermediate', userId: users[1]._id },
-      { idStudent: 'S1002', age: 21, school: 'University of Technology', course: 'Information Systems', englishSkill: 'Fluent', userId: users[2]._id },
-      { idStudent: 'S1003', age: 19, school: 'FPT University', course: 'Artificial Intelligence', englishSkill: 'Advanced', userId: users[3]._id },
-      { idStudent: 'S1004', age: 22, school: 'RMIT University', course: 'Computer Science', englishSkill: 'Fluent', userId: users[4]._id },
+      { idStudent: 'S1001', age: 20, school: 'Bach Khoa University', course: ['Software Engineering', 'Web Development'], englishSkill: 'Intermediate', userId: users[1]._id },
+      { idStudent: 'S1002', age: 21, school: 'University of Technology', course: ['Information Systems', 'Database Management'], englishSkill: 'Fluent', userId: users[2]._id },
+      { idStudent: 'S1003', age: 19, school: 'FPT University', course: ['Artificial Intelligence', 'Machine Learning'], englishSkill: 'Advanced', userId: users[3]._id },
+      { idStudent: 'S1004', age: 22, school: 'RMIT University', course: ['Computer Science', 'Mobile App Development'], englishSkill: 'Fluent', userId: users[4]._id },
     ]);
 
     await Business.insertMany([
@@ -1142,6 +1143,185 @@ async function seed() {
     ]);
     
     console.log('Database seeded successfully');
+
+    // After seeding all other data, add StudentLessonProgress data
+    // Seed data for StudentLessonProgress
+    const studentLessonProgressRecords = [
+      // Student 1 - JS Course
+      {
+        studentId: students[0]._id,
+        lessonId: lessonIds[0], // JavaScript variable declarations
+        status: 'completed',
+        progress: 100,
+        startedAt: new Date('2023-06-14'),
+        completedAt: new Date('2023-06-15'),
+        lastAccessedAt: new Date('2023-06-15'),
+        watchTime: 1800, // 30 minutes
+        notes: 'Completed all variable declaration exercises'
+      },
+      {
+        studentId: students[0]._id,
+        lessonId: lessonIds[5], // Conditional structures and loops in JS
+        status: 'in_progress',
+        progress: 60,
+        startedAt: new Date('2023-06-18'),
+        lastAccessedAt: new Date('2023-06-20'),
+        watchTime: 1200, // 20 minutes
+        notes: 'Still need to review for loops'
+      },
+
+      // Student 1 - Python Course
+      {
+        studentId: students[0]._id,
+        lessonId: lessonIds[1], // Functions and modules in Python
+        status: 'completed',
+        progress: 100,
+        startedAt: new Date('2023-06-19'),
+        completedAt: new Date('2023-06-20'),
+        lastAccessedAt: new Date('2023-06-20'),
+        watchTime: 2400, // 40 minutes
+        notes: 'Very helpful module structure examples'
+      },
+      {
+        studentId: students[0]._id,
+        lessonId: lessonIds[6], // Conditions and loops in Python
+        status: 'not_started',
+        progress: 0,
+        lastAccessedAt: new Date('2023-06-20')
+      },
+
+      // Student 2 - JS Course
+      {
+        studentId: students[1]._id,
+        lessonId: lessonIds[0], // JavaScript variable declarations
+        status: 'completed',
+        progress: 100,
+        startedAt: new Date('2023-06-20'),
+        completedAt: new Date('2023-06-22'),
+        lastAccessedAt: new Date('2023-06-22'),
+        watchTime: 1500, // 25 minutes
+        notes: 'Confused about let vs var scoping at first, but got it eventually'
+      },
+      {
+        studentId: students[1]._id,
+        lessonId: lessonIds[5], // Conditional structures and loops in JS
+        status: 'not_started',
+        progress: 0,
+        lastAccessedAt: new Date('2023-06-22')
+      },
+
+      // Student 2 - C# Course
+      {
+        studentId: students[1]._id,
+        lessonId: lessonIds[4], // Variables and data types in C#
+        status: 'in_progress',
+        progress: 45,
+        startedAt: new Date('2023-06-25'),
+        lastAccessedAt: new Date('2023-07-05'),
+        watchTime: 900, // 15 minutes
+        notes: 'Need more practice with dynamic types'
+      },
+      {
+        studentId: students[1]._id,
+        lessonId: lessonIds[9], // Classes and methods in C#
+        status: 'not_started',
+        progress: 0,
+        lastAccessedAt: new Date('2023-07-05')
+      },
+
+      // Student 3 - Python Course
+      {
+        studentId: students[2]._id,
+        lessonId: lessonIds[1], // Functions and modules in Python
+        status: 'completed',
+        progress: 100,
+        startedAt: new Date('2023-06-25'),
+        completedAt: new Date('2023-06-28'),
+        lastAccessedAt: new Date('2023-06-28'),
+        watchTime: 2100, // 35 minutes
+        notes: 'Understood module imports perfectly'
+      },
+      {
+        studentId: students[2]._id,
+        lessonId: lessonIds[6], // Conditions and loops in Python
+        status: 'in_progress',
+        progress: 75,
+        startedAt: new Date('2023-06-30'),
+        lastAccessedAt: new Date('2023-07-05'),
+        watchTime: 1500, // 25 minutes
+        notes: 'The while loop examples were great'
+      },
+
+      // Student 3 - HTML/CSS Course
+      {
+        studentId: students[2]._id,
+        lessonId: lessonIds[3], // Basic HTML tags
+        status: 'in_progress',
+        progress: 30,
+        startedAt: new Date('2023-07-06'),
+        lastAccessedAt: new Date('2023-07-08'),
+        watchTime: 600, // 10 minutes
+        notes: 'Finding HTML easy to understand so far'
+      },
+      {
+        studentId: students[2]._id,
+        lessonId: lessonIds[8], // Introduction to basic CSS
+        status: 'not_started',
+        progress: 0,
+        lastAccessedAt: new Date('2023-07-08')
+      },
+
+      // Student 4 - Java Course
+      {
+        studentId: students[3]._id,
+        lessonId: lessonIds[2], // Object-oriented programming with Java
+        status: 'completed',
+        progress: 100,
+        startedAt: new Date('2023-06-20'),
+        completedAt: new Date('2023-06-25'),
+        lastAccessedAt: new Date('2023-06-25'),
+        watchTime: 3000, // 50 minutes
+        notes: 'Great explanation of OOP principles'
+      },
+      {
+        studentId: students[3]._id,
+        lessonId: lessonIds[7], // Inheritance and polymorphism in Java
+        status: 'completed',
+        progress: 100,
+        startedAt: new Date('2023-06-26'),
+        completedAt: new Date('2023-07-01'),
+        lastAccessedAt: new Date('2023-07-01'),
+        watchTime: 2700, // 45 minutes
+        notes: 'The interface examples were extremely helpful'
+      },
+
+      // Student 4 - HTML/CSS Course
+      {
+        studentId: students[3]._id,
+        lessonId: lessonIds[3], // Basic HTML tags
+        status: 'completed',
+        progress: 100,
+        startedAt: new Date('2023-07-10'),
+        completedAt: new Date('2023-07-15'),
+        lastAccessedAt: new Date('2023-07-15'),
+        watchTime: 1200, // 20 minutes
+        notes: 'Found HTML structure very intuitive'
+      },
+      {
+        studentId: students[3]._id,
+        lessonId: lessonIds[8], // Introduction to basic CSS
+        status: 'in_progress',
+        progress: 85,
+        startedAt: new Date('2023-07-16'),
+        lastAccessedAt: new Date('2023-07-20'),
+        watchTime: 1800, // 30 minutes
+        notes: 'Enjoying the creative aspects of CSS'
+      }
+    ];
+
+    await StudentLessonProgress.insertMany(studentLessonProgressRecords);
+    console.log('Student lesson progress data seeded successfully!');
+
     process.exit(0);
   } catch (error) {
     console.error('Error seeding database:', error);

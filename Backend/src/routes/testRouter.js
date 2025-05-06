@@ -3,6 +3,8 @@ const router = express.Router();
 const Test = require('../models/Test');
 const Question = require('../models/Question');
 const Course = require('../models/Course');
+const Lesson = require('../models/Lesson');
+const Course = require('../models/Course');
 const mongoose = require('mongoose');
 
 // CREATE
@@ -120,6 +122,202 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+
+// READ by Business ID - Cải thiện xử lý lỗi
+router.get('/business/:businessId', async (req, res) => {
+  try {
+    const { businessId } = req.params;
+
+    console.log('Finding tests for business ID:', businessId);
+
+    // Validate business ID
+    if (!mongoose.Types.ObjectId.isValid(businessId)) {
+      return res.status(400).json({ error: 'Invalid business ID format' });
+    }
+
+    // Kiểm tra business có tồn tại không
+    const business = await mongoose.model('Business').findById(businessId);
+    if (!business) {
+      return res.status(404).json({
+        success: false,
+        message: 'Business not found'
+      });
+    }
+
+    // 1. Find all courses by business ID
+    const courses = await Course.find({ businessId });
+    console.log(`Found ${courses.length} courses for business ID ${businessId}`);
+
+    if (courses.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No courses found for this business',
+        business: {
+          id: business._id,
+          idBusiness: business.idBusiness
+        },
+        tests: []
+      });
+    }
+
+    const courseIds = courses.map(course => course._id);
+
+    // 2. Find all lessons from these courses
+    const lessons = await Lesson.find({ idCourse: { $in: courseIds } });
+    console.log(`Found ${lessons.length} lessons from courses`);
+
+    if (lessons.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No lessons found for the courses of this business',
+        business: {
+          id: business._id,
+          idBusiness: business.idBusiness
+        },
+        coursesCount: courses.length,
+        tests: []
+      });
+    }
+
+    const lessonIds = lessons.map(lesson => lesson._id);
+
+    // 3. Find all tests from these lessons
+    const tests = await Test.find({ idLesson: { $in: lessonIds } })
+      .populate('idLesson')
+      .populate('idQuestion', 'idQuestion question options');
+
+    console.log(`Found ${tests.length} tests from lessons`);
+
+    if (tests.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No tests found for the lessons of this business',
+        business: {
+          id: business._id,
+          idBusiness: business.idBusiness
+        },
+        coursesCount: courses.length,
+        lessonsCount: lessons.length,
+        tests: []
+      });
+    }
+
+    // 4. Structure the response by course and lesson
+
+    // Create map of course IDs to course info
+    const courseMap = {};
+    courses.forEach(course => {
+      courseMap[course._id.toString()] = {
+        courseId: course._id,
+        idCourse: course.idCourse,
+        info: course.infor
+      };
+    });
+
+    // Create map of lesson IDs to lesson info and course ID
+    const lessonMap = {};
+    lessons.forEach(lesson => {
+      lessonMap[lesson._id.toString()] = {
+        lessonId: lesson._id,
+        idLesson: lesson.idLesson,
+        name: lesson.name,
+        courseId: lesson.idCourse
+      };
+    });
+
+    // Organize tests by course and lesson - Thêm xử lý lỗi
+    const organizedTests = [];
+    let errorsCount = 0;
+
+    tests.forEach(test => {
+      try {
+        // Kiểm tra xem test có thông tin về idLesson không
+        if (!test.idLesson || !test.idLesson._id) {
+          console.log(`Test ${test._id} has no idLesson information`);
+          errorsCount++;
+          return; // Skip this test
+        }
+
+        const lessonId = test.idLesson._id.toString();
+
+        // Kiểm tra xem lessonId có trong lessonMap không
+        if (!lessonMap[lessonId]) {
+          console.log(`Lesson with ID ${lessonId} not found in lesson map for test ${test._id}`);
+          errorsCount++;
+          return; // Skip this test
+        }
+
+        const lessonInfo = lessonMap[lessonId];
+
+        // Kiểm tra xem lessonInfo có courseId không
+        if (!lessonInfo.courseId) {
+          console.log(`Lesson ${lessonId} has no courseId information for test ${test._id}`);
+          errorsCount++;
+          return; // Skip this test
+        }
+
+        const courseId = lessonInfo.courseId.toString();
+
+        // Kiểm tra xem courseId có trong courseMap không
+        if (!courseMap[courseId]) {
+          console.log(`Course with ID ${courseId} not found in course map for test ${test._id}`);
+          errorsCount++;
+          return; // Skip this test
+        }
+
+        const courseInfo = courseMap[courseId];
+
+        // Thêm test vào danh sách đã tổ chức
+        organizedTests.push({
+          testId: test._id,
+          idTest: test.idTest,
+          content: test.content,
+          questionsCount: test.idQuestion ? test.idQuestion.length : 0,
+          lesson: {
+            id: lessonInfo.lessonId,
+            idLesson: lessonInfo.idLesson,
+            name: lessonInfo.name
+          },
+          course: {
+            id: courseInfo.courseId,
+            idCourse: courseInfo.idCourse,
+            info: courseInfo.info
+          }
+        });
+      } catch (err) {
+        console.error(`Error processing test ${test._id}:`, err);
+        errorsCount++;
+      }
+    });
+
+    // Nếu có lỗi, thêm thông tin lỗi vào response
+    const responseMessage = errorsCount > 0
+      ? `Found ${tests.length} tests (${errorsCount} could not be processed) for business ID ${businessId}`
+      : `Found ${tests.length} tests for business ID ${businessId}`;
+
+    res.json({
+      success: true,
+      message: responseMessage,
+      business: {
+        id: business._id,
+        idBusiness: business.idBusiness
+      },
+      coursesCount: courses.length,
+      lessonsCount: lessons.length,
+      testsCount: tests.length,
+      processedTestsCount: organizedTests.length,
+      testsWithErrorsCount: errorsCount,
+      tests: organizedTests
+    });
+  } catch (err) {
+    console.error('Error in /business/:businessId route:', err);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+      stack: process.env.NODE_ENV === 'production' ? undefined : err.stack
+    });
+  }
+});
 
 // UPDATE
 router.put('/:id', async (req, res) => {
