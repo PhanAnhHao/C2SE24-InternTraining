@@ -72,7 +72,7 @@ router.get('/approve/:token', async (req, res) => {
                     <h1 style="color: #28a745;">Request Approved Successfully</h1>
                     <p>You have approved the request to view your profile.</p>
                     <p>The business has been notified and will receive access to your profile information.</p>
-                    <p><a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}">Return to homepage</a></p>
+                    <p><a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}">Return to homepage</a></p>
                 </body>
             </html>
         `);
@@ -83,7 +83,7 @@ router.get('/approve/:token', async (req, res) => {
                 <body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
                     <h1 style="color: #dc3545;">Error</h1>
                     <p>${error.message}</p>
-                    <p><a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}">Return to homepage</a></p>
+                    <p><a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}">Return to homepage</a></p>
                 </body>
             </html>
         `);
@@ -106,7 +106,7 @@ router.get('/reject/:token', async (req, res) => {
                     <h1 style="color: #dc3545;">Request Rejected</h1>
                     <p>You have rejected the request to view your profile.</p>
                     <p>The business has been notified that they will not have access to your profile information.</p>
-                    <p><a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}">Return to homepage</a></p>
+                    <p><a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}">Return to homepage</a></p>
                 </body>
             </html>
         `);
@@ -117,7 +117,7 @@ router.get('/reject/:token', async (req, res) => {
                 <body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
                     <h1 style="color: #dc3545;">Error</h1>
                     <p>${error.message}</p>
-                    <p><a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}">Return to homepage</a></p>
+                    <p><a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}">Return to homepage</a></p>
                 </body>
             </html>
         `);

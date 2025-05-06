@@ -7,7 +7,7 @@ const Business = require('../models/Business');
 const sendEmail = require('../utils/sendEmail');
 
 // Define default URLs
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
 
 const generateToken = () => crypto.randomBytes(32).toString('hex');

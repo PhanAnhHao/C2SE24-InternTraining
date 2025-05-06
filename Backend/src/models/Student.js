@@ -14,10 +14,10 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    course: {
-        type: [String],
-        default: [],
-    },
+    idCourse: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course'
+      }],
     englishSkill: {
         type: String,
         enum: ['Beginner', 'Intermediate', 'Advanced', 'Fluent'],
