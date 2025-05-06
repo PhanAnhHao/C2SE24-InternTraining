@@ -1885,6 +1885,33 @@
 					"response": []
 				},
 				{
+					"name": "Get History by Course",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/history/course/:courseId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"history",
+								"course",
+								":courseId"
+							],
+							"variable": [
+								{
+									"key": "courseId",
+									"value": "{{courseId}}",
+									"description": "ObjectId of the course to get test history for"
+								}
+							]
+						},
+						"description": "Get test history of all students in a specific course. Results include detailed information about students, tests, lessons, and performance metrics like average score and pass rate."
+					},
+					"response": []
+				},
+				{
 					"name": "Delete History",
 					"request": {
 						"method": "DELETE",

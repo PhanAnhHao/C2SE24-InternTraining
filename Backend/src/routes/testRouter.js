@@ -4,7 +4,6 @@ const Test = require('../models/Test');
 const Question = require('../models/Question');
 const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
-const Course = require('../models/Course');
 const mongoose = require('mongoose');
 
 // CREATE

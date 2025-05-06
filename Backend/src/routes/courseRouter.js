@@ -50,7 +50,11 @@ router.get('/', async (req, res) => {
         path: 'ratings',
         populate: {
           path: 'studentId',
-          select: 'idStudent -_id'
+          select: 'idStudent userId',
+          populate: {
+            path: 'userId',
+            select: 'userName'
+          }
         }
       });
     
@@ -92,7 +96,11 @@ router.get('/:id', async (req, res) => {
         path: 'ratings',
         populate: {
           path: 'studentId',
-          select: 'idStudent -_id'
+          select: 'idStudent userId',
+          populate: {
+            path: 'userId',
+            select: 'userName'
+          }
         }
       });
     
@@ -224,7 +232,11 @@ router.get('/business/:businessId', async (req, res) => {
         path: 'ratings',
         populate: {
           path: 'studentId',
-          select: 'idStudent -_id'
+          select: 'idStudent userId',
+          populate: {
+            path: 'userId',
+            select: 'userName'
+          }
         }
       });
     
