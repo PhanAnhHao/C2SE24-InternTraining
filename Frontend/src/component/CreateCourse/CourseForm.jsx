@@ -47,6 +47,11 @@ const CourseForm = ({ lessons }) => {
             newErrors.lessons = "At least one lesson is required to create a course.";
         }
 
+        const businessId = localStorage.getItem('userId');
+        if (!businessId) {
+            newErrors.businessId = "Business ID is required. Please log in.";
+        }
+
         return newErrors;
     };
 
@@ -60,11 +65,15 @@ const CourseForm = ({ lessons }) => {
         }
 
         try {
+            // Lấy businessId từ trong localStorage
+            const businessId = localStorage.getItem('businessId');
+
             // Bước 1: Tạo Course
             const courseData = {
                 idCourse: uuidv4(),
                 infor: desc,
                 languageID: languageID,
+                businessId: businessId,
             };
 
             const courseResponse = await axios.post("http://localhost:5000/courses", courseData);
@@ -73,14 +82,14 @@ const CourseForm = ({ lessons }) => {
             // Bước 2: Tạo Lessons
             const lessonPromises = lessons.map(async (lesson) => {
                 const lessonData = {
-                    idLesson: lesson.idLesson || uuidv4(), // Đảm bảo idLesson luôn có
+                    idLesson: lesson.idLesson || uuidv4(),
                     idCourse: courseId,
-                    name: lesson.name, // Đổi lesson.lessonName thành lesson.name
+                    name: lesson.name,
                     content: lesson.content || "",
-                    linkVideo: lesson.linkVideo || "", // Sử dụng linkVideo trực tiếp
+                    linkVideo: lesson.linkVideo || "",
                     status: "draft",
                 };
-                console.log(lessonData)
+                console.log(lessonData);
                 return axios.post("http://localhost:5000/lessons", lessonData);
             });
 
@@ -138,6 +147,7 @@ const CourseForm = ({ lessons }) => {
                 {errors.languageID && <p className="text-red-500 text-xs mb-4">{errors.languageID}</p>}
 
                 {errors.lessons && <p className="text-red-500 text-xs mb-4">{errors.lessons}</p>}
+                {errors.businessId && <p className="text-red-500 text-xs mb-4">{errors.businessId}</p>}
 
                 <div className="flex justify-end mt-20">
                     <button
