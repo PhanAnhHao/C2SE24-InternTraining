@@ -28,6 +28,8 @@ import OnlineLearningPage from "./pages/OnlineLearningPage.jsx";
 import RequestProfile from "./pages/RequestProfile.jsx";
 import YourCourse from "./component/YourCourse/YourCourse.jsx";
 import AccessStudentProfile from "./component/RequestProfile/AccessStudentProfile.jsx";
+import MyBlog from "./component/Profile/MyBlog.jsx";
+import UpdateBlog from "./component/BlogPage/UpdateBlog/UpdateBlog.jsx";
 
 const NotFound = () => {
   return (
@@ -48,6 +50,8 @@ function App() {
             <Route path="/course/:courseId" element={<CourseDetailPage />} />
             <Route path="/blog-page" element={<BlogPage />} />
             <Route path="/blogs/:blogId" element={<BlogDetail />} />
+            <Route path="/my-blog" element={<MyBlog />} />
+            <Route path="/update-blog/:blogId" element={<UpdateBlog />} />
             <Route path="/your-courses" element={<YourCourse />} />
 
 
