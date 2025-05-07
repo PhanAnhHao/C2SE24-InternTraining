@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import CourseCard from "../../common/CourseCard.jsx";
-import SearchBar from '../Search/SearchBar.jsx'; // Adjust the import path as needed
+import CourseCard from "./CourseCard.jsx";
 
-const RecommendList = () => {
+const YourCourse = () => {
     const [courses, setCourses] = useState([]);
     const [filteredCourses, setFilteredCourses] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -71,7 +70,6 @@ const RecommendList = () => {
 
     return (
         <div>
-            <SearchBar courses={courses} onSearch={setFilteredCourses} />
             <div className="px-[5%] py-10 bg-white">
                 <h2 className="text-2xl font-bold mb-4">Course List</h2>
                 <div
@@ -108,4 +106,4 @@ const RecommendList = () => {
     );
 };
 
-export default RecommendList;
+export default YourCourse;
