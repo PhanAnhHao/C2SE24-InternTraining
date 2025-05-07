@@ -63,7 +63,7 @@ async function seed() {
       { idStudent: 'S1004', age: 22, school: 'RMIT University', course: ['Computer Science', 'Mobile App Development'], englishSkill: 'Fluent', userId: users[4]._id },
     ]);
 
-    await Business.insertMany([
+    const businesses = await Business.insertMany([
       { idBusiness: 'B1001', type: 'Technology', detail: 'Software company recruiting web development interns', userId: users[5]._id },
       { idBusiness: 'B1002', type: 'Education', detail: 'Company training programmers', userId: users[6]._id },
     ]);
@@ -77,11 +77,11 @@ async function seed() {
     ]);
 
     const courses = await Course.insertMany([
-      { _id: new ObjectId(), idCourse: 'C001', infor: 'Frontend programming with JavaScript', languageID: languages[0]._id },
-      { _id: new ObjectId(), idCourse: 'C002', infor: 'Basic Python programming for AI', languageID: languages[1]._id },
-      { _id: new ObjectId(), idCourse: 'C003', infor: 'OOP with Java', languageID: languages[2]._id },
-      { _id: new ObjectId(), idCourse: 'C004', infor: 'Application development with C#', languageID: languages[3]._id },
-      { _id: new ObjectId(), idCourse: 'C005', infor: 'Web design with HTML/CSS', languageID: languages[4]._id },
+      { _id: new ObjectId(), idCourse: 'C001', infor: 'Frontend programming with JavaScript', languageID: languages[0]._id, businessId: businesses[0]._id, creator: users[5]._id },
+      { _id: new ObjectId(), idCourse: 'C002', infor: 'Basic Python programming for AI', languageID: languages[1]._id, businessId: businesses[0]._id, creator: users[5]._id },
+      { _id: new ObjectId(), idCourse: 'C003', infor: 'OOP with Java', languageID: languages[2]._id, businessId: businesses[1]._id, creator: users[6]._id },
+      { _id: new ObjectId(), idCourse: 'C004', infor: 'Application development with C#', languageID: languages[3]._id, businessId: businesses[1]._id, creator: users[6]._id },
+      { _id: new ObjectId(), idCourse: 'C005', infor: 'Web design with HTML/CSS', languageID: languages[4]._id, businessId: businesses[0]._id, creator: users[5]._id },
     ]);
 
     const testIds = Array.from({ length: 10 }, () => new ObjectId());
@@ -91,16 +91,16 @@ async function seed() {
     const questionIds = Array.from({ length: 50 }, () => new ObjectId());
 
     const tests = await Test.insertMany([
-      { _id: testIds[0], idTest: 'JS101', idLesson: lessonIds[0], content: 'Test on basic JavaScript variables', idQuestion: [] },
-      { _id: testIds[1], idTest: 'PY101', idLesson: lessonIds[1], content: 'Test on Python functions and modules', idQuestion: [] },
-      { _id: testIds[2], idTest: 'JAVA101', idLesson: lessonIds[2], content: 'Test on Java OOP knowledge', idQuestion: [] },
-      { _id: testIds[3], idTest: 'HTML101', idLesson: lessonIds[3], content: 'Test on basic HTML tags', idQuestion: [] },
-      { _id: testIds[4], idTest: 'C#101', idLesson: lessonIds[4], content: 'Test on C# basics', idQuestion: [] },
-      { _id: testIds[5], idTest: 'JS201', idLesson: lessonIds[5], content: 'Test on JavaScript loops and conditions', idQuestion: [] },
-      { _id: testIds[6], idTest: 'PY201', idLesson: lessonIds[6], content: 'Test on Python control structures', idQuestion: [] },
-      { _id: testIds[7], idTest: 'JAVA201', idLesson: lessonIds[7], content: 'Test on Java inheritance and polymorphism', idQuestion: [] },
-      { _id: testIds[8], idTest: 'HTML201', idLesson: lessonIds[8], content: 'Test on basic CSS for HTML', idQuestion: [] },
-      { _id: testIds[9], idTest: 'C#201', idLesson: lessonIds[9], content: 'Test on C# variables, functions, and classes', idQuestion: [] },
+      { _id: testIds[0], idTest: 'JS101', idLesson: lessonIds[0], idCourse: courses[0]._id, content: 'Test on basic JavaScript variables', idQuestion: [] },
+      { _id: testIds[1], idTest: 'PY101', idLesson: lessonIds[1], idCourse: courses[1]._id, content: 'Test on Python functions and modules', idQuestion: [] },
+      { _id: testIds[2], idTest: 'JAVA101', idLesson: lessonIds[2], idCourse: courses[2]._id, content: 'Test on Java OOP knowledge', idQuestion: [] },
+      { _id: testIds[3], idTest: 'HTML101', idLesson: lessonIds[3], idCourse: courses[4]._id, content: 'Test on basic HTML tags', idQuestion: [] },
+      { _id: testIds[4], idTest: 'C#101', idLesson: lessonIds[4], idCourse: courses[3]._id, content: 'Test on C# basics', idQuestion: [] },
+      { _id: testIds[5], idTest: 'JS201', idLesson: lessonIds[5], idCourse: courses[0]._id, content: 'Test on JavaScript loops and conditions', idQuestion: [] },
+      { _id: testIds[6], idTest: 'PY201', idLesson: lessonIds[6], idCourse: courses[1]._id, content: 'Test on Python control structures', idQuestion: [] },
+      { _id: testIds[7], idTest: 'JAVA201', idLesson: lessonIds[7], idCourse: courses[2]._id, content: 'Test on Java inheritance and polymorphism', idQuestion: [] },
+      { _id: testIds[8], idTest: 'HTML201', idLesson: lessonIds[8], idCourse: courses[4]._id, content: 'Test on basic CSS for HTML', idQuestion: [] },
+      { _id: testIds[9], idTest: 'C#201', idLesson: lessonIds[9], idCourse: courses[3]._id, content: 'Test on C# variables, functions, and classes', idQuestion: [] },
     ]);
 
     const lessons = await Lesson.insertMany([

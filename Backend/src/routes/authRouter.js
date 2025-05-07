@@ -36,7 +36,6 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // --- SỬA ĐỔI Ở ĐÂY ---
     // Thêm trường 'role' với giá trị là defaultRoleId
     const newAccount = new Account({
       username,
@@ -154,7 +153,11 @@ router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    const account = await Account.findOne({ username });
+    const account = await Account.findOne({ username }).populate({
+      path: 'role',
+      select: 'name description'
+    });
+    
     if (!account) return res.status(400).json({ error: 'Invalid username or password' });
 
     const isMatch = await bcrypt.compare(password, account.password);
@@ -164,7 +167,15 @@ router.post('/login', async (req, res) => {
       expiresIn: '1d'
     });
 
-    res.json({ token, userId: account._id });
+    res.json({ 
+      token, 
+      userId: account._id,
+      role: {
+        id: account.role._id,
+        name: account.role.name,
+        description: account.role.description
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
