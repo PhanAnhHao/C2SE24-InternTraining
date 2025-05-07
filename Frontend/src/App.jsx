@@ -25,6 +25,9 @@ import SubmitTest from './component/TestPage/SubmitTest.jsx';
 import ChangePassword from './component/ChangePassword/ChangePassword.jsx';
 import CreateBlog from './component/BlogPage/CreateBlog/CreateBlog.jsx';
 import OnlineLearningPage from "./pages/OnlineLearningPage.jsx";
+import RequestProfile from "./pages/RequestProfile.jsx";
+import YourCourse from "./component/YourCourse/YourCourse.jsx";
+import AccessStudentProfile from "./component/RequestProfile/AccessStudentProfile.jsx";
 
 const NotFound = () => {
   return (
@@ -42,9 +45,11 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Homepage />} />
             <Route path="/course" element={<CoursePage />} />
-            <Route path="/course/1" element={<CourseDetailPage />} />
+            <Route path="/course/:courseId" element={<CourseDetailPage />} />
             <Route path="/blog-page" element={<BlogPage />} />
             <Route path="/blogs/:blogId" element={<BlogDetail />} />
+            <Route path="/your-courses" element={<YourCourse />} />
+
 
 
             <Route path="/profile" element={<Profile />} />
@@ -53,7 +58,7 @@ function App() {
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/create-blog" element={<CreateBlog />} />
 
-            <Route path="/online-learning" element={<OnlineLearningPage />} />
+            <Route path="/online-learning/:courseId" element={<OnlineLearningPage />} />
 
           </Route>
           <Route path="/login" element={<LoginPage />} />
@@ -70,6 +75,8 @@ function App() {
           </Route>
           <Route path="/dashboard/courses/create-course" element={<CreateCoursePage />} />
 
+          <Route path="/request-profile" element={<RequestProfile />} />
+          <Route path="/business/view-student/:token" element={<RequestProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
