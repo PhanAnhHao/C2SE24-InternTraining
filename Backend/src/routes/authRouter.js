@@ -167,15 +167,34 @@ router.post('/login', async (req, res) => {
       expiresIn: '1d'
     });
 
-    res.json({ 
-      token, 
+    // Find the user to get additional information
+    const user = await User.findOne({ idAccount: account._id });
+    if (!user) return res.status(404).json({ error: 'User information not found' });
+
+    let responseData = {
+      token,
       userId: account._id,
       role: {
         id: account.role._id,
         name: account.role.name,
         description: account.role.description
       }
-    });
+    };
+
+    // Add role-specific ID
+    if (account.role.name === 'Student') {
+      const student = await Student.findOne({ userId: user._id });
+      if (student) {
+        responseData.studentId = student._id;
+      }
+    } else if (account.role.name === 'Business') {
+      const business = await Business.findOne({ userId: user._id });
+      if (business) {
+        responseData.businessId = business._id;
+      }
+    }
+
+    res.json(responseData);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
