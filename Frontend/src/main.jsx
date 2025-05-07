@@ -7,10 +7,10 @@ import { Provider } from 'react-redux';
 import { SnackbarProvider } from 'notistack';
 createRoot(document.getElementById('root')).render(
     <Provider store={store}>
-        <StrictMode>
-            <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-                <App />
-            </SnackbarProvider>
-        </StrictMode>
+        {/* <StrictMode> */}
+        <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+            <App />
+        </SnackbarProvider>
+        {/* </StrictMode> */}
     </Provider>,
 )
