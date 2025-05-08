@@ -14,10 +14,10 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    course: {
-        type: [String],
-        default: [],
-    },
+    idCourse: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course'
+      }],
     englishSkill: {
         type: String,
         enum: ['Beginner', 'Intermediate', 'Advanced', 'Fluent'],
@@ -25,9 +25,9 @@ const StudentSchema = new mongoose.Schema({
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Account', // Changed from 'User' to 'Account'
+        ref: 'User', // Changed from 'Account' to 'User' to match seed data
         required: true,
-        unique: true, // mỗi Student chỉ gắn với một Account duy nhất
+        unique: true, // mỗi Student chỉ gắn với một User duy nhất
     }
 }, {
     timestamps: true

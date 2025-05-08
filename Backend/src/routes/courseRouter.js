@@ -46,11 +46,16 @@ router.get('/', async (req, res) => {
     const courses = await Course.find(filter)
       .populate('languageID', 'languageId name')
       .populate('businessId', 'idBusiness type detail')
+      .populate('creator', 'userName')
       .populate({
         path: 'ratings',
         populate: {
           path: 'studentId',
-          select: 'idStudent -_id'
+          select: 'idStudent userId',
+          populate: {
+            path: 'userId',
+            select: 'userName'
+          }
         }
       });
     
@@ -88,11 +93,16 @@ router.get('/:id', async (req, res) => {
     
     const course = await Course.findById(req.params.id)
       .populate('languageID', 'languageId name')
+      .populate('creator', 'userName')
       .populate({
         path: 'ratings',
         populate: {
           path: 'studentId',
-          select: 'idStudent -_id'
+          select: 'idStudent userId',
+          populate: {
+            path: 'userId',
+            select: 'userName'
+          }
         }
       });
     
@@ -220,11 +230,16 @@ router.get('/business/:businessId', async (req, res) => {
     const courses = await Course.find({ businessId })
       .populate('languageID', 'languageId name')
       .populate('businessId', 'idBusiness type detail')
+      .populate('creator', 'userName')
       .populate({
         path: 'ratings',
         populate: {
           path: 'studentId',
-          select: 'idStudent -_id'
+          select: 'idStudent userId',
+          populate: {
+            path: 'userId',
+            select: 'userName'
+          }
         }
       });
     

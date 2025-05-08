@@ -14,28 +14,44 @@
     * Body (JSON):
         ```json
         {
-          "username": "testuser_quick",
+          "username": "newuser_postman",
           "password": "password123",
-          "email": "test_quick@example.com",
-          "userName": "Tester Quick",
-          "location": "Test City",
-          "phone": "0912345678",
+          "email": "newuser_postman@example.com",
+          "userName": "Postman Tester",
+          "location": "Postman City",
+          "phone": "0999888777",
           "age": 22,
-          "school": "ABC University",
-          "course": ["Information Technology", "Web Development"],
+          "school": "Đại học Postman",
+          "course": ["API Testing", "Web Development"],
           "englishSkill": "Advanced"
         }
         ```
-    * Note: Fields `age`, `school`, `course`, and `englishSkill` are optional. If not provided, the system will automatically create a Student record with default values. The `course` field is now an array of strings.
-    * Return result: Includes the studentId of the automatically created Student record.
+    * Note: Fields `age`, `school`, `course`, and `englishSkill` are optional. If not provided, the system will automatically create a Student record with default values. The `course` field is an array of strings.
+
+* **POST /auth/register-business**
+    * Purpose: Register a business account (Role: Business)
+    * Body (JSON):
+        ```json
+        {
+          "username": "business_user",
+          "password": "password123",
+          "email": "business@example.com",
+          "userName": "Business Company",
+          "location": "Business City",
+          "phone": "0999888555",
+          "detail": "A company specializing in software development",
+          "type": "Technology"
+        }
+        ```
+    * Note: idBusiness is automatically generated with the format "BUSxxxxx" (e.g., BUS12345)
 
 * **POST /auth/login**
     * Purpose: Get JWT Token
     * Body (JSON):
         ```json
         {
-          "username": "student01", // Username from seed.js or registered
-          "password": "student123" // Corresponding password
+          "username": "student01",
+          "password": "student123"
         }
         ```
     * => Save the `token` from the response.
@@ -56,38 +72,54 @@
           "phone": "0987654321"
         }
         ```
-    * Note: Only provide fields that need updating. Fields not provided will retain their original values.
 
 ---
 **2. Accounts**
 ---
 
 * **POST /api/accounts/add-account**
-    * Purpose: Create a new Account with a specific Role (Example: Business).
+    * Purpose: Create a new Account with a specific Role
     * Body (JSON):
         ```json
         {
-          "username": "newbiz_quick",
-          "email": "newbiz_quick@example.com",
-          "password": "bizpass",
-          "roleId": "660edabc12eac0f2fc123403" // ObjectId of 'Business' Role from seed.js
+          "username": "manual_account",
+          "email": "manual@example.com",
+          "password": "manualpass",
+          "roleId": "660edabc12eac0f2fc123403"  // ObjectId of desired Role
         }
         ```
 
 * **GET /api/accounts/all-accounts**
     * Purpose: Get a list of all Accounts.
 
+* **GET /api/accounts/account/:id**
+    * Purpose: Get account details by ID
+
+* **PUT /api/accounts/update-account/:id**
+    * Purpose: Update account information
+    * Body (JSON):
+        ```json
+        {
+          "username": "updated_username",
+          "email": "updated@example.com",
+          "roleId": "660edabc12eac0f2fc123403"
+        }
+        ```
+
+* **DELETE /api/accounts/delete-account/:id**
+    * Purpose: Delete an account
+
 ---
 **3. Roles**
 ---
 
 * **POST /api/roles/add-role**
-    * Purpose: Add a new Role.
+    * Purpose: Add a new Role
     * Body (JSON):
         ```json
         {
-          "name": "Editor",
-          "description": "Content editor"
+          "name": "SupportStaff",
+          "description": "Nhân viên hỗ trợ"
         }
         ```
 
@@ -96,443 +128,542 @@
 ---
 
 * **POST /students**
-    * Purpose: Create a Student profile (requires `userId` of a User with Student Role).
+    * Purpose: Create a Student profile
     * Body (JSON):
         ```json
         {
-          "idStudent": "S_QUICK",
-          "age": 20,
-          "school": "Test University",
-          "course": ["Testing API", "Web Development"],
-          "englishSkill": "Intermediate",
-          "userId": "<ObjectId_Of_User_With_Student_Role>" // Get from GET /users or DB
+          "idStudent": "S_POSTMAN",
+          "age": 21,
+          "school": "Đại học Postman",
+          "course": ["API Testing", "Web Development"],
+          "englishSkill": "Advanced",
+          "userId": "<ObjectId_User_Co_Role_Student>"
         }
         ```
 
 * **GET /students**
-    * Purpose: Get list of Students.
+    * Purpose: Get list of Students
 
-* **GET /students/<student_id>**
-* **PUT /students/<student_id>** (JSON Body with fields to update)
-* **DELETE /students/<student_id>**
+* **GET /students/:id**
+    * Purpose: Get student details by ID
+
+* **PUT /students/:id**
+    * Purpose: Update student information
+    * Body (JSON):
+        ```json
+        {
+          "school": "Đại học Postman Updated",
+          "age": 22
+        }
+        ```
+
+* **DELETE /students/:id**
+    * Purpose: Delete a student
 
 ---
 **5. Businesses**
 ---
 
 * **POST /businesses**
-    * Purpose: Create a Business profile (requires `userId` of a User with Business Role).
+    * Purpose: Create a Business profile
     * Body (JSON):
         ```json
         {
-          "idBusiness": "B_QUICK",
-          "detail": "Quick Test Company",
-          "userId": "<ObjectId_Of_User_With_Business_Role>" // Get from GET /users or DB
+          "idBusiness": "B_POSTMAN",
+          "type": "Consulting",
+          "detail": "Công ty Postman Solutions",
+          "userId": "<ObjectId_User_Co_Role_Business>"
         }
         ```
 
 * **GET /businesses**
-    * Purpose: Get list of Businesses.
+    * Purpose: Get list of Businesses
 
-* **GET /businesses/<business_id>**
-* **PUT /businesses/<business_id>** (JSON Body with fields to update)
-* **DELETE /businesses/<business_id>**
+* **GET /businesses/:id**
+    * Purpose: Get business details by ID
 
-* **POST /auth/register-business**
-    * Purpose: Register a business account (Role: Business)
+* **PUT /businesses/:id**
+    * Purpose: Update business information
     * Body (JSON):
         ```json
         {
-          "username": "business_user",
-          "password": "password123",
-          "email": "business@example.com",
-          "userName": "Business Company",
-          "location": "Business City",
-          "phone": "0999888555",
-          "detail": "A company specializing in software development"
+          "detail": "Công ty Postman Solutions - Tuyển dụng API Tester"
         }
         ```
-    * Note: idBusiness is automatically generated with the format "BUS" followed by 5 random digits (e.g., BUS12345)
-    * Return result: Includes the automatically generated businessId.
+
+* **DELETE /businesses/:id**
+    * Purpose: Delete a business
 
 ---
 **6. Languages**
 ---
 
 * **POST /languages**
-    * Purpose: Add a new programming language.
+    * Purpose: Add a new programming language
     * Body (JSON):
         ```json
         {
-          "languageId": "RUST",
-          "name": "Rust Lang"
+          "languageId": "KOTLIN",
+          "name": "Kotlin Lang"
         }
         ```
 
 * **GET /languages**
-    * Purpose: Get list of Languages.
+    * Purpose: Get list of Languages
 
-* **GET /languages/<language_id>**
-* **PUT /languages/<language_id>** (JSON Body with fields to update)
-* **DELETE /languages/<language_id>**
+* **GET /languages/:id**
+    * Purpose: Get language details by ID
+
+* **PUT /languages/:id**
+    * Purpose: Update language information
+    * Body (JSON):
+        ```json
+        {
+          "name": "Kotlin for Android"
+        }
+        ```
+
+* **DELETE /languages/:id**
+    * Purpose: Delete a language
 
 ---
 **7. Courses**
 ---
 
 * **POST /courses**
-    * Purpose: Create a new course (requires `languageID`).
+    * Purpose: Create a new course
     * Body (JSON):
         ```json
         {
-          "idCourse": "C_QUICK",
-          "infor": "Quick API Test Course",
-          "languageID": "<ObjectId_Of_JS_Language>" // Get from GET /languages or DB
+          "idCourse": "C_POSTMAN",
+          "infor": "Khóa học Postman Nâng cao",
+          "languageID": "<ObjectId_Cua_Language_JS>",
+          "businessId": "<businessId>"
         }
         ```
-    * Note: The `rating` field has been removed. Course ratings are now managed through the Rating Collection.
 
 * **GET /courses**
-    * Purpose: Get list of Courses.
+    * Purpose: Get list of Courses
+    * Query Parameters:
+        * `businessId`: Filter courses by business ID (optional)
+    * Response includes:
+        * Course details with language information
+        * Ratings with student information (idStudent and userName)
+        * Average rating and total ratings count
 
-* **GET /courses/<course_id>**
-* **PUT /courses/<course_id>** (JSON Body with fields to update)
-* **DELETE /courses/<course_id>**
+* **GET /courses/business/:businessId**
+    * Purpose: Get all courses for a specific business
+
+* **GET /courses/:id**
+    * Purpose: Get course details by ID
+    * Response includes:
+        * Course details with language information
+        * Ratings with student information (idStudent and userName)
+        * Average rating and total ratings count
+    * Query Parameters:
+        * `studentId`: Include progress information for this student (optional)
+
+* **PUT /courses/:id**
+    * Purpose: Update course information
+    * Body (JSON):
+        ```json
+        {
+          "infor": "Khóa học Postman Nâng cao và Tự động hóa Test"
+        }
+        ```
+
+* **DELETE /courses/:id**
+    * Purpose: Delete a course
 
 ---
 **8. Lessons**
 ---
 
 * **POST /lessons**
-    * Purpose: Create a new lesson (requires `idCourse`, `idTest`).
+    * Purpose: Create a new lesson
     * Body (JSON):
         ```json
         {
-          "idLesson": "L_QUICK",
-          "idCourse": "<ObjectId_Of_Course_C001>", // Get from GET /courses or DB
-          "name": "Quick Test Lesson",
-          "content": "Quick test content.",
-          "linkVideo": "[http://example.com/video_quick](http://example.com/video_quick)",
+          "idLesson": "L_POSTMAN",
+          "idCourse": "<ObjectId_Cua_Course>",
+          "name": "Bài học về Variables trong Postman",
+          "content": "Cách sử dụng biến môi trường, collection, global.",
+          "linkVideo": "http://example.com/postman_vars",
           "status": "published",
-          "idTest": "<ObjectId_Of_Test_JS101>" // Get from GET /tests or DB
+          "idTest": "<ObjectId_Cua_Test>"
         }
         ```
 
 * **GET /lessons**
-    * Purpose: Get list of Lessons.
+    * Purpose: Get list of Lessons
 
-* **GET /lessons/<lesson_id>**
-* **PUT /lessons/<lesson_id>** (JSON Body with fields to update)
-* **DELETE /lessons/<lesson_id>**
+* **GET /lessons/:id**
+    * Purpose: Get lesson details by ID
+
+* **PUT /lessons/:id**
+    * Purpose: Update lesson information
+    * Body (JSON):
+        ```json
+        {
+          "name": "Bài học về Scripting trong Postman",
+          "status": "draft"
+        }
+        ```
+
+* **DELETE /lessons/:id**
+    * Purpose: Delete a lesson
 
 ---
 **9. Tests**
 ---
 
 * **POST /tests**
-    * Purpose: Create a new test.
+    * Purpose: Create a new test
     * Body (JSON):
         ```json
         {
-          "idTest": "T_QUICK",
-          "idLesson": "<ObjectId_Of_Lesson_L001>", // Get from GET /lessons or DB
-          "content": "Quick Test",
-          "idQuestion": [
-            // "<ObjectId_Of_Question_Q001>", // Get from GET /questions or DB
-            // Add other Question ObjectIds if available
-          ]
+          "idTest": "T_POSTMAN",
+          "idLesson": "<ObjectId_Cua_Lesson>",
+          "content": "Bài Test về kiến thức Postman cơ bản",
+          "idQuestion": []
         }
         ```
 
 * **GET /tests**
-    * Purpose: Get list of Tests with populated lesson and question information.
+    * Purpose: Get list of Tests
 
-* **GET /tests/<test_id>**
-    * Purpose: Get a specific test by ID with populated lesson and question information.
+* **GET /tests/business/:businessId**
+    * Purpose: Get all tests for courses of a specific business
 
-* **PUT /tests/<test_id>**
-    * Purpose: Update a specific test.
-    * Body (JSON - include only fields to update):
+* **GET /tests/:id**
+    * Purpose: Get test details by ID
+
+* **PUT /tests/:id**
+    * Purpose: Update test information
+    * Body (JSON):
         ```json
         {
-          "idLesson": "<new_lesson_id>",
-          "content": "Updated Test Content",
-          "idQuestion": ["<question_id_1>", "<question_id_2>"]
+          "content": "Bài Test về kiến thức Postman cơ bản và nâng cao",
+          "idQuestion": [
+            "<ObjectId_Cua_Question_Da_Tao_1>",
+            "<ObjectId_Cua_Question_Da_Tao_2>"
+          ]
         }
         ```
 
-* **DELETE /tests/<test_id>**
-    * Purpose: Delete a specific test.
+* **DELETE /tests/:id**
+    * Purpose: Delete a test
 
 ---
 **10. Questions**
 ---
 
 * **POST /questions**
-    * Purpose: Create a new question (requires `idTest`).
+    * Purpose: Create a new question
     * Body (JSON):
         ```json
         {
-          "idQuestion": "Q_QUICK",
-          "idTest": "<ObjectId_Of_Test_JS101>", // Get from GET /tests or DB
-          "question": "Quick test question?",
+          "idQuestion": "Q_POSTMAN",
+          "idTest": "<ObjectId_Cua_Test>",
+          "question": "Biến Collection trong Postman dùng để làm gì?",
           "options": [
-            "Option A", 
-            "Option B", 
-            "Option C", 
-            "Option D"
+            "Lưu trữ giá trị dùng chung trong một Collection",
+            "Lưu trữ giá trị cho các môi trường khác nhau",
+            "Lưu trữ giá trị tạm thời",
+            "Lưu trữ giá trị vĩnh viễn"
           ],
-          "correctAnswerIndex": 2, // Index of correct option (0-based)
-          "answer": "Option C" // The text of the correct answer
+          "correctAnswerIndex": 0
         }
         ```
 
 * **GET /questions**
-    * Purpose: Get list of Questions.
+    * Purpose: Get list of Questions
 
-* **GET /questions/<question_id>**
-* **PUT /questions/<question_id>** (JSON Body with fields to update)
-* **DELETE /questions/<question_id>**
+* **GET /questions/:id**
+    * Purpose: Get question details by ID
 
----
-**11. Users**
----
-
-* **POST /users**
-    * Purpose: Create a User profile (usually created automatically during Registration, but can be created separately if needed to link to a pre-created Account). Requires `idAccount`.
+* **PUT /questions/:id**
+    * Purpose: Update question information
     * Body (JSON):
         ```json
         {
-          "userName": "User Quick Test",
-          "email": "user_quick@example.com",
-          "location": "Location Quick",
-          "phone": "0987654321",
-          "idAccount": "<ObjectId_Of_Created_Account>" // Get from GET /api/accounts or DB
+          "question": "Biến Environment trong Postman dùng để làm gì?",
+          "answer": "Lưu trữ giá trị cho các môi trường khác nhau (dev, staging, prod)."
         }
         ```
 
-* **GET /users**
-    * Purpose: Get list of Users.
-
-* **GET /users/<user_id>**
-* **PUT /users/<user_id>** (JSON Body with fields to update)
-* **DELETE /users/<user_id>**
+* **DELETE /questions/:id**
+    * Purpose: Delete a question
 
 ---
-**12. Test Mail**
+**11. Answers**
 ---
 
-* **POST /send-mail**
-    * Purpose: Send a test email (requires .env configuration).
+* **POST /answers**
+    * Purpose: Submit an answer
     * Body (JSON):
         ```json
         {
-          "to": "your_real_email@example.com", // Real email to receive mail
-          "subject": "Quick Test Email Subject",
-          "message": "Quick test email body content."
+          "content": "Đây là câu trả lời của tôi",
+          "questionId": "<ObjectId_Of_Question>",
+          "userId": "<ObjectId_Of_User>",
+          "selectedOptionIndex": 0,
+          "isCorrect": false
         }
         ```
+
+* **POST /answers/submit-test**
+    * Purpose: Submit answers for a complete test
+    * Body (JSON):
+        ```json
+        {
+          "testId": "<ObjectId_Of_Test>",
+          "userId": "<ObjectId_Of_Student>",
+          "answers": [
+            {
+              "questionId": "<ObjectId_Of_Question1>",
+              "selectedOptionIndex": 0
+            },
+            {
+              "questionId": "<ObjectId_Of_Question2>",
+              "selectedOptionIndex": 1
+            }
+          ]
+        }
+        ```
+
+* **GET /answers**
+    * Purpose: Get list of all answers
+
+* **GET /answers/:id**
+    * Purpose: Get answer details by ID
+
+* **GET /answers/user/:userId**
+    * Purpose: Get all answers from a specific user
+
+* **GET /answers/question/:questionId**
+    * Purpose: Get all answers for a specific question
+
+* **PUT /answers/:id**
+    * Purpose: Update an answer
+    * Body (JSON):
+        ```json
+        {
+          "content": "Đây là câu trả lời đã cập nhật",
+          "isCorrect": true
+        }
+        ```
+
+* **DELETE /answers/:id**
+    * Purpose: Delete an answer
+
+---
+**12. Ratings**
+---
+
+* **POST /ratings**
+    * Purpose: Add a new rating
+    * Body (JSON):
+        ```json
+        {
+          "studentId": "<ObjectId_Of_Student>",
+          "courseId": "<ObjectId_Of_Course>",
+          "stars": 4.5,
+          "feedback": "Khóa học rất hay và bổ ích"
+        }
+        ```
+
+* **GET /ratings**
+    * Purpose: Get list of all ratings
+
+* **GET /ratings/:id**
+    * Purpose: Get rating details by ID
+
+* **GET /ratings/course/:courseId**
+    * Purpose: Get all ratings for a specific course
+
+* **GET /ratings/student/:studentId**
+    * Purpose: Get all ratings from a specific student
+
+* **PUT /ratings/:id**
+    * Purpose: Update a rating
+    * Body (JSON):
+        ```json
+        {
+          "stars": 5,
+          "feedback": "Đánh giá đã được cập nhật, khóa học xuất sắc"
+        }
+        ```
+
+* **DELETE /ratings/:id**
+    * Purpose: Delete a rating
 
 ---
 **13. History**
 ---
 
 * **POST /history**
-    * Purpose: Create a test-taking history record for a student.
+    * Purpose: Save test results to history
     * Body (JSON):
         ```json
         {
-          "studentId": "<ObjectId_Of_Student>", // Get from GET /students
-          "testId": "<ObjectId_Of_Test>", // Get from GET /tests
-          "score": 85,
-          "passed": true
+          "studentId": "<ObjectId_Of_Student>",
+          "testId": "<ObjectId_Of_Test>"
         }
         ```
 
 * **GET /history**
-    * Purpose: Get a list of all test history records.
+    * Purpose: Get all test history entries
 
-* **GET /history/<history_id>**
-    * Purpose: Get detailed information about a specific history record.
+* **GET /history/:id**
+    * Purpose: Get specific history entry by ID
 
-* **GET /history/student/<student_id>**
-    * Purpose: Get all test history for a specific student.
-    * Example: `/history/student/6152f9e1b24a1234567890ab`
+* **GET /history/student/:studentId**
+    * Purpose: Get all test history for a specific student
 
-* **PUT /history/<history_id>**
-    * Purpose: Update a test history record.
-    * Body (JSON):
-        ```json
-        {
-          "score": 90,
-          "passed": true
-        }
-        ```
+* **GET /history/test/:testId**
+    * Purpose: Get all history entries for a specific test
 
-* **DELETE /history/<history_id>**
-    * Purpose: Delete a specific history record.
+* **GET /history/course/:courseId**
+    * Purpose: Get all test history for all students in a specific course
+    * Details: Returns comprehensive data including:
+      * Course information
+      * Overall statistics (total students, average score, pass rate)
+      * Detailed test results for all students
+    * Example URL: `http://localhost:5000/history/course/{{courseId}}`
 
----
-**14. Answers**
----
-
-* **POST /answers**
-    * Purpose: Submit an answer to a question.
-    * Body (JSON):
-        ```json
-        {
-          "content": "Option B", // Text of the selected answer
-          "questionId": "<ObjectId_Of_Question>", // Get from GET /questions
-          "userId": "<ObjectId_Of_User>", // Get from GET /users
-          "selectedOptionIndex": 1, // Index of the selected option (0-based)
-          "isCorrect": false // Whether the selected answer is correct
-        }
-        ```
-
-* **GET /answers**
-    * Purpose: Get a list of all answers.
-
-* **GET /answers/<answer_id>**
-    * Purpose: Get detailed information about a specific answer.
-
-* **GET /answers/user/<user_id>**
-    * Purpose: Get all answers from a specific user.
-    * Example: `/answers/user/6152f9e1b24a1234567890cd`
-
-* **GET /answers/question/<question_id>**
-    * Purpose: Get all answers for a specific question.
-    * Example: `/answers/question/6152f9e1b24a1234567890ef`
-
-* **PUT /answers/<answer_id>**
-    * Purpose: Update an answer.
-    * Body (JSON):
-        ```json
-        {
-          "content": "Option A",
-          "selectedOptionIndex": 0,
-          "isCorrect": true
-        }
-        ```
-
-* **DELETE /answers/<answer_id>**
-    * Purpose: Delete a specific answer.
+* **DELETE /history/:id**
+    * Purpose: Delete a history entry
 
 ---
-**15. Ratings**
----
-
-* **POST /ratings**
-    * Purpose: Add a new rating for a course.
-    * Body (JSON):
-        ```json
-        {
-          "studentId": "<ObjectId_Of_Student>", // Get from GET /students
-          "courseId": "<ObjectId_Of_Course>", // Get from GET /courses
-          "stars": 4.5,
-          "feedback": "The course was very helpful and informative"
-        }
-        ```
-
-* **GET /ratings**
-    * Purpose: Get a list of all ratings.
-
-* **GET /ratings/<rating_id>**
-    * Purpose: Get detailed information about a specific rating.
-
-* **GET /ratings/course/<course_id>**
-    * Purpose: Get all ratings for a specific course and the average rating.
-    * Example: `/ratings/course/6152f9e1b24a1234567891ab`
-    * Response will include: list of ratings, total number of ratings, and average rating.
-
-* **GET /ratings/student/<student_id>**
-    * Purpose: Get all ratings from a specific student.
-    * Example: `/ratings/student/6152f9e1b24a1234567891cd`
-
-* **PUT /ratings/<rating_id>**
-    * Purpose: Update a rating.
-    * Body (JSON):
-        ```json
-        {
-          "stars": 5,
-          "feedback": "Updated rating, the course is excellent"
-        }
-        ```
-
-* **DELETE /ratings/<rating_id>**
-    * Purpose: Delete a specific rating.
-
----
-**16. Blogs**
+**14. Blogs**
 ---
 
 * **POST /blogs**
-    * Purpose: Create a new blog post.
+    * Purpose: Create a new blog post
     * Authentication: Required
     * Headers: `Authorization: Bearer <your_jwt_token>`
     * Body (form-data):
         ```
         title: "The Future of Web Development: React vs Next.js"
-        content: "<p>As web technologies continue to evolve, developers must stay informed about the most efficient tools and frameworks available.</p><p>In this article, we'll compare React and Next.js and help you decide which might be best for your projects.</p>"
+        content: "<p>As web technologies continue to evolve...</p>"
         tags: "Web Development,React,Next.js,JavaScript,Frontend"
+        status: "published"
         image: [file upload]
-        status: "published" 
         ```
-    * Note: `status` can be either "published" or "draft". Tags can be a comma-separated string or an array.
-    * Note: For image upload, use form-data and set the field type to file for the image field.
-    * **Authentication Note**: The API uses JWT tokens that contain Account IDs. The system automatically finds the associated User ID from the Account ID in your token and assigns it to the blog.
 
 * **GET /blogs**
-    * Purpose: Get a list of published blog posts with pagination.
+    * Purpose: Get list of published blog posts
     * Query Parameters:
         * `page`: Page number (default 1)
-        * `limit`: Number of blogs per page (default 10)
-        * `tag`: Filter by tag name (e.g., "JavaScript")
-        * `search`: Search in title and content
-        * `author`: Filter by author's user ID
+        * `limit`: Items per page (default 10)
+        * `tag`: Filter by tag
+        * `search`: Search in title/content
+        * `author`: Filter by author ID
 
 * **GET /blogs/:id**
-    * Purpose: Get a specific blog post with related blogs based on tags.
-    * Note: This will increment the view count for the blog.
+    * Purpose: Get specific blog post with related blogs
 
 * **PUT /blogs/:id**
-    * Purpose: Update a blog post.
-    * Authentication: Required (only blog author can update)
+    * Purpose: Update blog post
+    * Authentication: Required (author only)
     * Headers: `Authorization: Bearer <your_jwt_token>`
     * Body (form-data):
         ```
-        title: "Advanced Features in Next.js 14: A Practical Guide"
-        content: "<p>Next.js 14 introduces several powerful features that can significantly improve your development workflow and application performance.</p><p>Let's explore these features with practical examples.</p>"
-        tags: "Next.js,Web Development,React,JavaScript,Server Components"
-        image: [file upload] (optional)
+        title: "Updated Title"
+        content: "<p>Updated content...</p>"
+        tags: "Updated,Tags"
         status: "published"
+        image: [file upload]
         ```
-    * **Authentication Note**: The system validates that the User ID associated with your Account token matches the User ID of the blog author.
 
 * **DELETE /blogs/:id**
-    * Purpose: Delete a blog post.
-    * Authentication: Required (only blog author can delete)
+    * Purpose: Delete blog post
+    * Authentication: Required (author only)
     * Headers: `Authorization: Bearer <your_jwt_token>`
-    * **Authentication Note**: The system validates that the User ID associated with your Account token matches the User ID of the blog author.
 
 * **GET /blogs/user/blogs**
-    * Purpose: Get blogs created by the authenticated user.
+    * Purpose: Get blogs by authenticated user
     * Authentication: Required
     * Headers: `Authorization: Bearer <your_jwt_token>`
     * Query Parameters:
-        * `status`: Filter by status ("published" or "draft")
-        * `page`: Page number (default 1)
-        * `limit`: Number of blogs per page (default 10)
-    * **Authentication Note**: The system automatically finds the User ID associated with your Account token and returns only blogs created by that user.
+        * `status`: Filter by status
+        * `page`: Page number
+        * `limit`: Items per page
 
 * **GET /blogs/tags/popular**
-    * Purpose: Get popular tags sorted by usage count.
-    * Response example:
+    * Purpose: Get popular tags sorted by usage count
+
+---
+**15. View Requests**
+---
+
+* **POST /api/view-requests/request**
+    * Purpose: Create a new view request
+    * Body (JSON):
         ```json
-        [
-          { "tag": "JavaScript", "count": 12 },
-          { "tag": "Web Development", "count": 10 },
-          { "tag": "React", "count": 8 },
-          { "tag": "Programming", "count": 7 },
-          { "tag": "Node.js", "count": 6 }
-        ]
+        {
+          "studentId": "<studentId>"
+        }
         ```
+
+* **POST /api/view-requests/response/:requestToken**
+    * Purpose: Handle view request response
+    * Body (JSON):
+        ```json
+        {
+          "approve": true
+        }
+        ```
+
+* **GET /api/view-requests/access/:accessToken**
+    * Purpose: Access student profile
+    * Headers: `Authorization: Bearer <your_jwt_token>`
+
+---
+**16. Student Lesson Progress**
+---
+
+* **GET /progress**
+    * Purpose: Get all progress records
+
+* **GET /progress/student/:studentId**
+    * Purpose: Get progress for specific student
+
+* **GET /progress/student/:studentId/overview**
+    * Purpose: Get progress overview for student
+
+* **GET /progress/lesson/:lessonId**
+    * Purpose: Get progress for specific lesson
+
+* **GET /progress/:studentId/:lessonId**
+    * Purpose: Get specific progress record
+
+* **POST /progress**
+    * Purpose: Create/Update progress record
+    * Body (JSON):
+        ```json
+        {
+          "studentId": "<studentId>",
+          "lessonId": "<lessonId>",
+          "status": "in_progress",
+          "progress": 45,
+          "watchTime": 900,
+          "notes": "Student is making good progress"
+        }
+        ```
+
+* **DELETE /progress/:studentId/:lessonId**
+    * Purpose: Delete progress record
+
+* **GET /lessons/:lessonId?studentId=:studentId**
+    * Purpose: Get lesson with progress info
+
+* **GET /lessons/course/:courseId?studentId=:studentId**
+    * Purpose: Get course lessons with progress
+
+* **GET /courses/:courseId?studentId=:studentId**
+    * Purpose: Get course with progress summary
+
+* **GET /courses/business/:businessId?studentId=:studentId**
+    * Purpose: Get business courses with progress

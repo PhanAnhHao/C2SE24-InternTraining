@@ -36,7 +36,6 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // --- SỬA ĐỔI Ở ĐÂY ---
     // Thêm trường 'role' với giá trị là defaultRoleId
     const newAccount = new Account({
       username,
@@ -154,7 +153,11 @@ router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    const account = await Account.findOne({ username });
+    const account = await Account.findOne({ username }).populate({
+      path: 'role',
+      select: 'name description'
+    });
+    
     if (!account) return res.status(400).json({ error: 'Invalid username or password' });
 
     const isMatch = await bcrypt.compare(password, account.password);
@@ -164,7 +167,34 @@ router.post('/login', async (req, res) => {
       expiresIn: '1d'
     });
 
-    res.json({ token, userId: account._id });
+    // Find the user to get additional information
+    const user = await User.findOne({ idAccount: account._id });
+    if (!user) return res.status(404).json({ error: 'User information not found' });
+
+    let responseData = {
+      token,
+      userId: account._id,
+      role: {
+        id: account.role._id,
+        name: account.role.name,
+        description: account.role.description
+      }
+    };
+
+    // Add role-specific ID
+    if (account.role.name === 'Student') {
+      const student = await Student.findOne({ userId: user._id });
+      if (student) {
+        responseData.studentId = student._id;
+      }
+    } else if (account.role.name === 'Business') {
+      const business = await Business.findOne({ userId: user._id });
+      if (business) {
+        responseData.businessId = business._id;
+      }
+    }
+
+    res.json(responseData);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

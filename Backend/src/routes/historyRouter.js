@@ -4,6 +4,8 @@ const History = require('../models/History');
 const Test = require('../models/Test');
 const Answer = require('../models/Answer');
 const Question = require('../models/Question');
+const Lesson = require('../models/Lesson');
+const Course = require('../models/Course');
 const mongoose = require('mongoose');
 
 // CREATE - Save test result to history
@@ -136,6 +138,120 @@ router.delete('/:id', async (req, res) => {
     if (!deleted) return res.status(404).json({ message: 'History not found' });
     res.json({ message: 'History deleted successfully' });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// THÊM ROUTE MỚI: Lấy lịch sử kết quả test của tất cả học sinh theo courseId
+router.get('/course/:courseId', async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ error: 'Invalid course ID format' });
+    }
+    
+    // Kiểm tra course có tồn tại không
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    
+    // Tìm tất cả các lessons thuộc về course này
+    const lessons = await Lesson.find({ idCourse: courseId });
+    if (lessons.length === 0) {
+      return res.json({
+        courseId,
+        courseName: course.infor,
+        message: 'No lessons found for this course',
+        testResults: []
+      });
+    }
+    
+    // Lấy tất cả các tests từ các lessons này
+    const lessonIds = lessons.map(lesson => lesson._id);
+    const tests = await Test.find({ idLesson: { $in: lessonIds } });
+    
+    if (tests.length === 0) {
+      return res.json({
+        courseId,
+        courseName: course.infor,
+        message: 'No tests found for this course',
+        testResults: []
+      });
+    }
+    
+    const testIds = tests.map(test => test._id);
+    
+    // Lấy tất cả lịch sử kiểm tra cho các tests này
+    const testHistories = await History.find({ testId: { $in: testIds } })
+      .populate({
+        path: 'studentId',
+        select: 'idStudent',
+        populate: {
+          path: 'userId',
+          select: 'userName'
+        }
+      })
+      .populate({
+        path: 'testId'
+      });
+    
+    // Tạo map để lưu trữ thông tin test và lesson để tham chiếu
+    const testMap = {};
+    for (const test of tests) {
+      testMap[test._id.toString()] = test;
+    }
+    
+    const lessonMap = {};
+    for (const lesson of lessons) {
+      lessonMap[lesson._id.toString()] = lesson;
+    }
+    
+    // Tổng hợp dữ liệu
+    const results = {
+      courseId: course._id,
+      courseName: course.infor,
+      totalStudents: new Set(testHistories.map(h => h.studentId._id.toString())).size,
+      totalTests: tests.length,
+      totalResults: testHistories.length,
+      averageScore: testHistories.length > 0 
+        ? (testHistories.reduce((sum, h) => sum + h.score, 0) / testHistories.length).toFixed(2)
+        : 0,
+      passRate: testHistories.length > 0
+        ? ((testHistories.filter(h => h.passed).length / testHistories.length) * 100).toFixed(2) 
+        : 0,
+      testResults: testHistories.map(history => {
+        const test = testMap[history.testId._id.toString()];
+        const lesson = test && test.idLesson ? lessonMap[test.idLesson.toString()] : null;
+        
+        return {
+          id: history._id,
+          student: {
+            id: history.studentId._id,
+            idStudent: history.studentId.idStudent,
+            name: history.studentId.userId ? history.studentId.userId.userName : 'Unknown'
+          },
+          test: {
+            id: history.testId._id,
+            idTest: test ? test.idTest : 'Unknown',
+            content: test ? test.content : 'Unknown',
+            lesson: lesson ? {
+              id: lesson._id,
+              idLesson: lesson.idLesson,
+              name: lesson.name
+            } : null
+          },
+          score: history.score,
+          passed: history.passed,
+          completedAt: history.completedAt
+        };
+      })
+    };
+    
+    res.json(results);
+  } catch (err) {
+    console.error('Error fetching course test history:', err);
     res.status(500).json({ error: err.message });
   }
 });
