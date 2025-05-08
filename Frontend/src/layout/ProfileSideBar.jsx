@@ -11,8 +11,8 @@ const ProfileSideBar = () => {
         },
         {
             icon: <BookOpen size={18} />,
-            label: "My Courses",
-            path: "/my-courses",
+            label: "My Blog",
+            path: "/my-blog",
         },
         {
             icon: <KeyRound size={18} />,

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const CourseCard = ({ course }) => {
     const navigate = useNavigate();
     const handleClick = () => {
-        navigate(`/course/${course.id}`);
+        navigate(`/online-learning/${course.id}`);
         window.scrollTo(0, 0);
     };
 
@@ -47,7 +47,7 @@ const CourseCard = ({ course }) => {
                     {course.description}
                 </p>
 
-                {/* Giáo viên và giá - luôn ở dưới cùng */}
+                {/* Giáo viên và nút Learning */}
                 <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center">
                         <img
@@ -64,11 +64,8 @@ const CourseCard = ({ course }) => {
                     </div>
 
                     <div className="text-right">
-                        <span className="text-gray-400 text-sm line-through">
-                            ${course.oldPrice}
-                        </span>
-                        <span className="text-[#49BBBD] font-bold text-lg ml-2">
-                            ${course.price}
+                        <span className="text-[#49BBBD] font-bold text-lg">
+                            Learning
                         </span>
                     </div>
                 </div>

@@ -1,17 +1,24 @@
-const RatingSummary = () => {
-    const ratings = [
-        { stars: 5, percentage: 80 },
-        { stars: 4, percentage: 70 },
-        { stars: 3, percentage: 60 },
-        { stars: 2, percentage: 50 },
-        { stars: 1, percentage: 40 }
-    ];
+import React from 'react';
+
+const RatingSummary = ({ ratingsData }) => {
+    // Tính trung bình số sao
+    const averageRating = ratingsData.length
+        ? (ratingsData.reduce((sum, rating) => sum + rating.stars, 0) / ratingsData.length).toFixed(1)
+        : 0;
+
+    // Tính tỷ lệ phần trăm cho từng số sao
+    const totalRatings = ratingsData.length;
+    const ratings = [5, 4, 3, 2, 1].map((star) => {
+        const count = ratingsData.filter((rating) => rating.stars === star).length;
+        const percentage = totalRatings ? (count / totalRatings) * 100 : 0;
+        return { stars: star, percentage };
+    });
 
     return (
-        <div className="bg-[#DEEDFD] p-6  flex items-center space-x-6">
+        <div className="bg-[#DEEDFD] p-6 flex items-center space-x-6">
             {/* Phần tổng rating */}
             <div className="bg-white p-6 rounded-xl shadow-lg text-center w-40">
-                <p className="text-2xl font-bold text-gray-500">4 out of 5</p>
+                <p className="text-xl font-bold text-gray-500">{averageRating} out of 5</p>
                 <div className="flex justify-center space-x-1 text-yellow-500 text-2xl my-2">
                     {[...Array(5)].map((_, i) => (
                         <span key={i}>★</span>
