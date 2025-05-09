@@ -3,3 +3,6 @@
 DS_Store
 
 .env
+
+# Firebase credentials
+src/intern-training-ed6ba-firebase-adminsdk-fbsvc-fe95f49611.json

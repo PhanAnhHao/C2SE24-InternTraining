@@ -11,7 +11,7 @@ const BlogSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    default: 'default-blog-image.jpg'
+    default: 'https://storage.googleapis.com/intern-training-ed6ba.appspot.com/blogs/default-blog-image.jpg'
   },
   tags: [{
     type: String

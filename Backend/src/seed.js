@@ -46,14 +46,24 @@ async function seed() {
       { _id: new ObjectId(), username: 'business02', password: 'business456', email: 'biz02@gmail.com', role: roles[2]._id },
     ]);
 
+    // Firebase Storage bucket name (from your environment)
+    const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || 'intern-training-ed6ba.appspot.com';
+    
+    // Default avatars - one per role (Admin, Student, Business)
+    const avatarUrls = {
+      admin: `https://storage.googleapis.com/${storageBucket}/avatars/default-admin.jpg`,
+      student: `https://storage.googleapis.com/${storageBucket}/avatars/default-student.jpg`,
+      business: `https://storage.googleapis.com/${storageBucket}/avatars/default-business.jpg`
+    };
+
     const users = await User.insertMany([
-      { userName: 'John Smith', email: 'a@gmail.com', location: 'Hanoi', phone: '0901111111', idAccount: accounts[0]._id },
-      { userName: 'Emily Johnson', email: 'b@gmail.com', location: 'Ho Chi Minh City', phone: '0902222222', idAccount: accounts[1]._id },
-      { userName: 'Michael Williams', email: 'c@gmail.com', location: 'Da Nang', phone: '0903333333', idAccount: accounts[2]._id },
-      { userName: 'Sophia Lee', email: 'd@gmail.com', location: 'Hue', phone: '0904444444', idAccount: accounts[3]._id },
-      { userName: 'Daniel Nguyen', email: 'e@gmail.com', location: 'Nha Trang', phone: '0905555555', idAccount: accounts[4]._id },
-      { userName: 'Sarah Brown', email: 'f@gmail.com', location: 'Hue', phone: '0906666666', idAccount: accounts[5]._id },
-      { userName: 'David Jones', email: 'g@gmail.com', location: 'Can Tho', phone: '0907777777', idAccount: accounts[6]._id },
+      { userName: 'John Smith', email: 'a@gmail.com', location: 'Hanoi', phone: '0901111111', avatar: avatarUrls.admin, idAccount: accounts[0]._id },
+      { userName: 'Emily Johnson', email: 'b@gmail.com', location: 'Ho Chi Minh City', phone: '0902222222', avatar: avatarUrls.student, idAccount: accounts[1]._id },
+      { userName: 'Michael Williams', email: 'c@gmail.com', location: 'Da Nang', phone: '0903333333', avatar: avatarUrls.student, idAccount: accounts[2]._id },
+      { userName: 'Sophia Lee', email: 'd@gmail.com', location: 'Hue', phone: '0904444444', avatar: avatarUrls.student, idAccount: accounts[3]._id },
+      { userName: 'Daniel Nguyen', email: 'e@gmail.com', location: 'Nha Trang', phone: '0905555555', avatar: avatarUrls.student, idAccount: accounts[4]._id },
+      { userName: 'Sarah Brown', email: 'f@gmail.com', location: 'Hue', phone: '0906666666', avatar: avatarUrls.business, idAccount: accounts[5]._id },
+      { userName: 'David Jones', email: 'g@gmail.com', location: 'Can Tho', phone: '0907777777', avatar: avatarUrls.business, idAccount: accounts[6]._id },
     ]);
 
     const students = await Student.insertMany([
@@ -1036,7 +1046,15 @@ async function seed() {
     
     await Rating.insertMany(ratingRecords);
 
-    // Seed Blogs
+    // Sample blog image URLs for Firebase Storage
+    const blogImageUrls = [
+      `https://storage.googleapis.com/${storageBucket}/blogs/blog1-nextjs-react.jpg`,
+      `https://storage.googleapis.com/${storageBucket}/blogs/blog2-learning-programming.jpg`,
+      `https://storage.googleapis.com/${storageBucket}/blogs/blog3-cloud-computing.jpg`,
+      `https://storage.googleapis.com/${storageBucket}/blogs/blog4-fullstack-skills.jpg`,
+    ];
+
+    // Seed Blogs with Firebase Storage URLs for images
     const blogs = await Blog.insertMany([
       {
         title: 'The Future of Web Development: React vs Next.js',
@@ -1051,7 +1069,7 @@ async function seed() {
                    <li>Static site generation for lightning-fast static websites</li>
                  </ul>
                  <p>While React remains an excellent choice for many applications, Next.js provides additional features that can significantly enhance user experience and developer productivity.</p>`,
-        image: 'default-blog-image.jpg',
+        image: blogImageUrls[0],
         tags: ['Web Development', 'React', 'Next.js', 'JavaScript', 'Frontend'],
         userId: users[2]._id,
         views: 251,
@@ -1070,7 +1088,7 @@ async function seed() {
                    <li><strong>Teach others</strong> - Explaining concepts to others is one of the best ways to solidify your own understanding.</li>
                  </ol>
                  <p>Remember that learning to code is a marathon, not a sprint. Be patient with yourself and celebrate small victories along the way.</p>`,
-        image: 'default-blog-image.jpg',
+        image: blogImageUrls[1],
         tags: ['Programming', 'Learning', 'Education', 'Beginners', 'Tech Career'],
         userId: users[1]._id,
         views: 189,
@@ -1103,7 +1121,7 @@ async function seed() {
                    <li>Innovative pricing models and cost optimization tools</li>
                  </ul>
                  <p>The right choice depends on your specific needs, existing technology stack, and long-term goals.</p>`,
-        image: 'default-blog-image.jpg',
+        image: blogImageUrls[2],
         tags: ['Cloud Computing', 'AWS', 'Azure', 'Google Cloud', 'Infrastructure'],
         userId: users[3]._id,
         views: 172,
@@ -1134,7 +1152,7 @@ async function seed() {
                    <li><strong>Cloud Services</strong>: Experience with AWS, Azure, or Google Cloud</li>
                  </ul>
                  <p>Continuous learning remains one of the most important skills for any developer. Allocate time regularly to explore new technologies and deepen your understanding of core concepts.</p>`,
-        image: 'default-blog-image.jpg',
+        image: blogImageUrls[3],
         tags: ['Full-Stack Development', 'Programming', 'Career', 'Web Development', 'Technology'],
         userId: users[4]._id,
         views: 258,

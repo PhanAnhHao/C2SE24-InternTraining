@@ -4,7 +4,9 @@ const Blog = require('../models/Blog');
 const User = require('../models/User');
 const mongoose = require('mongoose');
 const authMiddleware = require('../middlewares/authMiddleware');
-const upload = require('../utils/fileUpload');
+const multer = require('multer');
+const { bucket } = require('../configs/firebase');
+const upload = multer({ storage: multer.memoryStorage() });
 const path = require('path');
 const fs = require('fs');
 
@@ -32,25 +34,62 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
       processedTags = tags;
     }
     
+    // Create blog without image first
     const newBlog = new Blog({
       title,
       content,
       tags: processedTags,
       status: status || 'published',
-      userId: user._id, // Use the User ID, not the Account ID
-      image: req.file ? req.file.filename : 'default-blog-image.jpg'
+      userId: user._id,
+      image: 'default-blog-image.jpg' // Default image that will be replaced if there's an upload
     });
+    
+    // Handle image upload if provided
+    if (req.file) {
+      try {
+        const file = req.file;
+        const filename = `blogs/${newBlog._id}_${Date.now()}_${file.originalname}`;
+        const blob = bucket.file(filename);
+        const blobStream = blob.createWriteStream({
+          metadata: { contentType: file.mimetype }
+        });
+        
+        // Return a promise that resolves when the upload is complete
+        const uploadPromise = new Promise((resolve, reject) => {
+          blobStream.on('error', (err) => reject(err));
+          
+          blobStream.on('finish', async () => {
+            // Make the file publicly accessible
+            await blob.makePublic();
+            
+            // Get the public URL
+            const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+            newBlog.image = publicUrl;
+            resolve();
+          });
+          
+          // Send the file data to Firebase
+          blobStream.end(file.buffer);
+        });
+        
+        await uploadPromise;
+      } catch (uploadErr) {
+        console.error('Blog image upload error:', uploadErr);
+        // Continue with default image if upload fails
+      }
+    }
     
     const savedBlog = await newBlog.save();
     
     // Populate author information
     await savedBlog.populate({
       path: 'userId',
-      select: 'userName'
+      select: 'userName avatar'
     });
     
     res.status(201).json(savedBlog);
   } catch (err) {
+    console.error('Blog creation error:', err);
     res.status(400).json({ error: err.message });
   }
 });
@@ -83,7 +122,7 @@ router.get('/', async (req, res) => {
     const blogs = await Blog.find(query)
       .populate({
         path: 'userId',
-        select: 'userName'
+        select: 'userName avatar'
       })
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -119,7 +158,7 @@ router.get('/:id', async (req, res) => {
       { new: true }
     ).populate({
       path: 'userId',
-      select: 'userName'
+      select: 'userName avatar'
     });
     
     if (!blog) {
@@ -134,7 +173,7 @@ router.get('/:id', async (req, res) => {
     })
     .populate({
       path: 'userId',
-      select: 'userName'
+      select: 'userName avatar'
     })
     .limit(3);
     
@@ -179,13 +218,39 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
       }
     }
     
-    // Handle image update
+    // Handle image upload if provided
     if (req.file) {
-      // If there's an existing custom image, delete it
-      if (blog.image && blog.image !== 'default-blog-image.jpg' && fs.existsSync(path.join(__dirname, '..', '..', blog.image))) {
-        fs.unlinkSync(path.join(__dirname, '..', '..', blog.image));
+      try {
+        const file = req.file;
+        const filename = `blogs/${blog._id}_${Date.now()}_${file.originalname}`;
+        const blob = bucket.file(filename);
+        const blobStream = blob.createWriteStream({
+          metadata: { contentType: file.mimetype }
+        });
+        
+        // Return a promise that resolves when the upload is complete
+        const uploadPromise = new Promise((resolve, reject) => {
+          blobStream.on('error', (err) => reject(err));
+          
+          blobStream.on('finish', async () => {
+            // Make the file publicly accessible
+            await blob.makePublic();
+            
+            // Get the public URL
+            const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+            req.body.image = publicUrl;
+            resolve();
+          });
+          
+          // Send the file data to Firebase
+          blobStream.end(file.buffer);
+        });
+        
+        await uploadPromise;
+      } catch (uploadErr) {
+        console.error('Blog image update error:', uploadErr);
+        // Continue without changing the image if upload fails
       }
-      req.body.image = req.file.filename; // Update to new image filename
     }
     
     // Update the blog
@@ -195,12 +260,97 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
       { new: true }
     ).populate({
       path: 'userId',
-      select: 'userName'
+      select: 'userName avatar'
     });
     
     res.json(updatedBlog);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error('Blog update error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// UPDATE BLOG IMAGE ONLY - Update just the blog's image (auth required)
+router.put('/:id/update-image', authMiddleware, upload.single('image'), async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid blog ID' });
+    }
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file uploaded' });
+    }
+    
+    // Find the user associated with the authenticated account
+    const user = await User.findOne({ idAccount: req.user.id });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User profile not found' });
+    }
+    
+    // Find the blog
+    const blog = await Blog.findById(req.params.id);
+    
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+    
+    // Check if user is the author
+    if (blog.userId.toString() !== user._id.toString()) {
+      return res.status(403).json({ error: 'You can only update your own blogs' });
+    }
+    
+    // Handle the image upload
+    const file = req.file;
+    const filename = `blogs/${blog._id}_${Date.now()}_${file.originalname}`;
+    const blob = bucket.file(filename);
+    const blobStream = blob.createWriteStream({
+      metadata: { contentType: file.mimetype }
+    });
+    
+    // Return a promise that resolves when the upload is complete
+    const uploadPromise = new Promise((resolve, reject) => {
+      blobStream.on('error', (err) => {
+        console.error('Blog image upload error:', err);
+        reject(err);
+      });
+      
+      blobStream.on('finish', async () => {
+        try {
+          // Make the file publicly accessible
+          await blob.makePublic();
+          
+          // Get the public URL
+          const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+          
+          // Update only the image field
+          const updatedBlog = await Blog.findByIdAndUpdate(
+            req.params.id,
+            { image: publicUrl },
+            { new: true }
+          ).populate({
+            path: 'userId',
+            select: 'userName avatar'
+          });
+          
+          resolve(updatedBlog);
+        } catch (err) {
+          reject(err);
+        }
+      });
+      
+      // Send the file data to Firebase
+      blobStream.end(file.buffer);
+    });
+    
+    const updatedBlog = await uploadPromise;
+    res.json({
+      message: 'Blog image updated successfully',
+      blog: updatedBlog
+    });
+  } catch (err) {
+    console.error('Blog image update error:', err);
+    res.status(500).json({ error: 'Failed to update blog image', details: err.message });
   }
 });
 

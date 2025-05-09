@@ -5,6 +5,18 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
 
+const getBlogImageUrl = (image) => {
+    if (!image) return theme_log;
+    if (image.startsWith('http')) return image;
+    return `https://storage.googleapis.com/intern-training-ed6ba.appspot.com/blogs/${image}`;
+};
+
+const getAvatarUrl = (avatar) => {
+    if (!avatar) return theme_log;
+    if (avatar.startsWith('http')) return avatar;
+    return `https://storage.googleapis.com/intern-training-ed6ba.appspot.com/avatars/${avatar}`;
+};
+
 const BlogDetail = () => {
     const { blogId } = useParams();
     const [blog, setBlog] = useState(null);
@@ -37,7 +49,7 @@ const BlogDetail = () => {
             {/* Blog Image */}
             <div className="mb-6 flex justify-center">
                 <img
-                    src={blog.image ? `http://localhost:5000/uploads/blogs/${blog.image}` : theme_log}
+                    src={getBlogImageUrl(blog.image)}
                     alt={blog.title}
                     className="max-w-2xl w-full h-auto rounded-lg object-cover"
                     onError={(e) => {
@@ -54,7 +66,7 @@ const BlogDetail = () => {
             {/* Thông tin tác giả */}
             <div className="flex items-center space-x-4 border-t border-gray-300 mt-6 pt-6">
                 <img
-                    src={blog.userId?.avatar ? `http://localhost:5000/uploads/avatars/${blog.userId.avatar}` : theme_log}
+                    src={getAvatarUrl(blog.userId?.avatar)}
                     alt="Author"
                     className="w-12 h-12 rounded-full"
                     onError={(e) => {
