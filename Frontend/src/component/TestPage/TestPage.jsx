@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { getTestDataById } from "../../redux/slices/testSlice";
@@ -7,7 +7,11 @@ import { getTestDataById } from "../../redux/slices/testSlice";
 const TestPage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { testData, loading, error } = useSelector((state) => state.tests);
+    const { singleTestData, loading, error } = useSelector((state) => state.tests);
+    const { testId } = useParams(); // phải trùng tên trong App.js hoặc nơi định nghĩa route - path="/test-page/:testId"
+    // console.log("testId: ", testId);
+
+    // console.log("testData", singleTestData);
 
     const [selectedAnswers, setSelectedAnswers] = useState(() => {
         const user = localStorage.getItem("user");
@@ -21,11 +25,22 @@ const TestPage = () => {
             setSelectedAnswers(JSON.parse(savedAnswers));
         }
 
-        dispatch(getTestDataById("68138d9090d5d96e92da8382"));
-    }, [dispatch]);
+        dispatch(getTestDataById(testId));
+    }, [dispatch, testId]);
 
     const handleAnswerSelect = (index, ans) => {
         setSelectedAnswers((prev) => ({ ...prev, [index]: ans }));
+    };
+
+    const calculateScore = () => {
+        let correct = 0;
+        singleTestData.questions.forEach((q, index) => {
+            if (selectedAnswers[index] === q.answer) {
+                correct += 1;
+            }
+        });
+
+        return correct; // Trả về số câu đúng
     };
 
     const handleSave = () => {
@@ -34,11 +49,56 @@ const TestPage = () => {
         window.location.reload();
     };
 
-    const handleSubmit = () => {
-        navigate("/submit-test");
+    // Chống gian lận
+    const [tabSwitchCount, setTabSwitchCount] = useState(0);
+
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                setTabSwitchCount((prev) => prev + 1);
+            }
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, []);
+
+    const studentId = localStorage.getItem("studentId");
+    const courseId = localStorage.getItem("courseId");
+
+    const handleSubmit = async () => {
+        const confirmSubmit = window.confirm("📤 Bạn có chắc chắn muốn nộp bài không?");
+        if (!confirmSubmit) return;
+        const correct = calculateScore();
+        const total = singleTestData.questions.length;
+        const passed = correct >= Math.ceil(total * 0.5); // ít nhất 50% số câu đúng
+        const scorePercent = (correct / total) * 100;
+
+        // Nếu chuyển tab quá 2 lần → gian lận
+        const isCheating = tabSwitchCount >= 2;
+        const finalScore = isCheating ? 0 : scorePercent;
+        const finalPassed = isCheating ? false : passed;
+
+        //     const resultMessage = `
+        //     ✅ Correct: ${correct}/${total}
+        //     🧮 Score: ${finalScore.toFixed(2)}%
+        //     🎓 Result: ${finalPassed ? "Pass" : "Fail"}
+        //     ${isCheating ? "❌ Cheating detected: You switched tabs too many times!" : ""}
+        // `;
+
+        // alert(resultMessage);
+
+        await axios.post("http://localhost:5000/history", { studentId, testId, score: finalScore, passed: finalPassed })
+
+        // TODO: Gửi dữ liệu về server tại đây nếu cần
+
+        // navigate("/submit-test");
+        navigate(`/course/${courseId}`);
     };
 
-    const questions = testData?.questions || [];
+    const questions = singleTestData?.questions || [];
 
     return (
         <div className="flex p-4 gap-4">

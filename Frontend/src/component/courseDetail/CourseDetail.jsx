@@ -31,6 +31,8 @@ const CourseDetail = () => {
         fetchData();
     }, [courseId]);
 
+    // console.log("courseData: ", courseData)
+
     if (loading) return <div>Đang tải...</div>;
     if (error) return <div>{error}</div>;
 

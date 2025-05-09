@@ -8,6 +8,7 @@ import { NavLink } from "react-router-dom";
 const Header = () => {
     const navigate = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false);
+    const [role, setRole] = useState('b');
 
     useEffect(() => {
         const authData = localStorage.getItem("token");
@@ -37,8 +38,8 @@ const Header = () => {
                         Courses
                     </NavLink>
                     {loggedIn && (
-                        <NavLink to="/your-courses" className={({ isActive }) => isActive ? "font-bold text-teal-400" : "hover:text-teal-400"}>
-                            Your Courses
+                        <NavLink to={role === 'business' ? "/your-course" : "/course-attended"} className={({ isActive }) => isActive ? "font-bold text-teal-400" : "hover:text-teal-400"}>
+                            {role === 'business' ? "Your Courses" : "Course Attended"}
                         </NavLink>
                     )}
                     <NavLink to="/blog-page" className={({ isActive }) => isActive ? "font-bold text-teal-400" : "hover:text-teal-400"}>
