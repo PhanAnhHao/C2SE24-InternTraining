@@ -47,7 +47,7 @@ async function seed() {
     ]);
 
     // Firebase Storage bucket name (from your environment)
-    const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || 'intern-training-ed6ba.firebasestorage.app';
+    const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || 'intern-training-ed6ba.appspot.com';
     
     // Default avatars - one per role (Admin, Student, Business)
     const avatarUrls = {

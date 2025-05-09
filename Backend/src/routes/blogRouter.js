@@ -270,6 +270,90 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
   }
 });
 
+// UPDATE BLOG IMAGE ONLY - Update just the blog's image (auth required)
+router.put('/:id/update-image', authMiddleware, upload.single('image'), async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid blog ID' });
+    }
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file uploaded' });
+    }
+    
+    // Find the user associated with the authenticated account
+    const user = await User.findOne({ idAccount: req.user.id });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User profile not found' });
+    }
+    
+    // Find the blog
+    const blog = await Blog.findById(req.params.id);
+    
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+    
+    // Check if user is the author
+    if (blog.userId.toString() !== user._id.toString()) {
+      return res.status(403).json({ error: 'You can only update your own blogs' });
+    }
+    
+    // Handle the image upload
+    const file = req.file;
+    const filename = `blogs/${blog._id}_${Date.now()}_${file.originalname}`;
+    const blob = bucket.file(filename);
+    const blobStream = blob.createWriteStream({
+      metadata: { contentType: file.mimetype }
+    });
+    
+    // Return a promise that resolves when the upload is complete
+    const uploadPromise = new Promise((resolve, reject) => {
+      blobStream.on('error', (err) => {
+        console.error('Blog image upload error:', err);
+        reject(err);
+      });
+      
+      blobStream.on('finish', async () => {
+        try {
+          // Make the file publicly accessible
+          await blob.makePublic();
+          
+          // Get the public URL
+          const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+          
+          // Update only the image field
+          const updatedBlog = await Blog.findByIdAndUpdate(
+            req.params.id,
+            { image: publicUrl },
+            { new: true }
+          ).populate({
+            path: 'userId',
+            select: 'userName avatar'
+          });
+          
+          resolve(updatedBlog);
+        } catch (err) {
+          reject(err);
+        }
+      });
+      
+      // Send the file data to Firebase
+      blobStream.end(file.buffer);
+    });
+    
+    const updatedBlog = await uploadPromise;
+    res.json({
+      message: 'Blog image updated successfully',
+      blog: updatedBlog
+    });
+  } catch (err) {
+    console.error('Blog image update error:', err);
+    res.status(500).json({ error: 'Failed to update blog image', details: err.message });
+  }
+});
+
 // DELETE - Delete a blog (auth required)
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
