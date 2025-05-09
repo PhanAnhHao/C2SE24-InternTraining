@@ -25,8 +25,9 @@ const app = express();
 app.use(express.json()); // Để phân tích JSON trong body của request
 app.use(cors());
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// Upload image
+const uploadRoute = require("./routes/upload.route");
+app.use("/api", uploadRoute);
 
 // Create uploads directory if it doesn't exist
 const fs = require('fs');

@@ -6,6 +6,9 @@ const User = require('../models/User');
 const Business = require('../models/Business');
 const Student = require('../models/Student'); // Added Student model
 const crypto = require('crypto'); // For generating random student ID
+const multer = require('multer');
+const { bucket } = require('../configs/firebase');
+const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
 
@@ -250,6 +253,59 @@ router.put('/edit-me', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: err.message });
     }
     res.status(500).json({ error: 'An internal server error occurred.' });
+  }
+});
+
+// Update user avatar
+router.put('/update-avatar', authMiddleware, upload.single('avatar'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No avatar file uploaded' });
+    }
+
+    // Find the user based on account ID from token
+    const user = await User.findOne({ idAccount: req.user.id });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Upload file to Firebase
+    const file = req.file;
+    const filename = `avatars/${user._id}_${Date.now()}_${file.originalname}`;
+    const blob = bucket.file(filename);
+    const blobStream = blob.createWriteStream({
+      metadata: { contentType: file.mimetype }
+    });
+
+    // Handle errors during upload
+    blobStream.on('error', (err) => {
+      return res.status(500).json({ error: 'Failed to upload avatar', details: err.message });
+    });
+
+    // When upload completes, get the public URL
+    blobStream.on('finish', async () => {
+      // Make the file publicly accessible
+      await blob.makePublic();
+      
+      // Get the public URL
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+      
+      // Update user avatar in database
+      user.avatar = publicUrl;
+      await user.save();
+      
+      res.json({
+        message: 'Avatar updated successfully',
+        avatar: publicUrl
+      });
+    });
+
+    // Start the upload by sending the buffer to Firebase
+    blobStream.end(file.buffer);
+  } catch (err) {
+    console.error('Avatar update error:', err);
+    res.status(500).json({ error: 'Failed to update avatar', details: err.message });
   }
 });
 
