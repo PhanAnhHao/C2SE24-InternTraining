@@ -23,8 +23,8 @@ const Profile = () => {
 
     const getAvatarUrl = (avatar) => {
         if (!avatar) return theme_log;
-        if (avatar.startsWith("http")) return avatar; // đã là URL đầy đủ
-        return `http://localhost:5000/uploads/${avatar}`; // giả sử ảnh được lưu ở thư mục /uploads
+        if (avatar.startsWith("http")) return avatar;
+        return `http://localhost:5000/avatars/${avatar}`;
     };
 
     const fetchProfile = async () => {
