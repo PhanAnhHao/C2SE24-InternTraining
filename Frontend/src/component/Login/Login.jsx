@@ -73,6 +73,7 @@ const LoginPage = () => {
 
                     // Redirect based on role
                     if (data.role.name === 'Business') {
+
                         navigate('/');
                     } else {
                         navigate('/');
