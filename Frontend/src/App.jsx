@@ -62,11 +62,11 @@ function App() {
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/create-blog" element={<CreateBlog />} />
 
-            <Route path="/online-learning/:courseId" element={<OnlineLearningPage />} />
-
           </Route>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+
+          <Route path="/online-learning/:courseId" element={<OnlineLearningPage />} />
 
           <Route path="/dashboard" element={<AdminLayout />}>
             <Route path="/dashboard/online-learning" element={<OnlineLearningManager />} />

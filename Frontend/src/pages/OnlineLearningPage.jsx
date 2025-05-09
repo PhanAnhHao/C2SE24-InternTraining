@@ -7,9 +7,29 @@ import LessonNavigation from "../component/OnlineLearning/LessonNavigation.jsx";
 // Import mockData from CourseContentList
 import { mockData } from "../component/OnlineLearning/CourseContentList.jsx";
 
+import { useDispatch, useSelector } from "react-redux";
+import { getLessonDataByCourseId } from "../redux/slices/lessonSlice.js";
+import { useParams } from "react-router-dom";
+
 const OnlineLearningPage = () => {
     const [selectedLesson, setSelectedLesson] = useState(null);
     const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+
+    const { courseId } = useParams();
+
+    const dispatch = useDispatch();
+    const {
+        lessons,
+        singleLessonData,
+        loading,
+        error,
+    } = useSelector((state) => state.lessons);
+
+    console.log("lessons ", lessons)
+
+    useEffect(() => {
+        dispatch(getLessonDataByCourseId(courseId))
+    }, [])
 
     useEffect(() => {
         if (mockData && mockData.length > 0) {
@@ -47,7 +67,7 @@ const OnlineLearningPage = () => {
                 <Header lessons={mockData} />
             </div>
 
-            <div className="flex flex-1">
+            <div className="flex flex-1 mt-14">
                 {selectedLesson ? (
                     <VideoSection selectedLesson={selectedLesson} />
                 ) : (
