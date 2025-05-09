@@ -25,6 +25,7 @@ export const getTestDataById = createAsyncThunk(
     async (testId, { rejectWithValue }) => {
         try {
             const response = await axios.get(`http://localhost:5000/tests/${testId}`);
+            // console.log("res: ", response.data);
             return response.data;
         } catch (error) {
             return rejectWithValue(
@@ -87,6 +88,7 @@ const testSlice = createSlice({
     name: 'tests',
     initialState: {
         tests: [],
+        singleTestData: {},
         loading: false,
         error: null,
     },
@@ -116,7 +118,7 @@ const testSlice = createSlice({
             })
             .addCase(getTestDataById.fulfilled, (state, action) => {
                 state.loading = false;
-                state.testData = action.payload;
+                state.singleTestData = action.payload;
             })
             .addCase(getTestDataById.rejected, (state, action) => {
                 state.loading = false;

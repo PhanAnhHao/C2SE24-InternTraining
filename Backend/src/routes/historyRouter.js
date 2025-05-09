@@ -11,39 +11,18 @@ const mongoose = require('mongoose');
 // CREATE - Save test result to history
 router.post('/', async (req, res) => {
   try {
-    const { studentId, testId } = req.body;
-    
+    const { studentId, testId, score, passed } = req.body;
+
     // Validate required fields
     if (!studentId || !testId) {
       return res.status(400).json({ error: 'Student ID and Test ID are required' });
     }
-    
+
     // Validate IDs
     if (!mongoose.Types.ObjectId.isValid(studentId) || !mongoose.Types.ObjectId.isValid(testId)) {
       return res.status(400).json({ error: 'Invalid ID format' });
     }
-    
-    // Get the test with its questions
-    const test = await Test.findById(testId);
-    if (!test) {
-      return res.status(404).json({ error: 'Test not found' });
-    }
-    
-    // Get all answers from this student for this test's questions
-    const answers = await Answer.find({
-      userId: studentId,
-      questionId: { $in: test.idQuestion }
-    });
-    
-    // Calculate score
-    const totalQuestions = test.idQuestion.length;
-    const correctAnswers = answers.filter(answer => answer.isCorrect).length;
-    const score = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
-    
-    // Determine if passed (e.g., score >= 70%)
-    const passThreshold = 70; // Can be configured as needed
-    const passed = score >= passThreshold;
-    
+
     // Create or update history entry
     const history = new History({
       studentId,
@@ -52,14 +31,12 @@ router.post('/', async (req, res) => {
       completedAt: new Date(),
       passed
     });
-    
+
     await history.save();
-    
+
     res.status(201).json({
       history,
       details: {
-        totalQuestions,
-        correctAnswers,
         score,
         passed
       }
@@ -87,7 +64,7 @@ router.get('/:id', async (req, res) => {
     const history = await History.findById(req.params.id)
       .populate('studentId', 'idStudent')
       .populate('testId', 'idTest content');
-    
+
     if (!history) return res.status(404).json({ message: 'History not found' });
     res.json(history);
   } catch (err) {
@@ -106,7 +83,7 @@ router.get('/student/:studentId', async (req, res) => {
     const histories = await History.find({ studentId })
       .populate('testId', 'idTest content')
       .sort({ completedAt: -1 });
-    
+
     res.json(histories);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -124,7 +101,7 @@ router.get('/test/:testId', async (req, res) => {
     const histories = await History.find({ testId })
       .populate('studentId', 'idStudent')
       .sort({ completedAt: -1 });
-    
+
     res.json(histories);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -146,43 +123,47 @@ router.delete('/:id', async (req, res) => {
 router.get('/course/:courseId', async (req, res) => {
   try {
     const { courseId } = req.params;
-    
+
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
       return res.status(400).json({ error: 'Invalid course ID format' });
     }
-    
+
     // Kiểm tra course có tồn tại không
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ error: 'Course not found' });
     }
-    
+
+    const test = await Lesson.find({ idCourse: courseId });
+
     // Tìm tất cả các lessons thuộc về course này
     const lessons = await Lesson.find({ idCourse: courseId });
     if (lessons.length === 0) {
       return res.json({
         courseId,
         courseName: course.infor,
+        test,
         message: 'No lessons found for this course',
         testResults: []
       });
     }
-    
+
     // Lấy tất cả các tests từ các lessons này
     const lessonIds = lessons.map(lesson => lesson._id);
     const tests = await Test.find({ idLesson: { $in: lessonIds } });
-    
+
     if (tests.length === 0) {
       return res.json({
         courseId,
         courseName: course.infor,
+        test,
         message: 'No tests found for this course',
         testResults: []
       });
     }
-    
+
     const testIds = tests.map(test => test._id);
-    
+
     // Lấy tất cả lịch sử kiểm tra cho các tests này
     const testHistories = await History.find({ testId: { $in: testIds } })
       .populate({
@@ -196,18 +177,18 @@ router.get('/course/:courseId', async (req, res) => {
       .populate({
         path: 'testId'
       });
-    
+
     // Tạo map để lưu trữ thông tin test và lesson để tham chiếu
     const testMap = {};
     for (const test of tests) {
       testMap[test._id.toString()] = test;
     }
-    
+
     const lessonMap = {};
     for (const lesson of lessons) {
       lessonMap[lesson._id.toString()] = lesson;
     }
-    
+
     // Tổng hợp dữ liệu
     const results = {
       courseId: course._id,
@@ -215,16 +196,16 @@ router.get('/course/:courseId', async (req, res) => {
       totalStudents: new Set(testHistories.map(h => h.studentId._id.toString())).size,
       totalTests: tests.length,
       totalResults: testHistories.length,
-      averageScore: testHistories.length > 0 
+      averageScore: testHistories.length > 0
         ? (testHistories.reduce((sum, h) => sum + h.score, 0) / testHistories.length).toFixed(2)
         : 0,
       passRate: testHistories.length > 0
-        ? ((testHistories.filter(h => h.passed).length / testHistories.length) * 100).toFixed(2) 
+        ? ((testHistories.filter(h => h.passed).length / testHistories.length) * 100).toFixed(2)
         : 0,
       testResults: testHistories.map(history => {
         const test = testMap[history.testId._id.toString()];
         const lesson = test && test.idLesson ? lessonMap[test.idLesson.toString()] : null;
-        
+
         return {
           id: history._id,
           student: {
@@ -248,7 +229,7 @@ router.get('/course/:courseId', async (req, res) => {
         };
       })
     };
-    
+
     res.json(results);
   } catch (err) {
     console.error('Error fetching course test history:', err);

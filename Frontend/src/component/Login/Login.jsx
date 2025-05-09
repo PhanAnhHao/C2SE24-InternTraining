@@ -65,11 +65,13 @@ const LoginPage = () => {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('userId', data.userId);
                 localStorage.setItem('businessId', data.businessId);
+                localStorage.setItem('studentId', data.studentId);
+
 
                 // Save user role to localStorage
                 if (data.role && data.role.name) {
                     localStorage.setItem('role', data.role.name);
-                    console.log(data.role.name);
+                    // console.log(data.role.name);
 
                     // Redirect based on role
                     if (data.role.name === 'Business') {
