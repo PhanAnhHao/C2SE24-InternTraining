@@ -99,34 +99,52 @@ const UpdateBlog = () => {
         if (!validateForm()) return;
         setLoading(true);
         try {
-            const formDataToSend = new FormData();
-            formDataToSend.append('title', formData.title.trim());
-            formDataToSend.append('content', formData.content.trim());
-            // Đảm bảo tags là mảng, nếu là chuỗi thì split
-            let tagsArray = formData.tags;
-            if (typeof tagsArray === 'string') {
-                tagsArray = tagsArray.split(',').map(tag => tag.trim()).filter(Boolean);
-            }
-            tagsArray.forEach(tag => formDataToSend.append('tags', tag));
-            formDataToSend.append('status', formData.status);
+            let imageUrl = oldImage; // Mặc định giữ ảnh cũ
+
+            // Nếu có ảnh mới, upload trước
             if (formData.image) {
-                formDataToSend.append('image', formData.image, formData.image.name);
+                const imgForm = new FormData();
+                imgForm.append('image', formData.image);
+                const token = localStorage.getItem('token');
+                const res = await axios.put(
+                    `http://localhost:5000/blogs/${blogId}/update-image`,
+                    imgForm,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+                );
+                imageUrl = res.data.blog.image; // Lấy URL ảnh mới từ response
             }
-            // Gửi request update
-            const response = await axios.put(`http://localhost:5000/blogs/${blogId}`, formDataToSend, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+
+            // Chuẩn bị dữ liệu update blog (không gửi image nữa)
+            const updateData = {
+                title: formData.title.trim(),
+                content: formData.content.trim(),
+                tags: typeof formData.tags === 'string'
+                    ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
+                    : formData.tags,
+                status: formData.status,
+            };
+            if (imageUrl) updateData.image = imageUrl;
+
+            const token = localStorage.getItem('token');
+            await axios.put(
+                `http://localhost:5000/blogs/${blogId}`,
+                updateData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
                 }
-            });
-            if (response.data) {
-                alert('Blog updated successfully!');
-                navigate('/my-blog');
-            }
+            );
+            alert('Blog updated successfully!');
+            navigate('/my-blog');
         } catch (err) {
-            const errorMessage = err.response?.data?.message || 'Failed to update blog. Please try again.';
-            setError(errorMessage);
-            console.error('Error updating blog:', err);
+            setError(err.response?.data?.message || 'Failed to update blog. Please try again.');
         } finally {
             setLoading(false);
         }

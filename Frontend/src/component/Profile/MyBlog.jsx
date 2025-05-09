@@ -5,6 +5,13 @@ import theme_log from '../../assets/ava_lap.jpg';
 import ProfileSideBar from '../../layout/ProfileSideBar';
 import { MoreVertical } from 'lucide-react';
 
+const getBlogImageUrl = (image) => {
+    if (!image) return theme_log;
+    if (image.startsWith('http')) return image;
+    // Nếu là tên file, prepend domain Firebase
+    return `https://storage.googleapis.com/intern-training-ed6ba.appspot.com/blogs/${image}`;
+};
+
 const MyBlog = () => {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -140,7 +147,7 @@ const MyBlog = () => {
                                             {/* Ảnh blog */}
                                             <div className="w-full h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
                                                 <img
-                                                    src={blog.image ? `http://localhost:5000/uploads/blogs/${blog.image}` : theme_log}
+                                                    src={getBlogImageUrl(blog.image)}
                                                     alt={blog.title}
                                                     className="object-cover w-full h-full"
                                                     onError={(e) => {
