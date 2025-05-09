@@ -61,7 +61,6 @@ app.use('/ratings', ratingRouter);
 app.use('/blogs', blogRouter); // Add the blog routes
 app.use('/api/view-requests', viewRequestRouter);
 app.use('/progress', studentLessonProgressRouter); // Add the student lesson progress routes
-// app.use('/uploads', express.static('uploads'));
 // Chạy server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
