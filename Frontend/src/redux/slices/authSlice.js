@@ -4,43 +4,23 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 // Async thunk để login
 export const login = createAsyncThunk(
     'auth/login',
-    async ({ username, password, navigate }, { rejectWithValue }) => {
+    async ({ username, password }, { rejectWithValue }) => {
         try {
-            const response = await fetch('http://localhost:5000/auth/login', {
+            const response = await fetch("http://localhost:5000/auth/login", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                return rejectWithValue(data.message || 'Login failed. Please try again.');
-            }
-
-            if (data.token) {
-                // Save token and role to localStorage
-                localStorage.setItem('token', data.token);
-                if (data.role && data.role.name) {
-                    localStorage.setItem('role', data.role.name);
-                    if (navigate) {
-                        if (data.role.name === 'Business') {
-                            navigate('/business-profile');
-                        } else {
-                            navigate('/student-profile');
-                        }
-                    }
-                } else {
-                    if (navigate) navigate('/');
-                }
-                return { token: data.token, role: data.role?.name || null };
-            } else {
-                return rejectWithValue('No token received. Please check your credentials.');
-            }
+            return response.data;
         } catch (error) {
-            return rejectWithValue(error.message || 'Something went wrong.');
+            return rejectWithValue(
+                error.response?.data?.error || error.message || 'Somethings wrongs'
+            );
         }
     }
 );
@@ -48,17 +28,35 @@ export const login = createAsyncThunk(
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
-        token: localStorage.getItem('token') || null,
-        role: localStorage.getItem('role') || null,
+        token: "",
+        role: {},
+        userId: "",
+        studentId: "",
+        businessId: "",
         loading: false,
         error: null
     },
     reducers: {
+        setUserLoginInfo: (state, action) => {
+            state.token = action?.payload?.token;
+            state.role = action?.payload?.role;
+            state.userId = action?.payload?.userId;
+            state.studentId = action?.payload?.studentId ?? "";
+            state.businessId = action?.payload?.businessId ?? "";
+
+        },
         logout: (state) => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('businessId');
+            localStorage.removeItem('studentId');
+            state.token = "";
+            state.role = {};
+            state.userId = "";
+            state.studentId = "";
+            state.businessId = "";
             state.token = null;
             state.role = null;
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
         }
     },
     extraReducers: (builder) => {
@@ -69,8 +67,15 @@ const authSlice = createSlice({
             })
             .addCase(login.fulfilled, (state, action) => {
                 state.loading = false;
-                state.token = action.payload.token;
-                state.role = action.payload.role;
+                state.token = action?.payload?.token;
+                state.role = action?.payload?.role;
+                state.userId = action?.payload?.userId;
+                state.studentId = action?.payload?.studentId ?? "";
+                state.businessId = action?.payload?.businessId ?? "";
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('userId', data.userId);
+                localStorage.setItem('businessId', data.businessId);
+                localStorage.setItem('studentId', data.studentId);
             })
             .addCase(login.rejected, (state, action) => {
                 state.loading = false;

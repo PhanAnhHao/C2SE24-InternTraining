@@ -35,8 +35,10 @@ const PaymentCard = (props) => {
             </div> */}
 
                 {/* Nút mua */}
-                <button className="w-full bg-teal-500 text-white font-semibold py-2 rounded-lg mt-4 hover:bg-teal-600 transition">
-                    Study
+                <button
+                    onClick={() => navigate(`/online-learning/${courseId}`)}
+                    className="w-full bg-teal-500 text-white font-semibold py-2 rounded-lg mt-4 hover:bg-teal-600 transition">
+                    Learn
                 </button>
                 <button
                     onClick={() => navigate(`/test-page/${courseData.test[0].idTest}`)}
