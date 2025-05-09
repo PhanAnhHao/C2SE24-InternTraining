@@ -23,8 +23,8 @@ const Profile = () => {
 
     const getAvatarUrl = (avatar) => {
         if (!avatar) return theme_log;
-        if (avatar.startsWith('http')) return avatar;
-        return `http://localhost:5000/uploads/${avatar}`;
+        if (avatar.startsWith("http")) return avatar; // đã là URL đầy đủ
+        return `http://localhost:5000/uploads/${avatar}`; // giả sử ảnh được lưu ở thư mục /uploads
     };
 
     const fetchProfile = async () => {
@@ -34,6 +34,7 @@ const Profile = () => {
                     Authorization: `Bearer ${localStorage.getItem("token")}`
                 }
             });
+            console.log('API /auth/me trả về:', response.data);
             setProfileData(response.data);
             setFormData({
                 userName: response.data.userName || "",
@@ -74,7 +75,9 @@ const Profile = () => {
 
             toast.success("Profile updated successfully!");
             setTimeout(() => {
-                window.location.reload();
+                // window.location.reload();
+                setAvatarPreview(imageUrl);
+                setProfileData((prev) => ({ ...prev, avatar: imageUrl }));
             }, 1500);
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -97,23 +100,29 @@ const Profile = () => {
     const handleAvatarUpload = async () => {
         if (!avatar) return;
 
-        const formDataData = new FormData();
-        formDataData.append('avatar', avatar);
+        // 1. Upload file lên Firebase
+        const formData = new FormData();
+        formData.append('image', avatar);
 
         try {
+            // Upload lên Firebase
+            const uploadRes = await axios.post(
+                "http://localhost:5000/avatars",
+                formData,
+                { headers: { "Content-Type": "multipart/form-data" } }
+            );
+            const imageUrl = uploadRes.data.imageUrl;
+
+            // 2. Gửi URL lên API cập nhật avatar cho user đang đăng nhập
             await axios.put(
                 "http://localhost:5000/auth/update-avatar",
-                formDataData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "multipart/form-data"
-                    }
-                }
+                { avatar: imageUrl },
+                { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
             );
+            setAvatarPreview(imageUrl);
             toast.success("Avatar updated successfully!");
-            setAvatar(null); // Reset file input
-            fetchProfile(); // Refresh profile data (avatar mới)
+            setAvatar(null);
+            fetchProfile();
         } catch (error) {
             console.error("Error updating avatar:", error);
             toast.error("Failed to update avatar.");
