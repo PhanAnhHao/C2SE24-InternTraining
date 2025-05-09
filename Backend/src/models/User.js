@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  avatar: {
+    type: String,
+    default: 'default-avatar.jpg'
+  },
   idAccount: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Account',

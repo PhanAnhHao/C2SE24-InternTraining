@@ -14,10 +14,18 @@ const Profile = () => {
         phone: "",
         location: ""
     });
+    const [avatar, setAvatar] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState(null);
 
     useEffect(() => {
         fetchProfile();
     }, []);
+
+    const getAvatarUrl = (avatar) => {
+        if (!avatar) return theme_log;
+        if (avatar.startsWith('http')) return avatar;
+        return `http://localhost:5000/uploads/${avatar}`;
+    };
 
     const fetchProfile = async () => {
         try {
@@ -33,6 +41,7 @@ const Profile = () => {
                 phone: response.data.phone || "",
                 location: response.data.location || ""
             });
+            setAvatarPreview(getAvatarUrl(response.data.avatar));
         } catch (error) {
             console.error("Error fetching profile:", error);
             toast.error("Failed to fetch profile data.");
@@ -73,6 +82,44 @@ const Profile = () => {
         }
     };
 
+    const handleAvatarChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setAvatar(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleAvatarUpload = async () => {
+        if (!avatar) return;
+
+        const formDataData = new FormData();
+        formDataData.append('avatar', avatar);
+
+        try {
+            await axios.put(
+                "http://localhost:5000/auth/update-avatar",
+                formDataData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "multipart/form-data"
+                    }
+                }
+            );
+            toast.success("Avatar updated successfully!");
+            setAvatar(null); // Reset file input
+            fetchProfile(); // Refresh profile data (avatar mới)
+        } catch (error) {
+            console.error("Error updating avatar:", error);
+            toast.error("Failed to update avatar.");
+        }
+    };
+
     return (
         <div className="flex min-h-screen bg-gray-100">
             <ToastContainer />
@@ -85,16 +132,32 @@ const Profile = () => {
                         {/* Row 1: Avatar */}
                         <div className="flex justify-center relative">
                             <img
-                                src={theme_log}
+                                src={avatarPreview}
                                 alt="Avatar"
                                 className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
+                                onError={e => { e.target.onerror = null; e.target.src = theme_log; }}
                             />
-                            <button
-                                className="absolute bottom-2 right-[calc(50%-4rem)] bg-teal-500 hover:bg-teal-600 p-2 rounded-full text-white shadow-lg transition"
+                            <label
+                                className="absolute bottom-2 right-[calc(50%-4rem)] bg-teal-500 hover:bg-teal-600 p-2 rounded-full text-white shadow-lg transition cursor-pointer"
                                 title="Edit avatar"
                             >
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleAvatarChange}
+                                    className="hidden"
+                                />
                                 ✎
-                            </button>
+                            </label>
+                            {avatar && (
+                                <button
+                                    onClick={handleAvatarUpload}
+                                    className="absolute bottom-2 left-[calc(50%-4rem)] bg-green-500 hover:bg-green-600 p-2 rounded-full text-white shadow-lg transition"
+                                    title="Save avatar"
+                                >
+                                    ✓
+                                </button>
+                            )}
                         </div>
 
                         {/* Row 2: Info / Edit Form */}

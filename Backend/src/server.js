@@ -25,8 +25,9 @@ const app = express();
 app.use(express.json()); // Để phân tích JSON trong body của request
 app.use(cors());
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// Upload image
+const uploadRoute = require("./routes/upload.route");
+app.use("/api", uploadRoute);
 
 // Create uploads directory if it doesn't exist
 const fs = require('fs');
@@ -60,6 +61,7 @@ app.use('/ratings', ratingRouter);
 app.use('/blogs', blogRouter); // Add the blog routes
 app.use('/api/view-requests', viewRequestRouter);
 app.use('/progress', studentLessonProgressRouter); // Add the student lesson progress routes
+// app.use('/uploads', express.static('uploads'));
 // Chạy server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
