@@ -1,5 +1,6 @@
 import { useState } from "react";
 import LessonItem from "./LessonItem";
+import { useSelector } from "react-redux";
 
 // Dữ liệu mẫu (sau này chỉ cần thay bằng API)
 export const mockData = [
@@ -59,21 +60,48 @@ export const mockData = [
     },
 ];
 
-const CourseContentList = ({ lessons = mockData, setSelectedLesson, selectedLesson }) => {
+const CourseContentList = ({
+    lessonsMockData = mockData,
+    setSelectedLesson,
+    selectedLesson,
+    currentLessonIndex,
+    setCurrentLessonIndex,
+    contentRef
+}) => {
+
+    const {
+        lessons,
+        singleLessonData,
+        loading,
+        error,
+    } = useSelector((state) => state.lessons);
+
+    // console.log("lessons ", lessons);
+    // console.log("selectedLesson ", selectedLesson);
+
     const handleSelectLesson = (lesson) => {
+        const index = lessons.findIndex(l => l._id === lesson._id);
+        setCurrentLessonIndex(index);   // <-- Cập nhật index
         setSelectedLesson(lesson); // Update the parent state (for VideoSection)
+
+        // Cuộn đến phần nội dung bài học
+        setTimeout(() => {
+            contentRef?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
     };
 
     return (
         <div className="text-sm w-1/4 px-4 pt-4 bg-[#F3FAFF] min-h-screen border-l border-gray-300">
             <h3 className="text-lg font-bold mb-4 text-gray-700">Course content</h3>
             <ul className="space-y-2">
-                {lessons.map((lesson) => (
+                {lessons.map((lesson, index) => (
                     <LessonItem
-                        key={lesson.id}
+                        key={lesson._id}
                         lesson={lesson}
+                        selectedLesson={selectedLesson}
+                        index={index}
                         onSelect={() => handleSelectLesson(lesson)}
-                        isSelected={selectedLesson && lesson.id === selectedLesson.id}
+                        isSelected={selectedLesson && lesson._id === selectedLesson._id}
                     />
                 ))}
             </ul>

@@ -7,7 +7,7 @@ export const getLessonDataByCourseId = createAsyncThunk(
     async (courseId, { rejectWithValue }) => {
         try {
             const response = await axios.get(`http://localhost:5000/lessons/by-course/${courseId}`);
-            console.log("res: ", response.data);
+            // console.log("res: ", response.data);
             return response.data;
         } catch (error) {
             return rejectWithValue(

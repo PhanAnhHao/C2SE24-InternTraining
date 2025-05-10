@@ -1,9 +1,12 @@
 import { FaArrowLeft } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({ lessons }) => {
+    const navigate = useNavigate();
     const handleBack = () => {
-        console.log("Navigating back to the previous page");
-        alert("Trở về trang trước");
+        // console.log("Navigating back to the previous page");
+        // alert("Trở về trang trước");
+        navigate(`/course/${lessons[0].idCourse.id}`);
     };
 
     // Tính toán tiến trình học
