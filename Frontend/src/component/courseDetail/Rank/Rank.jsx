@@ -11,12 +11,12 @@ import { Button } from '@mui/material';
 import { useParams } from 'react-router-dom';
 
 const columns = [
-    { id: 'no', label: 'No', minWidth: 170 },
-    { id: 'name', label: 'Name', minWidth: 170 },
+    { id: 'no', label: 'No', minWidth: 50 },
+    { id: 'name', label: 'Name', minWidth: 150 },
     {
         id: 'score',
         label: 'Score',
-        minWidth: 170,
+        minWidth: 100,
         align: 'right',
         format: (value) => (value ? value.toFixed(2) : 'N/A'),
     },
@@ -31,6 +31,12 @@ export default function Rank() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const fetchStudentInfo = async (id) => {
+            const response = await fetch(`http://localhost:5000/students/${id}`);
+            if (!response.ok) throw new Error(`Student fetch error: ${response.status}`);
+            return response.json();
+        };
+
         const fetchData = async () => {
             try {
                 if (!courseId) {
@@ -39,54 +45,58 @@ export default function Rank() {
                     return;
                 }
 
-                const response = await fetch(`http://localhost:5000/history/course/${courseId}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const result = await response.json();
-                console.log('API Response:', result);
+                const res = await fetch(`http://localhost:5000/history/course/${courseId}`);
+                if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
 
-                if (result.testResults && result.testResults.length > 0) {
-                    // Group data by student based on student.id
-                    const studentMap = result.testResults.reduce((acc, testResult) => {
-                        const studentId = testResult.student.id;
-                        if (!acc[studentId]) {
-                            acc[studentId] = {
-                                name: testResult.student.name || 'Unknown',
-                                id: testResult.student.id, // Store id for Contact
-                                scores: [],
-                            };
-                        }
-                        acc[studentId].scores.push(testResult.score);
-                        return acc;
-                    }, {});
+                const result = await res.json();
+                const { testResults } = result;
 
-                    // Create rows from grouped student data
-                    const studentRows = Object.keys(studentMap).map((studentId, index) => {
-                        const student = studentMap[studentId];
-                        const validScores = student.scores.filter(
-                            (score) => score !== null && score !== undefined
-                        );
-                        const avgScore =
-                            validScores.length > 0
-                                ? validScores.reduce((sum, score) => sum + score, 0) / validScores.length
-                                : null;
-                        return {
-                            no: index + 1,
-                            name: student.name,
-                            score: avgScore,
-                            id: student.id, // Include id in row
-                        };
-                    });
-
-                    // Sort rows by average score (descending)
-                    const sortedRows = studentRows.sort((a, b) => (b.score || 0) - (a.score || 0));
-                    setRows(sortedRows);
-                    console.log('Processed Rows:', sortedRows);
-                } else {
-                    console.log('No testResults data in API response');
+                if (!testResults || testResults.length === 0) {
                     setRows([]);
+                    setLoading(false);
+                    return;
                 }
+
+                // Group scores by studentId
+                const scoreMap = {};
+                testResults.forEach(({ studentId, score }) => {
+                    if (!scoreMap[studentId]) scoreMap[studentId] = [];
+                    scoreMap[studentId].push(score);
+                });
+
+                const studentIds = Object.keys(scoreMap);
+
+                // Fetch all student info
+                const studentInfoList = await Promise.all(
+                    studentIds.map(async (id) => {
+                        try {
+                            const studentData = await fetchStudentInfo(id);
+                            return { id, name: studentData.name || 'Unknown' };
+                        } catch (err) {
+                            console.warn(`Could not fetch student ${id}`, err);
+                            return { id, name: 'Unknown' };
+                        }
+                    })
+                );
+
+                // Combine info
+                const combinedRows = studentIds.map((id, index) => {
+                    const scores = scoreMap[id].filter((s) => s !== null && s !== undefined);
+                    const avgScore = scores.length > 0
+                        ? scores.reduce((a, b) => a + b, 0) / scores.length
+                        : null;
+
+                    const studentInfo = studentInfoList.find((s) => s.id === id);
+                    return {
+                        no: index + 1,
+                        name: studentInfo?.name || 'Unknown',
+                        score: avgScore,
+                        id,
+                    };
+                });
+
+                const sortedRows = combinedRows.sort((a, b) => (b.score || 0) - (a.score || 0));
+                setRows(sortedRows);
                 setLoading(false);
             } catch (err) {
                 console.error('Fetch error:', err);
@@ -94,6 +104,7 @@ export default function Rank() {
                 setLoading(false);
             }
         };
+
         fetchData();
     }, [courseId]);
 
@@ -107,17 +118,15 @@ export default function Rank() {
     };
 
     const handleContact = async (row) => {
-        // Retrieve token from localStorage (adjust key as needed)
         const token = localStorage.getItem('token');
+        console.log(token);
         if (!token) {
-            console.log('No authentication token found');
             alert('Please log in to send a request.');
             return;
         }
 
         if (!row.id) {
-            console.log('No student ID available for this row:', row);
-            alert('Cannot send request: Student ID is missing.');
+            alert('Student ID is missing.');
             return;
         }
 
@@ -126,27 +135,18 @@ export default function Rank() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, // Include token in Authorization header
+                    Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({
-                    studentId: row.id, // Send student id (e.g., 680dfe700ebe8a1c5c85a102) from row
-                }),
+                body: JSON.stringify({ studentId: row.id }),
             });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
 
             const data = await response.json();
             if (data.success) {
-                console.log('Request sent successfully:', data);
                 alert('Request sent successfully!');
             } else {
-                console.log('Request failed:', data.message);
                 alert(`Request failed: ${data.message}`);
             }
         } catch (err) {
-            console.error('Error sending request:', err);
             alert(`Error sending request: ${err.message}`);
         }
     };
@@ -157,7 +157,7 @@ export default function Rank() {
     return (
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
             <TableContainer sx={{ maxHeight: 440 }}>
-                <Table stickyHeader aria-label="sticky table">
+                <Table stickyHeader>
                     <TableHead>
                         <TableRow>
                             {columns.map((column) => (
@@ -183,7 +183,7 @@ export default function Rank() {
                             rows
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row) => (
-                                    <TableRow hover role="checkbox" tabIndex={-1} key={row.no}>
+                                    <TableRow hover key={row.no}>
                                         {columns.map((column) => {
                                             const value = row[column.id];
                                             return (

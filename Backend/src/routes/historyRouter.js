@@ -134,103 +134,35 @@ router.get('/course/:courseId', async (req, res) => {
       return res.status(404).json({ error: 'Course not found' });
     }
 
-    const test = await Lesson.find({ idCourse: courseId });
-
-    // Tìm tất cả các lessons thuộc về course này
+    // Get all lessons for this course
     const lessons = await Lesson.find({ idCourse: courseId });
-    if (lessons.length === 0) {
-      return res.json({
-        courseId,
-        courseName: course.infor,
-        test,
-        message: 'No lessons found for this course',
-        testResults: []
-      });
-    }
+    
+    // Get all tests associated with these lessons
+    const testIds = lessons.map(lesson => lesson.idTest).filter(id => id);
+    
+    // Get all test histories for these tests
+    const testHistories = await History.find({ 
+      testId: { $in: testIds }
+    }).populate('studentId').populate('testId');
 
-    // Lấy tất cả các tests từ các lessons này
-    const lessonIds = lessons.map(lesson => lesson._id);
-    const tests = await Test.find({ idLesson: { $in: lessonIds } });
-
-    if (tests.length === 0) {
-      return res.json({
-        courseId,
-        courseName: course.infor,
-        test,
-        message: 'No tests found for this course',
-        testResults: []
-      });
-    }
-
-    const testIds = tests.map(test => test._id);
-
-    // Lấy tất cả lịch sử kiểm tra cho các tests này
-    const testHistories = await History.find({ testId: { $in: testIds } })
-      .populate({
-        path: 'studentId',
-        select: 'idStudent',
-        populate: {
-          path: 'userId',
-          select: 'userName'
-        }
-      })
-      .populate({
-        path: 'testId'
-      });
-
-    // Tạo map để lưu trữ thông tin test và lesson để tham chiếu
-    const testMap = {};
-    for (const test of tests) {
-      testMap[test._id.toString()] = test;
-    }
-
-    const lessonMap = {};
-    for (const lesson of lessons) {
-      lessonMap[lesson._id.toString()] = lesson;
-    }
-
-    // Tổng hợp dữ liệu
-    const results = {
-      courseId: course._id,
+    const response = {
+      courseId,
       courseName: course.infor,
-      totalStudents: new Set(testHistories.map(h => h.studentId._id.toString())).size,
-      totalTests: tests.length,
-      totalResults: testHistories.length,
-      averageScore: testHistories.length > 0
-        ? (testHistories.reduce((sum, h) => sum + h.score, 0) / testHistories.length).toFixed(2)
-        : 0,
-      passRate: testHistories.length > 0
-        ? ((testHistories.filter(h => h.passed).length / testHistories.length) * 100).toFixed(2)
-        : 0,
-      testResults: testHistories.map(history => {
-        const test = testMap[history.testId._id.toString()];
-        const lesson = test && test.idLesson ? lessonMap[test.idLesson.toString()] : null;
-
-        return {
-          id: history._id,
-          student: {
-            id: history.studentId._id,
-            idStudent: history.studentId.idStudent,
-            name: history.studentId.userId ? history.studentId.userId.userName : 'Unknown'
-          },
-          test: {
-            id: history.testId._id,
-            idTest: test ? test.idTest : 'Unknown',
-            content: test ? test.content : 'Unknown',
-            lesson: lesson ? {
-              id: lesson._id,
-              idLesson: lesson.idLesson,
-              name: lesson.name
-            } : null
-          },
-          score: history.score,
-          passed: history.passed,
-          completedAt: history.completedAt
-        };
-      })
+      test: lessons,  // Include all lessons with their tests
+      testResults: testHistories.map(history => ({
+        _id: history._id,
+        studentId: history.studentId._id,
+        testId: history.testId._id,
+        score: history.score,
+        completedAt: history.completedAt,
+        passed: history.passed,
+        __v: history.__v,
+        createdAt: history.createdAt,
+        updatedAt: history.updatedAt
+      }))
     };
 
-    res.json(results);
+    res.json(response);
   } catch (err) {
     console.error('Error fetching course test history:', err);
     res.status(500).json({ error: err.message });

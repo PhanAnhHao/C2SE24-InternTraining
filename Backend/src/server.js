@@ -23,7 +23,10 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json()); // Để phân tích JSON trong body của request
-app.use(cors());
+app.use(cors({
+  origin: 'https://localhost:5173', // Chỉ định rõ nguồn gốc của frontend
+  credentials: true, // Hỗ trợ credentials (cookies, authorization headers, v.v.)
+}));
 
 // Upload image
 const uploadRoute = require("./routes/upload.route");
