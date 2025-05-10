@@ -77,8 +77,8 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const tests = await Test.find()
-      .populate('idQuestion', '_id question options answer')
-      .populate('idCourse', '_id idCourse courseName description') // Lấy thông tin khóa học
+      .populate('idQuestion', 'question options answer')
+      .populate('idCourse', 'idCourse infor') // Lấy thông tin khóa học
       .sort({ createdAt: -1 }); // Sắp xếp theo trường createdAt, mới nhất sẽ lên đầu
 
     res.json(tests.map(test => ({
@@ -100,8 +100,8 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const test = await Test.findById(req.params.id)
-      .populate('idQuestion', '_id question options correctAnswerIndex answer')
-      .populate('idCourse', '_id courseName description'); // Lấy thông tin khóa học
+      .populate('idQuestion', 'question options correctAnswerIndex answer')
+      .populate('idCourse', 'idCourse infor'); // Lấy thông tin khóa học
 
     if (!test) {
       return res.status(404).json({ message: 'Test not found' });
@@ -110,7 +110,9 @@ router.get('/:id', async (req, res) => {
     res.json({
       idTest: test.idTest,
       content: test.content,
-      idCourse: test.idCourse, // Trả về thông tin khóa học
+      // Trả về thông tin khóa học
+      // vì tên trường trong model Test là idCourse, nên sau khi populate, nó vẫn là test.idCourse, nhưng giá trị bây giờ là object chứa idCourse, infor chứ không phải chỉ là _id nữa
+      idCourse: test.idCourse,
       questions: test.idQuestion,
       createdAt: test.createdAt,
       updatedAt: test.updatedAt,
