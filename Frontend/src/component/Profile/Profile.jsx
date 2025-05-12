@@ -94,10 +94,79 @@ const Profile = () => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    const validateForm = () => {
+        // Validate Display Name
+        if (!formData.userName.trim()) {
+            toast.error("Please enter your display name", {
+                position: "top-right",
+                theme: "colored",
+                icon: "⚠️"
+            });
+            return false;
+        }
+        if (formData.userName.length < 2 || formData.userName.length > 50) {
+            toast.error("Display Name must be between 2 and 50 characters", {
+                position: "top-right",
+                theme: "colored"
+            });
+            return false;
+        }
+
+        // Validate Email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email.trim()) {
+            toast.error("Please enter your email address", {
+                position: "top-right",
+                theme: "colored"
+            });
+            return false;
+        }
+        if (!emailRegex.test(formData.email)) {
+            toast.error("Please enter a valid email address", {
+                position: "top-right",
+                theme: "colored"
+            });
+            return false;
+        }
+
+        // Validate Phone (optional)
+        const phoneRegex = /^[0-9]{10,11}$/;
+        if (formData.phone && !phoneRegex.test(formData.phone)) {
+            toast.error("Phone number must be 10-11 digits", {
+                position: "top-right",
+                theme: "colored"
+            });
+            return false;
+        }
+
+        // Validate Address (optional)
+        if (formData.location && formData.location.length > 200) {
+            toast.error("Address cannot exceed 200 characters", {
+                position: "top-right",
+                theme: "colored"
+            });
+            return false;
+        }
+
+        return true;
+    };
+
     const handleEditSubmit = async (e) => {
         e.preventDefault();
+
+        // Validate form first
+        if (!validateForm()) {
+            return; // Return early if validation fails
+        }
+
+        // Show loading toast for update process
+        const loadingToastId = toast.loading("Updating profile... 🔄", {
+            position: "top-right",
+            theme: "colored"
+        });
+
         try {
-            await axios.put(
+            const response = await axios.put(
                 "http://localhost:5000/auth/edit-me",
                 {
                     userName: formData.userName,
@@ -113,13 +182,25 @@ const Profile = () => {
                 }
             );
 
-            toast.success("Profile updated successfully!");
-            setTimeout(() => {
-                fetchProfile();
-            }, 1500);
+            // Update success toast
+            toast.update(loadingToastId, {
+                render: "Profile updated successfully! 🎉",
+                type: "success",
+                isLoading: false,
+                autoClose: 3000
+            });
+
+            // Refresh profile data and close edit mode
+            await fetchProfile();
+            setIsEditing(false);
         } catch (error) {
-            console.error("Error updating profile:", error);
-            toast.error("Failed to update profile.");
+            // Update error toast
+            toast.update(loadingToastId, {
+                render: `Update failed: ${error.response?.data?.message || error.message} ❌`,
+                type: "error",
+                isLoading: false,
+                autoClose: 3000
+            });
         }
     };
 
@@ -207,7 +288,18 @@ const Profile = () => {
 
     return (
         <div className="flex min-h-screen bg-gray-100">
-            <ToastContainer />
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
             <ProfileSideBar />
             <div className="flex-1 p-10 flex flex-col items-center">
                 <h2 className="text-2xl font-bold mb-8 text-gray-800">Profile Information</h2>
@@ -267,7 +359,7 @@ const Profile = () => {
                                 <div><span className="font-semibold">Role: </span>{profileData.idAccount?.role?.name}</div>
                             </div>
                         ) : (
-                            <form onSubmit={handleEditSubmit} className="space-y-4 px-4">
+                            <form onSubmit={handleEditSubmit} className="space-y-4 px-4" noValidate>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
                                     <input

@@ -81,14 +81,14 @@ const TestPage = () => {
         const finalScore = isCheating ? 0 : scorePercent;
         const finalPassed = isCheating ? false : passed;
 
-        //     const resultMessage = `
-        //     ✅ Correct: ${correct}/${total}
-        //     🧮 Score: ${finalScore.toFixed(2)}%
-        //     🎓 Result: ${finalPassed ? "Pass" : "Fail"}
-        //     ${isCheating ? "❌ Cheating detected: You switched tabs too many times!" : ""}
-        // `;
+        const resultMessage = `
+            ✅ Correct: ${correct}/${total}
+            🧮 Score: ${finalScore.toFixed(2)}%
+            🎓 Result: ${finalPassed ? "Pass" : "Fail"}
+            ${isCheating ? "❌ Cheating detected: You switched tabs too many times!" : ""}
+        `;
 
-        // alert(resultMessage);
+        alert(resultMessage);
 
         await axios.post("http://localhost:5000/history", { studentId, testId, score: finalScore, passed: finalPassed })
 
