@@ -71,8 +71,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-
-
 // READ all
 router.get('/', async (req, res) => {
   try {
@@ -94,7 +92,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // READ by ID
 router.get('/:id', async (req, res) => {
@@ -122,7 +119,6 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // READ by Business ID - Cải thiện xử lý lỗi
 router.get('/business/:businessId', async (req, res) => {
@@ -321,33 +317,27 @@ router.get('/business/:businessId', async (req, res) => {
 });
 
 // UPDATE
-router.put('/:id', async (req, res) => {
+router.put('/:idTest', async (req, res) => {
   try {
     const { idTest, idCourse, content, questions } = req.body;
 
-    // Kiểm tra thông tin đầu vào
-    if (!idTest || !idCourse || !content || !Array.isArray(questions) || questions.length === 0) {
-      return res.status(400).json({ error: 'Thiếu thông tin bài test hoặc câu hỏi không hợp lệ' });
+    if (!idCourse || !content || !Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({ error: 'Thiếu content, course hoặc danh sách câu hỏi rỗng' });
     }
 
-    // Kiểm tra bài kiểm tra đã tồn tại chưa
-    const test = await Test.findById(req.params.id);
-    if (!test) {
-      return res.status(404).json({ error: 'Bài kiểm tra không tìm thấy' });
+    const existingTest = await Test.findOne({ idTest });
+    if (!existingTest) {
+      return res.status(404).json({ error: `Không tìm thấy bài test với idTest "${idTest}"` });
     }
 
-    // Cập nhật bài kiểm tra
-    test.idTest = idTest;
-    test.idCourse = idCourse;
-    test.content = content;
+    // Cập nhật nội dung bài test
+    existingTest.idCourse = idCourse;
+    existingTest.content = content;
+    await existingTest.save();
 
-    // Lưu bài kiểm tra đã cập nhật
-    await test.save();
+    const updatedQuestionIds = [];
 
-    // Cập nhật các câu hỏi liên quan
-    const updatedQuestions = [];
     for (const q of questions) {
-      // Kiểm tra từng câu hỏi
       if (!q.idQuestion || !q.question || !Array.isArray(q.options) || q.options.length < 2) {
         return res.status(400).json({ error: `Câu hỏi không hợp lệ: ${q.question || 'Chưa có nội dung'}` });
       }
@@ -362,32 +352,55 @@ router.put('/:id', async (req, res) => {
         });
       }
 
-      const updatedQuestion = await Question.findOneAndUpdate(
-        { idQuestion: q.idQuestion, idTest: req.params.id },
-        {
+      // Kiểm tra xem câu hỏi đã tồn tại chưa
+      let questionDoc = await Question.findOne({ idQuestion: q.idQuestion, idTest: existingTest._id });
+
+      if (questionDoc) {
+        // Cập nhật câu hỏi
+        questionDoc.question = q.question;
+        questionDoc.options = q.options;
+        questionDoc.correctAnswerIndex = q.correctAnswerIndex;
+        questionDoc.answer = q.options[q.correctAnswerIndex];
+        await questionDoc.save();
+      } else {
+        // Tạo mới câu hỏi
+        questionDoc = new Question({
+          idQuestion: q.idQuestion,
+          idTest: existingTest._id,
           question: q.question,
           options: q.options,
           correctAnswerIndex: q.correctAnswerIndex,
           answer: q.options[q.correctAnswerIndex],
-        },
-        { new: true }
-      );
+        });
+        await questionDoc.save();
+      }
 
-      updatedQuestions.push(updatedQuestion);
+      updatedQuestionIds.push(questionDoc._id);
     }
 
-    res.json({
-      message: 'Cập nhật bài kiểm tra và các câu hỏi thành công!',
-      test: test,
-      questions: updatedQuestions.map(q => ({ ...q.toObject(), _id: q._id })),
+    // (Tùy chọn) Xoá các câu hỏi không còn tồn tại trong danh sách
+    await Question.deleteMany({
+      idTest: existingTest._id,
+      _id: { $nin: updatedQuestionIds },
     });
+
+    // Cập nhật lại danh sách idQuestion trong bài test
+    existingTest.idQuestion = updatedQuestionIds;
+    await existingTest.save();
+
+    const updatedQuestions = await Question.find({ _id: { $in: updatedQuestionIds } });
+
+    return res.status(200).json({
+      message: 'Cập nhật bài test và câu hỏi thành công',
+      test: existingTest,
+      questions: updatedQuestions,
+    });
+
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: err.message });
   }
 });
-
-
 
 // DELETE
 router.delete('/:id', async (req, res) => {
