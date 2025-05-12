@@ -34,6 +34,7 @@ export default function Rank() {
         const fetchStudentInfo = async (id) => {
             const response = await fetch(`http://localhost:5000/students/${id}`);
             if (!response.ok) throw new Error(`Student fetch error: ${response.status}`);
+
             return response.json();
         };
 
