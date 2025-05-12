@@ -29,6 +29,7 @@ export default function Rank() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    // const totalPages = Math.ceil(rows.length / rowsPerPage);
 
     useEffect(() => {
         const fetchStudentInfo = async (id) => {
@@ -72,7 +73,8 @@ export default function Rank() {
                     studentIds.map(async (id) => {
                         try {
                             const studentData = await fetchStudentInfo(id);
-                            return { id, name: studentData.name || 'Unknown' };
+                            console.log(studentData)
+                            return { id, name: studentData.userId.userName || 'Unknown' };
                         } catch (err) {
                             console.warn(`Could not fetch student ${id}`, err);
                             return { id, name: 'Unknown' };
@@ -155,6 +157,8 @@ export default function Rank() {
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
+    // console.log("page", page, " rowsPerPage", rowsPerPage);
+
     return (
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
             <TableContainer sx={{ maxHeight: 440 }}>
@@ -226,7 +230,22 @@ export default function Rank() {
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
+                // Hiển thị số trang
+                // labelDisplayedRows={({ page }) =>
+                //     `Page ${page + 1} of ${Math.ceil(rows.length / rowsPerPage)}`
+                // }
+                // Hiển thị đầy đủ: từ phần tử nào đến phần tử nào, tổng sl là bao nhiêu, số trang
+                labelDisplayedRows={({ from, to, count, page }) =>
+                    `${from}–${to} of ${count} (Page ${page + 1} of ${Math.ceil(count / rowsPerPage)})`
+                }
             />
+            {/* <Typography
+                variant="body2"
+                align="center"
+                sx={{ mt: 1 }}
+            >
+                Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
+            </Typography> */}
         </Paper>
     );
 }

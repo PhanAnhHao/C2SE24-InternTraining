@@ -245,9 +245,15 @@ const ManageStudentTest = () => {
 
     const handleAnswerChange = (qIndex, aIndex, value) => {
         const updatedQuestions = [...questions];
-        updatedQuestions[qIndex].options[aIndex] = value;  // Cập nhật đáp án
-        setQuestions(updatedQuestions);  // Cập nhật lại state
+        const updatedOptions = [...updatedQuestions[qIndex].options];  // Tạo bản sao options
+        updatedOptions[aIndex] = value;
+        updatedQuestions[qIndex] = {
+            ...updatedQuestions[qIndex],
+            options: updatedOptions,  // Gán options mới vào câu hỏi
+        };
+        setQuestions(updatedQuestions);
     };
+
 
     const addAnswer = (qIndex) => {
         // Tạo một bản sao của mảng questions
@@ -345,6 +351,7 @@ const ManageStudentTest = () => {
                 if (updateTest.fulfilled.match(resultAction)) {
                     toast.success("Cập nhật bài kiểm tra thành công!");
                     dispatch(getAllTests());  // Lấy lại danh sách bài kiểm tra
+                    setShowForm(false);
                 } else {
                     toast.error(resultAction.payload || "Cập nhật thất bại!");
                 }
@@ -355,6 +362,7 @@ const ManageStudentTest = () => {
                 if (createTest.fulfilled.match(resultAction)) {
                     toast.success("Tạo bài kiểm tra thành công!");
                     dispatch(getAllTests());  // Lấy lại danh sách bài kiểm tra mới
+                    setShowForm(false);
                 } else {
                     toast.error(resultAction.payload || "Tạo thất bại!");
                 }
