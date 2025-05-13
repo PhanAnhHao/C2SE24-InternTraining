@@ -6,12 +6,56 @@ const mongoose = require('mongoose');
 const authMiddleware = require('../middlewares/authMiddleware');
 const multer = require('multer');
 const { bucket } = require('../configs/firebase');
-const upload = multer({ storage: multer.memoryStorage() });
 const path = require('path');
 const fs = require('fs');
 
+// Configure multer with file filter for images
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    // Check if the file is an image
+    if (file.mimetype.startsWith('image/')) {
+      // Accept only common image formats
+      if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/gif' ||
+        file.mimetype === 'image/webp' ||
+        file.mimetype === 'image/svg+xml'
+      ) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only JPG, PNG, GIF, WebP, and SVG image formats are allowed'), false);
+      }
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max file size
+  }
+});
+
+// Custom middleware with error handling for image uploads
+const imageUploadMiddleware = (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ 
+        error: 'File upload error', 
+        details: err.message 
+      });
+    } else if (err) {
+      return res.status(400).json({ 
+        error: 'Invalid file', 
+        details: err.message 
+      });
+    }
+    next();
+  });
+};
+
 // CREATE - Post a new blog with image upload
-router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
+router.post('/', authMiddleware, imageUploadMiddleware, async (req, res) => {
   try {
     const { title, content, tags, status } = req.body;
     
@@ -43,15 +87,21 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
       userId: user._id,
       image: 'default-blog-image.jpg' // Default image that will be replaced if there's an upload
     });
-    
-    // Handle image upload if provided
+      // Handle image upload if provided
     if (req.file) {
       try {
         const file = req.file;
         const filename = `blogs/${newBlog._id}_${Date.now()}_${file.originalname}`;
         const blob = bucket.file(filename);
         const blobStream = blob.createWriteStream({
-          metadata: { contentType: file.mimetype }
+          metadata: { 
+            contentType: file.mimetype,
+            metadata: {
+              fileType: file.mimetype.split('/')[1], // Extract format (jpeg, png, etc.)
+              blogId: newBlog._id.toString(),
+              userId: user._id.toString()
+            }
+          }
         });
         
         // Return a promise that resolves when the upload is complete
@@ -184,7 +234,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // UPDATE - Update a blog with image upload (auth required)
-router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
+router.put('/:id', authMiddleware, imageUploadMiddleware, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: 'Invalid blog ID' });
@@ -217,15 +267,22 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
         req.body.tags = processedTags;
       }
     }
-    
-    // Handle image upload if provided
+      // Handle image upload if provided
     if (req.file) {
       try {
         const file = req.file;
         const filename = `blogs/${blog._id}_${Date.now()}_${file.originalname}`;
         const blob = bucket.file(filename);
         const blobStream = blob.createWriteStream({
-          metadata: { contentType: file.mimetype }
+          metadata: { 
+            contentType: file.mimetype,
+            metadata: {
+              fileType: file.mimetype.split('/')[1], // Extract format (jpeg, png, etc.)
+              blogId: blog._id.toString(),
+              userId: user._id.toString(),
+              operation: 'update'
+            }
+          }
         });
         
         // Return a promise that resolves when the upload is complete
@@ -270,8 +327,8 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
   }
 });
 
-// UPDATE BLOG IMAGE ONLY - Update just the blog's image (auth required)
-router.put('/:id/update-image', authMiddleware, upload.single('image'), async (req, res) => {
+// UPDATE BLOG IMAGE ENDPOINT - Used for updating just the image
+router.put('/:id/update-image', authMiddleware, imageUploadMiddleware, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: 'Invalid blog ID' });
@@ -305,7 +362,14 @@ router.put('/:id/update-image', authMiddleware, upload.single('image'), async (r
     const filename = `blogs/${blog._id}_${Date.now()}_${file.originalname}`;
     const blob = bucket.file(filename);
     const blobStream = blob.createWriteStream({
-      metadata: { contentType: file.mimetype }
+      metadata: { 
+        contentType: file.mimetype,
+        metadata: {
+          fileType: file.mimetype.split('/')[1], // Extract format (jpeg, png, etc.)
+          blogId: blog._id.toString(),
+          userId: user._id.toString()
+        }
+      }
     });
     
     // Return a promise that resolves when the upload is complete

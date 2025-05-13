@@ -17,10 +17,14 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: true
-  },
-  avatar: {
+  },  avatar: {
     type: String,
     default: 'default-avatar.jpg'
+  },
+  cv: {
+    type: Object,
+    default: null,
+    // Will contain: {url, fileName, fileType, uploadDate}
   },
   idAccount: {
     type: mongoose.Schema.Types.ObjectId,

@@ -18,6 +18,7 @@ const ratingRouter = require('./routes/ratingRouter'); // New router for Rating
 const blogRouter = require('./routes/blogRouter'); // New router for Blog
 const viewRequestRouter = require('./routes/viewRequestRouter');
 const studentLessonProgressRouter = require('./routes/studentLessonProgressRouter'); // New router for tracking student lesson progress
+const userRoutes = require('./routes/userRoutes'); // User routes for CV uploads
 const cors = require("cors");
 require('dotenv').config();
 
@@ -30,7 +31,9 @@ app.use(cors({
 
 // Upload image
 const uploadRoute = require("./routes/upload.route");
+const cvUploadRoute = require("./routes/cvUpload.route");
 app.use("/api", uploadRoute);
+app.use("/api", cvUploadRoute);
 
 // Create uploads directory if it doesn't exist
 const fs = require('fs');
@@ -64,6 +67,8 @@ app.use('/ratings', ratingRouter);
 app.use('/blogs', blogRouter); // Add the blog routes
 app.use('/api/view-requests', viewRequestRouter);
 app.use('/progress', studentLessonProgressRouter); // Add the student lesson progress routes
+app.use('/users', userRoutes); // Add user routes for CV operations
+
 // Chạy server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

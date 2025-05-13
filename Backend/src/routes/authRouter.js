@@ -8,7 +8,33 @@ const Student = require('../models/Student'); // Added Student model
 const crypto = require('crypto'); // For generating random student ID
 const multer = require('multer');
 const { bucket } = require('../configs/firebase');
-const upload = multer({ storage: multer.memoryStorage() });
+
+// Configure multer with file filter for images
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    // Check if the file is an image
+    if (file.mimetype.startsWith('image/')) {
+      // Accept only common image formats
+      if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/gif' ||
+        file.mimetype === 'image/webp' ||
+        file.mimetype === 'image/svg+xml'
+      ) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only JPG, PNG, GIF, WebP, and SVG image formats are allowed'), false);
+      }
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max file size
+  }
+});
 
 const router = express.Router();
 
@@ -58,17 +84,17 @@ router.post('/register', async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    // Generate a random student ID (e.g., "S_" followed by 6 random hex chars)
+    // Generate a random student ID
     const randomId = crypto.randomBytes(3).toString('hex').toUpperCase();
     const studentId = `S_${randomId}`;
 
     // Create a Student record with default values if not provided
     const newStudent = new Student({
       idStudent: studentId,
-      age: age || 18, // Default age if not provided
-      school: school || 'Unknown', // Default school if not provided
+      age: age || 18,
+      school: school || 'Unknown',
       course: course ? (Array.isArray(course) ? course : [course]) : ['IT'], // Ensure course is an array
-      englishSkill: englishSkill || 'Intermediate', // Default English skill if not provided
+      englishSkill: englishSkill || 'Intermediate',
       userId: savedUser._id
     });
 
@@ -256,8 +282,29 @@ router.put('/edit-me', authMiddleware, async (req, res) => {
   }
 });
 
+// Update user avatar - with file type validation middleware
+const updateAvatarUpload = (req, res, next) => {
+  upload.single('avatar')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      // A Multer error occurred when uploading (file size, etc.)
+      return res.status(400).json({ 
+        error: 'File upload error', 
+        details: err.message 
+      });
+    } else if (err) {
+      // File type validation error or other error
+      return res.status(400).json({ 
+        error: 'Invalid file', 
+        details: err.message 
+      });
+    }
+    // No errors, proceed
+    next();
+  });
+};
+
 // Update user avatar
-router.put('/update-avatar', authMiddleware, upload.single('avatar'), async (req, res) => {
+router.put('/update-avatar', authMiddleware, updateAvatarUpload, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No avatar file uploaded' });
@@ -275,7 +322,13 @@ router.put('/update-avatar', authMiddleware, upload.single('avatar'), async (req
     const filename = `avatars/${user._id}_${Date.now()}_${file.originalname}`;
     const blob = bucket.file(filename);
     const blobStream = blob.createWriteStream({
-      metadata: { contentType: file.mimetype }
+      metadata: { 
+        contentType: file.mimetype,
+        metadata: {
+          fileType: file.mimetype.split('/')[1], // Extract format (jpeg, png, etc.)
+          userId: user._id.toString()
+        }
+      }
     });
 
     // Handle errors during upload
