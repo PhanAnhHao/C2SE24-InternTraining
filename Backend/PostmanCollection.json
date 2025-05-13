@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "YOUR_COLLECTION_ID",
-		"name": "Backend Project API (Updated)",
+		"name": "Backend Project API (Final)",
 		"description": "API collection for the Node.js backend project, including CRUD operations.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -2597,8 +2597,7 @@
 								"update-avatar"
 							]
 						},
-						"description": "Update the current user's profile avatar image. Upload will be stored in Firebase Storage and the URL will be saved to the user profile. Authentication required."
-					},
+						"description": "Update the current user's profile avatar image. Upload will be stored in Firebase Storage and the URL will be saved to the user profile. Authentication required."					},
 					"response": []
 				},
 				{
@@ -2638,6 +2637,122 @@
 							]
 						},
 						"description": "Update only the image of a blog post. This dedicated endpoint is optimized for image uploads. Authentication required and only the blog author can update the image."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload CV Document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "",
+									"description": "PDF or DOCX file only (max 5MB)"
+								},
+								{
+									"key": "studentId",
+									"value": "{{studentId}}",
+									"type": "text",
+									"description": "ID of the student uploading the CV"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/upload-cv",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"upload-cv"
+							]
+						},
+						"description": "Upload student CV document (.pdf or .docx) to Firebase storage. Returns a signed URL and metadata for the document."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User CV Info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "",
+									"description": "PDF or DOCX file only (max 5MB)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/update-cv",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"update-cv"
+							]
+						},
+						"description": "Update authenticated user's CV with a new document file. Authentication required."
+					},
+					"response": []
+				},
+				{
+					"name": "Direct CV Upload",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "",
+									"description": "PDF or DOCX file only (max 5MB)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/upload-cv",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"upload-cv"
+							]
+						},
+						"description": "Upload and update authenticated user's CV document in a single request. Authentication required."
 					},
 					"response": []
 				}

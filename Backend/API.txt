@@ -595,7 +595,54 @@
     * Purpose: Get popular tags sorted by usage count
 
 ---
-**15. View Requests**
+**15. File Uploads**
+---
+
+* **POST /api/upload**
+    * Purpose: Upload an image to Firebase Storage
+    * Body (form-data):
+        ```
+        image: [file upload]
+        ```
+    * Response:
+        ```json
+        {
+          "imageUrl": "https://storage.googleapis.com/your-bucket/images/1620000000000_image.jpg"
+        }
+        ```
+
+* **POST /api/upload-cv**
+    * Purpose: Upload a CV document (.pdf or .docx) to Firebase Storage
+    * Body (form-data):
+        ```
+        document: [file upload - PDF/DOCX only, max 5MB]
+        studentId: "student-id" (optional metadata)
+        ```
+    * Response:
+        ```json
+        {
+          "documentUrl": "https://storage.googleapis.com/your-bucket/cv_documents/1620000000000_resume.pdf",
+          "fileName": "resume.pdf",
+          "fileType": "application/pdf",
+          "uploadDate": "2023-05-13T10:30:00.000Z"
+        }
+        ```
+
+* **PUT /users/:id/cv**
+    * Purpose: Update user profile with CV document information
+    * Body (JSON):
+        ```json
+        {
+          "documentUrl": "https://storage.googleapis.com/your-bucket/cv_documents/1620000000000_resume.pdf",
+          "fileName": "resume.pdf",
+          "fileType": "application/pdf",
+          "uploadDate": "2023-05-13T10:30:00.000Z"
+        }
+        ```
+    * Response: Updated user object with CV information
+
+---
+**16. View Requests**
 ---
 
 * **POST /api/view-requests/request**
