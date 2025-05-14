@@ -10,13 +10,13 @@ import {
     FaQuestionCircle,
     FaUserGraduate,
     FaBuilding,
-
 } from "react-icons/fa";
 
 const Sidebar = () => {
     const navigate = useNavigate();
     const [activeItem, setActiveItem] = useState("Dashboard");
 
+    // Danh sách menu gốc
     const menuItems = [
         { name: "Dashboard", icon: <FaHome />, path: "/dashboard" },
         { name: "Manage account", icon: <FaUsers />, path: "/dashboard/accounts" },
@@ -25,6 +25,12 @@ const Sidebar = () => {
         { name: "Manage Online Learning", icon: <FaChalkboardTeacher />, path: "/dashboard/online-learning" },
         { name: "Manage Review Rating", icon: <FaStar />, path: "/dashboard/reviews" },
     ];
+
+    // Kiểm tra role trong localStorage và lọc menuItems
+    const role = localStorage.getItem('role');
+    const filteredMenuItems = role === "Business"
+        ? menuItems.filter(item => item.name !== "Manage account")
+        : menuItems;
 
     const handleNavigation = (path, name) => {
         setActiveItem(name);
@@ -45,7 +51,7 @@ const Sidebar = () => {
                 {/* Navigation */}
                 <nav className="mt-5">
                     <ul>
-                        {menuItems.map((item) => (
+                        {filteredMenuItems.map((item) => (
                             <li
                                 key={item.name}
                                 className={`flex items-center p-3 mt-2 rounded-lg cursor-pointer transition 

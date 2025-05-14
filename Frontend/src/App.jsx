@@ -30,6 +30,7 @@ import YourCourse from "./component/YourCourse/YourCourse.jsx";
 import AccessStudentProfile from "./component/RequestProfile/AccessStudentProfile.jsx";
 import MyBlog from "./component/Profile/MyBlog.jsx";
 import UpdateBlog from "./component/BlogPage/UpdateBlog/UpdateBlog.jsx";
+import UpdateCoursePage from "./pages/UpdateCoursePage.jsx";
 
 const NotFound = () => {
   return (
@@ -78,6 +79,7 @@ function App() {
             <Route path="/dashboard/reviews" element={<ManageReviews />} />
           </Route>
           <Route path="/dashboard/courses/create-course" element={<CreateCoursePage />} />
+          <Route path="/dashboard/courses/:courseId/edit" element={<UpdateCoursePage />} />
 
           <Route path="/request-profile" element={<RequestProfile />} />
           <Route path="/business/view-student/:token" element={<RequestProfile />} />

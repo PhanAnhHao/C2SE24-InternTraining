@@ -47,7 +47,7 @@ const CourseForm = ({ lessons }) => {
             newErrors.lessons = "At least one lesson is required to create a course.";
         }
 
-        const businessId = localStorage.getItem('userId');
+        const businessId = localStorage.getItem('businessId');
         if (!businessId) {
             newErrors.businessId = "Business ID is required. Please log in.";
         }

@@ -2,214 +2,170 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaClipboardList } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "notistack";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const ManageCourse = () => {
     const [courses, setCourses] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [editingId, setEditingId] = useState(null);
-    const [editForm, setEditForm] = useState({});
     const coursesPerPage = 10;
     const navigate = useNavigate();
+    const { enqueueSnackbar } = useSnackbar();
 
+    // Fetch courses
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/courses");
-                const sortedData = res.data.sort((a, b) => {
+                const role = localStorage.getItem('role');
+                let url = "http://localhost:5000/courses";
+
+                // Nếu role là Business, lấy businessId và thêm vào query
+                if (role === "Business") {
+                    const businessId = localStorage.getItem('businessId');
+                    if (!businessId) {
+                        enqueueSnackbar("Business ID not found. Please log in again.", { variant: "error" });
+                        return;
+                    }
+                    url = `http://localhost:5000/courses/business/${businessId}`;
+                }
+
+                const response = await axios.get(url);
+                let courseData = [];
+
+                // Chuẩn hóa dữ liệu: lấy mảng khóa học từ API
+                if (role === "Business") {
+                    courseData = response.data.courses || [];
+                } else {
+                    courseData = response.data || [];
+                }
+
+                // Sắp xếp dữ liệu
+                const sortedData = courseData.sort((a, b) => {
                     const numA = parseInt(a.idCourse.replace(/\D/g, ""));
                     const numB = parseInt(b.idCourse.replace(/\D/g, ""));
                     return numA - numB;
                 });
+
                 setCourses(sortedData);
-            } catch (err) {
-                console.error("Error fetching courses:", err);
+            } catch (error) {
+                enqueueSnackbar("Failed to fetch courses.", { variant: "error" });
             }
         };
         fetchCourses();
-    }, []);
+    }, [enqueueSnackbar]);
 
+    // Pagination calculations
     const totalPages = Math.ceil(courses.length / coursesPerPage);
     const indexOfLastCourse = currentPage * coursesPerPage;
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
     const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
+    // Handle delete course
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this course?")) {
             try {
                 await axios.delete(`http://localhost:5000/courses/${id}`);
-                setCourses(prev => prev.filter(course => course._id !== id));
+                setCourses((prev) => prev.filter((course) => course._id !== id));
+                enqueueSnackbar("Course deleted successfully!", { variant: "success" });
             } catch (error) {
-                console.error("Delete failed:", error);
+                enqueueSnackbar("Failed to delete course. Please try again.", { variant: "error" });
             }
         }
     };
 
-    const handleEditClick = (course) => {
-        setEditingId(course._id);
-        setEditForm({ ...course });
-    };
-
-    const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        setEditForm(prev => ({ ...prev, [name]: value }));
-    };
-
-    const validateEditForm = () => {
-        const { idCourse, info, languageID, rating } = editForm;
-        if (!idCourse || !info || !languageID || !rating) {
-            alert("Please fill in all fields.");
-            return false;
-        }
-        return true;
-    };
-
-    const handleEditSubmit = async () => {
-        if (!validateEditForm()) return;
-        try {
-            await axios.put(`http://localhost:5000/courses/${editingId}`, editForm);
-            setCourses(prev =>
-                prev.map(course => (course._id === editingId ? { ...editForm, _id: editingId } : course))
-            );
-            setEditingId(null);
-        } catch (error) {
-            console.error("Update failed:", error);
-        }
+    // Handle update button click
+    const handleUpdateClick = (courseId) => {
+        navigate(`/dashboard/courses/${courseId}/edit`);
     };
 
     return (
-        <div className="flex">
-            <div className="flex-1">
-                <div className="flex justify-between">
-
-                <h1 className="text-2xl font-bold text-gray-700 flex items-center">
-                    <FaClipboardList className="text-[#4FD1C5] mr-2" /> Manage Courses
-                </h1>
-                <button
-                    onClick={() => navigate("/dashboard/courses/create-course")}
-                    className="px-4 py-2 bg-[#4FD1C5] text-white rounded hover:bg-teal-500 transition"
-                >
-                    + Add New Course
-                </button>
+        <div className="flex flex-1 p-6">
+            <div className="w-full">
+                {/* Title and Add Course button */}
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-2xl font-bold text-gray-700 flex items-center">
+                        <FaClipboardList className="text-[#4FD1C5] mr-2" />
+                        Manage Courses
+                    </h1>
+                    <button
+                        onClick={() => navigate("/dashboard/courses/create-course")}
+                        className="px-4 py-2 bg-[#4FD1C5] text-white rounded-lg hover:bg-teal-600 transition"
+                    >
+                        + Add New Course
+                    </button>
                 </div>
-                <div className="mt-6 overflow-x-auto">
-                    <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+
+                {/* Courses table */}
+                <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+                    <table className="min-w-full">
                         <thead className="bg-[#4FD1C5] text-white">
                         <tr>
-                            <th className="py-3 px-4 text-left">Course ID</th>
-                            <th className="py-3 px-4 text-left">Infor</th>
-                            <th className="py-3 px-4 text-left">Language ID</th>
-                            <th className="py-3 px-4 text-left">Rating</th>
-                            <th className="py-3 px-4 text-left">Actions</th>
+                            <th className="py-3 px-4 text-left font-semibold">No.</th>
+                            <th className="py-3 px-4 text-left font-semibold">Description</th>
+                            <th className="py-3 px-4 text-left font-semibold">Language</th>
+                            <th className="py-3 px-4 text-left font-semibold">Actions</th>
                         </tr>
                         </thead>
                         <tbody>
                         {currentCourses.map((course, index) => (
-                            <tr key={course._id} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                            <tr
+                                key={course._id}
+                                className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                            >
+                                <td className="py-3 px-4">{indexOfFirstCourse + index + 1}</td>
+                                <td className="py-3 px-4">{course.infor}</td>
                                 <td className="py-3 px-4">
-                                    {editingId === course._id ? (
-                                        <input
-                                            name="idCourse"
-                                            value={editForm.idCourse}
-                                            onChange={handleEditChange}
-                                            className="border p-1 rounded w-full"
-                                        />
-                                    ) : (
-                                        course.idCourse
-                                    )}
-                                </td>
-                                <td className="py-3 px-4">
-                                    {editingId === course._id ? (
-                                        <input
-                                            name="infor"
-                                            value={editForm.info}
-                                            onChange={handleEditChange}
-                                            className="border p-1 rounded w-full"
-                                        />
-                                    ) : (
-                                        course.info
-                                    )}
-                                </td>
-                                <td className="py-3 px-4">
-                                    {editingId === course._id ? (
-                                        <input
-                                            name="languageID"
-                                            value={editForm.languageID?.name || ""}
-                                            onChange={handleEditChange}
-                                            className="border p-1 rounded w-full"
-                                        />
-                                    ) : (
-                                        course.languageID.name
-                                    )}
-                                </td>
-                                <td className="py-3 px-4">
-                                    {editingId === course._id ? (
-                                        <input
-                                            name="rating"
-                                            value={editForm.rating}
-                                            onChange={handleEditChange}
-                                            className="border p-1 rounded w-full"
-                                        />
-                                    ) : (
-                                        course.rating
-                                    )}
+                                    {typeof course.languageID === "string"
+                                        ? course.languageID
+                                        : (course.languageID?.name || "N/A")}
                                 </td>
                                 <td className="py-3 px-4 space-x-2">
-                                    {editingId === course._id ? (
-                                        <>
-                                            <button
-                                                className="bg-green-500 text-white px-3 py-1 rounded"
-                                                onClick={handleEditSubmit}
-                                            >
-                                                Save
-                                            </button>
-                                            <button
-                                                className="bg-gray-400 text-white px-3 py-1 rounded"
-                                                onClick={() => setEditingId(null)}
-                                            >
-                                                Cancel
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <button
-                                                className="bg-blue-500 text-white px-3 py-1 rounded"
-                                                onClick={() => handleEditClick(course)}
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                className="bg-red-500 text-white px-3 py-1 rounded"
-                                                onClick={() => handleDelete(course._id)}
-                                            >
-                                                Delete
-                                            </button>
-                                        </>
-                                    )}
+                                    <button
+                                        onClick={() => handleUpdateClick(course._id)}
+                                        className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                                        title="Edit"
+                                    >
+                                        <FontAwesomeIcon icon={faEdit} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(course._id)}
+                                        className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                                        title="Delete"
+                                    >
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </button>
                                 </td>
                             </tr>
                         ))}
                         </tbody>
                     </table>
                 </div>
-                <div className="flex justify-center mt-4">
+
+                {/* Pagination */}
+                <div className="flex justify-center mt-6 space-x-2">
                     <button
-                        className={`px-4 py-2 mx-1 rounded ${
-                            currentPage === 1 ? "bg-gray-300" : "bg-[#4FD1C5] text-white"
-                        }`}
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
+                        className={`px-4 py-2 rounded-lg ${
+                            currentPage === 1
+                                ? "bg-gray-300 cursor-not-allowed"
+                                : "bg-[#4FD1C5] text-white hover:bg-teal-600"
+                        }`}
                     >
-                        Prev
+                        Previous
                     </button>
-                    <span className="px-4 py-2 bg-gray-200 rounded">
-                        Page {currentPage} of {totalPages}
+                    <span className="px-4 py-2 bg-gray-200 rounded-lg">
+                        Page {currentPage} / {totalPages}
                     </span>
                     <button
-                        className={`px-4 py-2 mx-1 rounded ${
-                            currentPage === totalPages ? "bg-gray-300" : "bg-[#4FD1C5] text-white"
-                        }`}
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
+                        className={`px-4 py-2 rounded-lg ${
+                            currentPage === totalPages
+                                ? "bg-gray-300 cursor-not-allowed"
+                                : "bg-[#4FD1C5] text-white hover:bg-teal-600"
+                        }`}
                     >
                         Next
                     </button>
