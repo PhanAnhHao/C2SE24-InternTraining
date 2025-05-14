@@ -19,9 +19,9 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
         const lessonWithColor = {
             ...newLesson,
             name: newLesson.name || newLesson.idLesson || `Lesson ${lessons.length + 1}`, // Đảm bảo name luôn có
-            color: colors[newColorIndex]
+            color: colors[newColorIndex],
         };
-        onAddLesson(lessonWithColor);
+        onAddLesson(lessonWithColor); // Gọi onAddLesson để xử lý ngay lập tức
         setShowAddLessonForm(false);
     };
 
@@ -57,7 +57,7 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
             {normalizedLessons.length > 0 ? (
                 normalizedLessons.map((lesson, idx) => (
                     <LessonItem
-                        key={idx}
+                        key={lesson._id || lesson.idLesson || idx} // Sử dụng _id hoặc idLesson làm key
                         lessonName={lesson.name} // Chỉ truyền name đã được ánh xạ
                         color={lesson.color}
                         onEdit={() => handleEditLesson(idx)}
@@ -86,10 +86,11 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
                         <CreateLessonForm
                             onSubmit={(lesson) => {
                                 if (editingLesson) {
+                                    // Khi chỉnh sửa, giữ lại color cũ và gọi onAddLesson để xử lý cập nhật
                                     const updatedLesson = { ...lesson, color: editingLesson.lesson.color };
-                                    onEditLesson(editingLesson.index, updatedLesson);
+                                    onAddLesson(updatedLesson); // Gọi onAddLesson để xử lý cả thêm mới và chỉnh sửa
                                 } else {
-                                    handleAddLesson(lesson);
+                                    handleAddLesson(lesson); // Thêm mới
                                 }
                                 setShowAddLessonForm(false);
                             }}

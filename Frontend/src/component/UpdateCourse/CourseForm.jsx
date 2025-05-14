@@ -62,7 +62,7 @@ const CourseForm = ({ lessons, initialLessons, courseData, courseId }) => {
             newErrors.lessons = "Cần ít nhất một bài học để cập nhật khóa học.";
         }
 
-        const businessId = localStorage.getItem('userId');
+        const businessId = localStorage.getItem('businessId');
         if (!businessId) {
             newErrors.businessId = "Cần ID doanh nghiệp. Vui lòng đăng nhập.";
         }
@@ -82,21 +82,6 @@ const CourseForm = ({ lessons, initialLessons, courseData, courseId }) => {
         try {
             const businessId = localStorage.getItem('businessId');
 
-            // Xác định các lesson đã bị xóa
-            const deletedLessons = initialLessons.filter(
-                initialLesson => !lessons.some(lesson => lesson._id === initialLesson._id)
-            );
-
-            // Gửi yêu cầu DELETE cho các lesson đã bị xóa
-            const deletePromises = deletedLessons.map(async (lesson) => {
-                if (lesson._id) {
-                    return axios.delete(`http://localhost:5000/lessons/${lesson._id}`);
-                }
-                return Promise.resolve(); // Bỏ qua nếu không có _id
-            });
-
-            await Promise.all(deletePromises);
-
             // Cập nhật khóa học
             const courseDataUpdate = {
                 name,
@@ -107,28 +92,7 @@ const CourseForm = ({ lessons, initialLessons, courseData, courseId }) => {
 
             await axios.put(`http://localhost:5000/courses/${courseId}`, courseDataUpdate);
 
-            // Cập nhật hoặc tạo bài học
-            const lessonPromises = lessons.map(async (lesson) => {
-                const lessonData = {
-                    idLesson: lesson.idLesson,
-                    idCourse: courseId,
-                    name: lesson.name,
-                    content: lesson.content || "",
-                    linkVideo: lesson.linkVideo || "",
-                    status: lesson.status || "draft",
-
-                };
-
-                if (lesson._id) {
-                    return axios.put(`http://localhost:5000/lessons/${lesson._id}`, lessonData);
-                } else {
-                    return axios.post("http://localhost:5000/lessons", lessonData);
-                }
-            });
-
-            await Promise.all(lessonPromises);
-
-            enqueueSnackbar("Khóa học và bài học được cập nhật thành công!", { variant: "success" });
+            enqueueSnackbar("Khóa học được cập nhật thành công!", { variant: "success" });
             setErrors({});
         } catch (error) {
             const errorMessage = error.response?.data?.error || "Không thể cập nhật khóa học. Vui lòng thử lại.";

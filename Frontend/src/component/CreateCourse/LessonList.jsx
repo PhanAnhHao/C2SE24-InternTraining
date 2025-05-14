@@ -4,7 +4,7 @@ import LessonItem from './LessonItem';
 
 const colors = ["teal-300", "orange-200", "blue-100", "red-200"];
 
-const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, editingLesson, onCancelEdit,  onBack   }) => {
+const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, editingLesson, onCancelEdit, onBack }) => {
     const [showAddLessonForm, setShowAddLessonForm] = useState(false);
 
     const handleAddLesson = (newLesson) => {
@@ -35,10 +35,9 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
                     onClick={onBack}
                     className="mr-3 text-lg text-white px-6 rounded-lg bg-teal-400 hover:text-teal-600 flex items-center"
                 >
-                    <svg className="w-8 h-8 p-2  mr-1" fill="none" stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
+                    <svg className="w-8 h-8 p-2 mr-1" fill="none" stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
                     </svg>
-
                 </button>
                 <h2 className="text-lg font-bold">Lesson List</h2>
             </div>
@@ -46,6 +45,7 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
             {lessons.map((lesson, idx) => (
                 <LessonItem
                     key={idx}
+                    lessonName syndication
                     lessonName={lesson.name}
                     color={lesson.color || colors[idx % colors.length]}
                     onEdit={() => handleEditLesson(idx)}
@@ -72,12 +72,11 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
                     <div className="w-2/3 h-auto overflow-y-auto">
                         <CreateLessonForm
                             onSubmit={(lesson) => {
-                                if (editingLesson) {
-                                    const updatedLesson = {...lesson, color: editingLesson.lesson.color};
-                                    onEditLesson(editingLesson.index, updatedLesson);
-                                } else {
-                                    handleAddLesson(lesson);
-                                }
+                                // Use onAddLesson for both creating and editing
+                                const lessonWithColor = editingLesson
+                                    ? { ...lesson, color: editingLesson.lesson.color }
+                                    : { ...lesson, color: colors[lessons.length % colors.length] };
+                                onAddLesson(lessonWithColor);
                                 setShowAddLessonForm(false);
                             }}
                             onCancel={handleCancel}
