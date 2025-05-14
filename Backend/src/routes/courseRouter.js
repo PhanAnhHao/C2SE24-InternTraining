@@ -19,14 +19,30 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Invalid businessId format' });
     }
 
-    const businessExists = await mongoose.model('Business').findById(businessId);
+    // Get business with populated user data
+    const businessExists = await mongoose.model('Business')
+      .findById(businessId)
+      .populate('userId', 'userName email location phone avatar cv');
+      
     if (!businessExists) {
       return res.status(404).json({ error: 'Business not found' });
     }
 
     const newCourse = new Course({ idCourse, infor, languageID, businessId });
     await newCourse.save();
-    res.status(201).json(newCourse);
+
+    // Return the created course with business and user info
+    const courseWithBusiness = await Course.findById(newCourse._id)
+      .populate('languageID', 'languageId name')
+      .populate({
+        path: 'businessId',
+        populate: {
+          path: 'userId',
+          select: 'userName email location phone avatar cv'
+        }
+      });
+
+    res.status(201).json(courseWithBusiness);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -41,10 +57,16 @@ router.get('/', async (req, res) => {
     // Nếu có query parameter businessId thì thêm vào filter
     if (req.query.businessId) {
       filter.businessId = req.query.businessId;
-    }
-      const courses = await Course.find(filter)
+    }    const courses = await Course.find(filter)
       .populate('languageID', 'languageId name')
-      .populate('businessId', 'idBusiness type detail')
+      .populate({
+        path: 'businessId',
+        select: 'idBusiness type detail userId',
+        populate: {
+          path: 'userId',
+          select: 'userName email location phone avatar cv'
+        }
+      })
       .populate({
         path: 'ratings',
         populate: {
@@ -87,9 +109,16 @@ router.get('/:id', async (req, res) => {
   }
 
   try {
-    const { studentId } = req.query;
-      const course = await Course.findById(req.params.id)
+    const { studentId } = req.query;    const course = await Course.findById(req.params.id)
       .populate('languageID', 'languageId name')
+      .populate({
+        path: 'businessId',
+        select: 'idBusiness type detail userId',
+        populate: {
+          path: 'userId',
+          select: 'userName email location phone avatar cv'
+        }
+      })
       .populate({
         path: 'ratings',
         populate: {
@@ -187,10 +216,46 @@ router.put('/:id', async (req, res) => {
   try {
     // Remove rating from the request body since it's now virtual
     const { rating, ...updateData } = req.body;
-    
-    const updated = await Course.findByIdAndUpdate(req.params.id, updateData, { new: true });
+      const updated = await Course.findByIdAndUpdate(req.params.id, updateData, { new: true })
+      .populate('languageID', 'languageId name')
+      .populate({
+        path: 'businessId',
+        select: 'idBusiness type detail userId',
+        populate: {
+          path: 'userId',
+          select: 'userName email location phone avatar cv'
+        }
+      })
+      .populate({
+        path: 'ratings',
+        populate: {
+          path: 'studentId',
+          select: 'idStudent userId',
+          populate: {
+            path: 'userId',
+            select: 'userName'
+          }
+        }
+      });
+
     if (!updated) return res.status(404).json({ message: 'Course not found' });
-    res.json(updated);
+    
+    // Format response with ratings summary
+    const courseObj = updated.toObject();
+    let avgRating = 0;
+    
+    if (courseObj.ratings && courseObj.ratings.length > 0) {
+      const sum = courseObj.ratings.reduce((acc, rating) => acc + rating.stars, 0);
+      avgRating = parseFloat((sum / courseObj.ratings.length).toFixed(1));
+    }
+    
+    const formattedCourse = {
+      ...courseObj,
+      avgRating: avgRating,
+      ratingsCount: courseObj.ratings ? courseObj.ratings.length : 0
+    };
+    
+    res.json(formattedCourse);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -221,10 +286,16 @@ router.get('/business/:businessId', async (req, res) => {
     const business = await mongoose.model('Business').findById(businessId);
     if (!business) {
       return res.status(404).json({ error: 'Business not found' });
-    }
-      const courses = await Course.find({ businessId })
+    }    const courses = await Course.find({ businessId })
       .populate('languageID', 'languageId name')
-      .populate('businessId', 'idBusiness type detail')
+      .populate({
+        path: 'businessId',
+        select: 'idBusiness type detail userId',
+        populate: {
+          path: 'userId',
+          select: 'userName email location phone avatar cv'
+        }
+      })
       .populate({
         path: 'ratings',
         populate: {
