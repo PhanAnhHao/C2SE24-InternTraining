@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { getTestDataById } from "../../redux/slices/testSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const TestPage = () => {
     const navigate = useNavigate();
@@ -45,8 +47,21 @@ const TestPage = () => {
 
     const handleSave = () => {
         localStorage.setItem("answers", JSON.stringify(selectedAnswers));
-        alert("Answers saved!");
-        window.location.reload();
+        toast.success("Answers saved successfully! 📝", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+
+        });
+        setTimeout(() => {
+            window.location.reload();
+        }
+            , 2000);
     };
 
     // Chống gian lận
@@ -69,7 +84,7 @@ const TestPage = () => {
     const courseId = localStorage.getItem("courseId");
 
     const handleSubmit = async () => {
-        const confirmSubmit = window.confirm("📤 Bạn có chắc chắn muốn nộp bài không?");
+        const confirmSubmit = window.confirm("📤 Are you sure you want to submit?");
         if (!confirmSubmit) return;
         const correct = calculateScore();
         const total = singleTestData.questions.length;
@@ -102,6 +117,18 @@ const TestPage = () => {
 
     return (
         <div className="flex p-4 gap-4">
+            <ToastContainer
+                position="top-right"
+                autoClose={2000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss={false}
+                draggable
+                pauseOnHover={false}
+                theme="colored"
+            />
             {/* Sidebar */}
             <div className="w-1/5 border rounded-lg p-4 shadow">
                 <h2 className="text-lg font-bold mb-4">Answers Status</h2>
