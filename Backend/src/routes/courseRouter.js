@@ -42,11 +42,9 @@ router.get('/', async (req, res) => {
     if (req.query.businessId) {
       filter.businessId = req.query.businessId;
     }
-    
-    const courses = await Course.find(filter)
+      const courses = await Course.find(filter)
       .populate('languageID', 'languageId name')
       .populate('businessId', 'idBusiness type detail')
-      .populate('creator', 'userName')
       .populate({
         path: 'ratings',
         populate: {
@@ -90,10 +88,8 @@ router.get('/:id', async (req, res) => {
 
   try {
     const { studentId } = req.query;
-    
-    const course = await Course.findById(req.params.id)
+      const course = await Course.findById(req.params.id)
       .populate('languageID', 'languageId name')
-      .populate('creator', 'userName')
       .populate({
         path: 'ratings',
         populate: {
@@ -226,11 +222,9 @@ router.get('/business/:businessId', async (req, res) => {
     if (!business) {
       return res.status(404).json({ error: 'Business not found' });
     }
-    
-    const courses = await Course.find({ businessId })
+      const courses = await Course.find({ businessId })
       .populate('languageID', 'languageId name')
       .populate('businessId', 'idBusiness type detail')
-      .populate('creator', 'userName')
       .populate({
         path: 'ratings',
         populate: {

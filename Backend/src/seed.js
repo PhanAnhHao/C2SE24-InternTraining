@@ -87,11 +87,11 @@ async function seed() {
     ]);
 
     const courses = await Course.insertMany([
-      { _id: new ObjectId(), idCourse: 'C001', infor: 'Frontend programming with JavaScript', languageID: languages[0]._id, businessId: businesses[0]._id, creator: users[5]._id },
-      { _id: new ObjectId(), idCourse: 'C002', infor: 'Basic Python programming for AI', languageID: languages[1]._id, businessId: businesses[0]._id, creator: users[5]._id },
-      { _id: new ObjectId(), idCourse: 'C003', infor: 'OOP with Java', languageID: languages[2]._id, businessId: businesses[1]._id, creator: users[6]._id },
-      { _id: new ObjectId(), idCourse: 'C004', infor: 'Application development with C#', languageID: languages[3]._id, businessId: businesses[1]._id, creator: users[6]._id },
-      { _id: new ObjectId(), idCourse: 'C005', infor: 'Web design with HTML/CSS', languageID: languages[4]._id, businessId: businesses[0]._id, creator: users[5]._id },
+      { _id: new ObjectId(), idCourse: 'C001', infor: 'Frontend programming with JavaScript', languageID: languages[0]._id, businessId: businesses[0]._id },
+      { _id: new ObjectId(), idCourse: 'C002', infor: 'Basic Python programming for AI', languageID: languages[1]._id, businessId: businesses[0]._id },
+      { _id: new ObjectId(), idCourse: 'C003', infor: 'OOP with Java', languageID: languages[2]._id, businessId: businesses[1]._id },
+      { _id: new ObjectId(), idCourse: 'C004', infor: 'Application development with C#', languageID: languages[3]._id, businessId: businesses[1]._id },
+      { _id: new ObjectId(), idCourse: 'C005', infor: 'Web design with HTML/CSS', languageID: languages[4]._id, businessId: businesses[0]._id },
     ]);
 
     const testIds = Array.from({ length: 10 }, () => new ObjectId());
