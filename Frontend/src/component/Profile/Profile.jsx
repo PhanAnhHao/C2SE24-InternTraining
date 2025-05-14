@@ -140,6 +140,13 @@ const Profile = () => {
         }
 
         // Validate Address (optional)
+        if (!formData.location.trim()) {
+            toast.error("Please enter your address", {
+                position: "top-right",
+                theme: "colored"
+            });
+            return false;
+        }
         if (formData.location && formData.location.length > 200) {
             toast.error("Address cannot exceed 200 characters", {
                 position: "top-right",

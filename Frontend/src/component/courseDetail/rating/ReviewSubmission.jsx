@@ -20,7 +20,7 @@ const ReviewSubmission = ({ courseId, onReviewSubmit, existingRating }) => {
 
     const handleSubmitReview = async () => {
         if (userRating === 0 || !userReview.trim()) {
-            enqueueSnackbar('Vui lòng chọn số sao và nhập đánh giá!', { variant: 'warning' });
+            enqueueSnackbar('Please select stars and enter review!', { variant: 'warning' });
             return;
         }
 
@@ -30,7 +30,7 @@ const ReviewSubmission = ({ courseId, onReviewSubmit, existingRating }) => {
 
         // Check if user is logged in
         if (!studentId || !role) {
-            const confirmLogin = window.confirm('Bạn phải đăng nhập trước khi đánh giá!\n\nNhấn "Đăng nhập" để đăng nhập, hoặc "Hủy" để thoát.');
+            const confirmLogin = window.confirm('You must log in before rating!\n\nClick "Login" to log in, or "Cancel" to exit.');
             if (confirmLogin) {
                 window.location.href = '/login';
             }
@@ -39,7 +39,7 @@ const ReviewSubmission = ({ courseId, onReviewSubmit, existingRating }) => {
 
         // Check if role is Business
         if (role === 'Business') {
-            enqueueSnackbar('Bạn không thể đánh giá với role Business!', { variant: 'warning' });
+            enqueueSnackbar('You cannot rate with the Business role!', { variant: 'warning' });
             return;
         }
 
@@ -80,7 +80,7 @@ const ReviewSubmission = ({ courseId, onReviewSubmit, existingRating }) => {
             setUserRating(existingRating ? userRating : 0); // Reset only if creating new
             setUserReview(existingRating ? userReview : ''); // Reset only if creating new
             enqueueSnackbar(
-                existingRating ? 'Đánh giá của bạn đã được cập nhật!' : 'Đánh giá của bạn đã được gửi!',
+                existingRating ? 'Your review has been updated!' : 'Your review has been submitted!',
                 { variant: 'success' }
             );
         } catch (err) {
@@ -91,14 +91,13 @@ const ReviewSubmission = ({ courseId, onReviewSubmit, existingRating }) => {
 
     return (
         <div className="mt-6 border-t pt-4">
-            <h3 className="text-lg font-semibold mb-2">Gửi đánh giá của bạn</h3>
+            <h3 className="text-lg font-semibold mb-2">Submit your review</h3>
             <div className="flex items-center mb-4">
                 {[1, 2, 3, 4, 5].map((star) => (
                     <svg
                         key={star}
-                        className={`w-8 h-8 cursor-pointer ${
-                            star <= userRating ? 'text-yellow-400' : 'text-gray-300'
-                        }`}
+                        className={`w-8 h-8 cursor-pointer ${star <= userRating ? 'text-yellow-400' : 'text-gray-300'
+                            }`}
                         fill="currentColor"
                         viewBox="0 0 20 20"
                         onClick={() => handleStarClick(star)}
@@ -110,7 +109,7 @@ const ReviewSubmission = ({ courseId, onReviewSubmit, existingRating }) => {
             <textarea
                 className="w-full p-3 border rounded-lg bg-white mb-4"
                 rows="4"
-                placeholder="Nhập đánh giá của bạn..."
+                placeholder="Enter your review..."
                 value={userReview}
                 onChange={(e) => setUserReview(e.target.value)}
             />
@@ -119,7 +118,7 @@ const ReviewSubmission = ({ courseId, onReviewSubmit, existingRating }) => {
                     className="px-4 py-2 bg-[#49BBBD] text-white rounded-lg"
                     onClick={handleSubmitReview}
                 >
-                    {existingRating ? 'Cập nhật đánh giá' : 'Gửi đánh giá'}
+                    {existingRating ? 'Update review' : 'Submit review'}
                 </button>
             </div>
         </div>
