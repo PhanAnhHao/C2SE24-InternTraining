@@ -4,9 +4,58 @@ const Course = require('../models/Course');
 const Lesson = require('../models/Lesson');
 const StudentLessonProgress = require('../models/StudentLessonProgress');
 const mongoose = require('mongoose');
+const multer = require('multer');
+const { bucket } = require('../configs/firebase');
+const path = require('path');
+const fs = require('fs');
 
-// CREATE
-router.post('/', async (req, res) => {
+// Configure multer with file filter for images
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    // Check if the file is an image
+    if (file.mimetype.startsWith('image/')) {
+      // Accept only common image formats
+      if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/gif' ||
+        file.mimetype === 'image/webp' ||
+        file.mimetype === 'image/svg+xml'
+      ) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only JPG, PNG, GIF, WebP, and SVG image formats are allowed'), false);
+      }
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max file size
+  }
+});
+
+// Custom middleware with error handling for image uploads
+const imageUploadMiddleware = (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ 
+        error: 'File upload error', 
+        details: err.message 
+      });
+    } else if (err) {
+      return res.status(400).json({ 
+        error: 'Invalid file', 
+        details: err.message 
+      });
+    }
+    next();
+  });
+};
+
+// CREATE with optional image upload
+router.post('/', imageUploadMiddleware, async (req, res) => {
   try {
     const { idCourse, infor, languageID, businessId } = req.body;
 
@@ -28,8 +77,61 @@ router.post('/', async (req, res) => {
       return res.status(404).json({ error: 'Business not found' });
     }
 
-    const newCourse = new Course({ idCourse, infor, languageID, businessId });
+    const newCourse = new Course({ 
+      idCourse, 
+      infor, 
+      languageID, 
+      businessId,
+      image: 'default-course-image.jpg' // Default image
+    });
     await newCourse.save();
+
+    // Handle image upload if provided
+    if (req.file) {
+      try {
+        const file = req.file;
+        const filename = `courses/${newCourse._id}_${Date.now()}_${file.originalname}`;
+        const blob = bucket.file(filename);
+        const blobStream = blob.createWriteStream({
+          metadata: { 
+            contentType: file.mimetype,
+            metadata: {
+              fileType: file.mimetype.split('/')[1], // Extract format (jpeg, png, etc.)
+              courseId: newCourse._id.toString(),
+              businessId: businessId
+            }
+          }
+        });
+        
+        // Return a promise that resolves when the upload is complete
+        const uploadPromise = new Promise((resolve, reject) => {
+          blobStream.on('error', (err) => reject(err));
+          
+          blobStream.on('finish', async () => {
+            // Make the file publicly accessible
+            await blob.makePublic();
+            
+            // Get the public URL
+            const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+            
+            // Update the course with the image URL
+            newCourse.image = publicUrl;
+            await newCourse.save();
+            
+            resolve(publicUrl);
+          });
+        });
+        
+        // Complete the upload by sending the buffer to Firebase
+        blobStream.end(file.buffer);
+        
+        // Wait for the upload to complete
+        await uploadPromise;
+      } catch (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        // We continue even if image upload fails, as the course is already created
+      }
+    }
 
     // Return the created course with business and user info
     const courseWithBusiness = await Course.findById(newCourse._id)
@@ -211,12 +313,71 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// UPDATE
-router.put('/:id', async (req, res) => {
+// UPDATE with optional image upload
+router.put('/:id', imageUploadMiddleware, async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
+
+    // Find the course first to make sure it exists
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    
     // Remove rating from the request body since it's now virtual
     const { rating, ...updateData } = req.body;
-      const updated = await Course.findByIdAndUpdate(req.params.id, updateData, { new: true })
+    
+    // Handle image upload if provided
+    if (req.file) {
+      try {
+        const file = req.file;
+        const filename = `courses/${course._id}_${Date.now()}_${file.originalname}`;
+        const blob = bucket.file(filename);
+        const blobStream = blob.createWriteStream({
+          metadata: { 
+            contentType: file.mimetype,
+            metadata: {
+              fileType: file.mimetype.split('/')[1], // Extract format (jpeg, png, etc.)
+              courseId: course._id.toString(),
+              businessId: course.businessId.toString(),
+              operation: 'update'
+            }
+          }
+        });
+        
+        // Return a promise that resolves when the upload is complete
+        const uploadPromise = new Promise((resolve, reject) => {
+          blobStream.on('error', (err) => reject(err));
+          
+          blobStream.on('finish', async () => {
+            // Make the file publicly accessible
+            await blob.makePublic();
+            
+            // Get the public URL
+            const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+            
+            // Update the image field directly
+            updateData.image = publicUrl;
+            
+            resolve();
+          });
+        });
+        
+        // Complete the upload by sending the buffer to Firebase
+        blobStream.end(file.buffer);
+        
+        // Wait for the upload to complete
+        await uploadPromise;
+      } catch (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        // Continue without updating the image if there was an error
+      }
+    }
+    
+    // Update the course with all data including potentially the new image URL
+    const updated = await Course.findByIdAndUpdate(req.params.id, updateData, { new: true })
       .populate('languageID', 'languageId name')
       .populate({
         path: 'businessId',
@@ -237,8 +398,6 @@ router.put('/:id', async (req, res) => {
           }
         }
       });
-
-    if (!updated) return res.status(404).json({ message: 'Course not found' });
     
     // Format response with ratings summary
     const courseObj = updated.toObject();
@@ -267,6 +426,114 @@ router.delete('/:id', async (req, res) => {
     const deleted = await Course.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: 'Course not found' });
     res.json({ message: 'Course deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// UPDATE COURSE IMAGE ONLY - Update just the course's image
+router.put('/:id/update-image', imageUploadMiddleware, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file uploaded' });
+    }
+    
+    // Find the course
+    const course = await Course.findById(req.params.id);
+    
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    
+    // Handle the image upload
+    const file = req.file;
+    const filename = `courses/${course._id}_${Date.now()}_${file.originalname}`;
+    const blob = bucket.file(filename);
+    const blobStream = blob.createWriteStream({
+      metadata: { 
+        contentType: file.mimetype,
+        metadata: {
+          fileType: file.mimetype.split('/')[1], // Extract format (jpeg, png, etc.)
+          courseId: course._id.toString(),
+          businessId: course.businessId.toString(),
+          operation: 'update'
+        }
+      }
+    });
+    
+    // Return a promise that resolves when the upload is complete
+    const uploadPromise = new Promise((resolve, reject) => {
+      blobStream.on('error', (err) => {
+        console.error('Course image upload error:', err);
+        reject(err);
+      });
+      
+      blobStream.on('finish', async () => {
+        try {
+          // Make the file publicly accessible
+          await blob.makePublic();
+          
+          // Get the public URL
+          const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+          
+          // Update only the image field
+          const updatedCourse = await Course.findByIdAndUpdate(
+            req.params.id,
+            { image: publicUrl },
+            { new: true }
+          ).populate('languageID', 'languageId name')
+          .populate({
+            path: 'businessId',
+            select: 'idBusiness type detail userId',
+            populate: {
+              path: 'userId',
+              select: 'userName email location phone avatar cv'
+            }
+          })
+          .populate({
+            path: 'ratings',
+            populate: {
+              path: 'studentId',
+              select: 'idStudent userId',
+              populate: {
+                path: 'userId',
+                select: 'userName'
+              }
+            }
+          });
+          
+          // Format response with ratings summary
+          const courseObj = updatedCourse.toObject();
+          let avgRating = 0;
+          
+          if (courseObj.ratings && courseObj.ratings.length > 0) {
+            const sum = courseObj.ratings.reduce((acc, rating) => acc + rating.stars, 0);
+            avgRating = parseFloat((sum / courseObj.ratings.length).toFixed(1));
+          }
+          
+          const formattedCourse = {
+            ...courseObj,
+            avgRating: avgRating,
+            ratingsCount: courseObj.ratings ? courseObj.ratings.length : 0
+          };
+          
+          resolve(formattedCourse);
+        } catch (err) {
+          reject(err);
+        }
+      });
+    });
+    
+    // Complete the upload by sending the buffer to Firebase
+    blobStream.end(file.buffer);
+    
+    // Wait for the upload to complete and return the result
+    const result = await uploadPromise;
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
