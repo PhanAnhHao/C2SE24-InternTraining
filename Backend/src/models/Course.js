@@ -18,6 +18,10 @@ const CourseSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Business',
     required: true
+  },
+  image: {
+    type: String,
+    default: 'default-course-image.jpg' // Default image path
   }
 }, {
   timestamps: true

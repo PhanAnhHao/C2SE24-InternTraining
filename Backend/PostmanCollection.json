@@ -784,13 +784,35 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"idCourse\": \"C_POSTMAN\",\n  \"infor\": \"Khóa học Postman Nâng cao\",\n  \"languageID\": \"<ObjectId_Cua_Language_JS>\", // Thay bằng ObjectId của Language JS hoặc language khác\n  \"businessId\": \"{{businessId}}\" // Thay bằng ObjectId của Business\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "idCourse",
+									"value": "C_POSTMAN",
+									"type": "text"
+								},
+								{
+									"key": "infor",
+									"value": "Khóa học Postman Nâng cao",
+									"type": "text"
+								},
+								{
+									"key": "languageID",
+									"value": "{{languageId}}",
+									"type": "text"
+								},
+								{
+									"key": "businessId",
+									"value": "{{businessId}}",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "",
+									"description": "Optional course cover image"
 								}
-							}
+							]
 						},
 						"url": {
 							"raw": "{{baseUrl}}/courses",
@@ -801,7 +823,7 @@
 								"courses"
 							]
 						},
-						"description": "Tạo Course mới (cần languageID hợp lệ và businessId)"
+						"description": "Tạo Course mới (cần languageID hợp lệ và businessId) với tùy chọn upload ảnh bìa"
 					},
 					"response": []
 				},
@@ -892,19 +914,25 @@
 					},
 					"response": []
 				},
-				{
-					"name": "Update Course",
+				{					"name": "Update Course",
 					"request": {
 						"method": "PUT",
 						"header": [],
 						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"infor\": \"Khóa học Postman Nâng cao và Tự động hóa Test\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "infor",
+									"value": "Khóa học Postman Nâng cao và Tự động hóa Test",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "",
+									"description": "Optional course cover image"
 								}
-							}
+							]
 						},
 						"url": {
 							"raw": "{{baseUrl}}/courses/{{courseId}}",
@@ -916,12 +944,11 @@
 								"{{courseId}}"
 							]
 						},
-						"description": "Cập nhật thông tin Course theo {{courseId}}"
+						"description": "Cập nhật thông tin Course theo {{courseId}}. Hỗ trợ tùy chọn upload hình ảnh thông qua form-data."
 					},
 					"response": []
 				},
-				{
-					"name": "Delete Course",
+				{					"name": "Delete Course",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -936,6 +963,37 @@
 							]
 						},
 						"description": "Xóa Course theo {{courseId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Course Image",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "",
+									"description": "Course cover image (only image files allowed)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/courses/{{courseId}}/update-image",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}",
+								"update-image"
+							]
+						},
+						"description": "Update only the image of a course. This endpoint is dedicated for updating just the course cover image and will return the updated course with full details."
 					},
 					"response": []
 				}
