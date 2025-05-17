@@ -57,28 +57,28 @@ const CourseForm = ({ lessons, initialLessons, courseData, courseId }) => {
         const newErrors = {};
 
         if (!desc.trim()) {
-            newErrors.desc = "Mô tả khóa học là bắt buộc.";
+            newErrors.desc = "Course description is required.";
         }
 
         if (!languageID) {
-            newErrors.languageID = "Vui lòng chọn một ngôn ngữ.";
+            newErrors.languageID = "Please select a language.";
         }
 
         if (!lessons || lessons.length === 0) {
-            newErrors.lessons = "Cần ít nhất một bài học để cập nhật khóa học.";
+            newErrors.lessons = "At least one lesson is required to update the course.";
         }
 
         const businessId = localStorage.getItem('businessId');
         if (!businessId) {
-            newErrors.businessId = "Cần ID doanh nghiệp. Vui lòng đăng nhập.";
+            newErrors.businessId = "Business ID is required. Please log in.";
         }
         if (image) {
             const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
             if (!validImageTypes.includes(image.type)) {
-                newErrors.image = "Chỉ chấp nhận file JPG, PNG, GIF, WebP hoặc SVG.";
+                newErrors.image = "Only JPG, PNG, GIF, WebP, or SVG files are accepted.";
             }
             if (image.size > 5 * 1024 * 1024) { // 5MB
-                newErrors.image = "Kích thước ảnh không được vượt quá 5MB.";
+                newErrors.image = "Image size must not exceed 5MB.";
             }
         }
         return newErrors;
@@ -95,7 +95,7 @@ const CourseForm = ({ lessons, initialLessons, courseData, courseId }) => {
 
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
-            enqueueSnackbar("Vui lòng sửa các lỗi trong form.", { variant: "error" });
+            enqueueSnackbar("Please fix the errors in the form.", { variant: "error" });
             return;
         }
 
@@ -116,10 +116,10 @@ const CourseForm = ({ lessons, initialLessons, courseData, courseId }) => {
                 },
             });
 
-            enqueueSnackbar("Khóa học được cập nhật thành công!", { variant: "success" });
+            enqueueSnackbar("The course has been updated successfully!", { variant: "success" });
             setErrors({});
         } catch (error) {
-            const errorMessage = error.response?.data?.error || "Không thể cập nhật khóa học. Vui lòng thử lại.";
+            const errorMessage = error.response?.data?.error || "Unable to update course. Please try again.";
             enqueueSnackbar(errorMessage, { variant: "error" });
         }
     };
