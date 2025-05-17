@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CourseCard from "../../common/CourseCard.jsx";
-import SearchBar from '../Search/SearchBar.jsx'; // Adjust the import path as needed
+import SearchBar from '../Search/SearchBar.jsx';
 
 const RecommendList = () => {
     const [courses, setCourses] = useState([]);
@@ -20,12 +20,12 @@ const RecommendList = () => {
                     category: "programming",
                     avgRating: course.avgRating,
                     instructor: "Unknown",
-                    image: "/img/placeholder.jpg",
+                    image: course.image || "https://placehold.co/150", // Sử dụng course.image từ API, fallback nếu không có
                     description: course.infor,
-                    price: 400,
-                    oldPrice: 500,
                     ratingsCount: course.ratingsCount,
-                    language: course.languageID.name
+                    language: course.languageID.name,
+                    creator: course.businessId?.userId?.userName || "Unknown Creator",
+                    AvatarCreator: course.businessId?.userId?.avatar || "https://placehold.co/40"
                 }));
                 setCourses(transformedCourses);
                 setFilteredCourses(transformedCourses);
@@ -39,20 +39,16 @@ const RecommendList = () => {
         fetchCourses();
     }, []);
 
-    // Reset to page 1 whenever filteredCourses changes (e.g., after a search)
     useEffect(() => {
         setCurrentPage(1);
     }, [filteredCourses]);
 
-    // Calculate the courses to display on the current page
     const indexOfLastCourse = currentPage * coursesPerPage;
     const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
     const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
 
-    // Calculate total pages
     const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
 
-    // Handle page navigation
     const handleNextPage = () => {
         if (currentPage < totalPages) {
             setCurrentPage(prev => prev + 1);
@@ -81,7 +77,6 @@ const RecommendList = () => {
                     ))}
                 </div>
 
-                {/* Pagination Controls */}
                 {filteredCourses.length > coursesPerPage && (
                     <div className="flex justify-center mt-6 space-x-4">
                         <button

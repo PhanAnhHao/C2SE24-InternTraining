@@ -9,6 +9,7 @@ const CourseForm = ({ lessons }) => {
     const [desc, setDesc] = useState("");
     const [languageID, setLanguageID] = useState("");
     const [languages, setLanguages] = useState([]);
+    const [image, setImage] = useState(null);
     const [errors, setErrors] = useState({});
 
     const { enqueueSnackbar } = useSnackbar();
@@ -31,12 +32,9 @@ const CourseForm = ({ lessons }) => {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!name.trim()) {
-            newErrors.name = "Course name is required.";
-        }
 
         if (!desc.trim()) {
-            newErrors.desc = "Course description is required.";
+            newErrors.desc = "Course name is required.";
         }
 
         if (!languageID) {
@@ -51,10 +49,23 @@ const CourseForm = ({ lessons }) => {
         if (!businessId) {
             newErrors.businessId = "Business ID is required. Please log in.";
         }
-
+// Kiểm tra định dạng file ảnh
+        if (image) {
+            const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+            if (!validImageTypes.includes(image.type)) {
+                newErrors.image = "Chỉ chấp nhận file JPG, PNG, GIF, WebP hoặc SVG.";
+            }
+            if (image.size > 5 * 1024 * 1024) { // 5MB
+                newErrors.image = "Kích thước ảnh không được vượt quá 5MB.";
+            }
+        }
         return newErrors;
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        setImage(file);
+    };
     const handleCreate = async () => {
         const validationErrors = validateForm();
 
@@ -68,15 +79,22 @@ const CourseForm = ({ lessons }) => {
             // Lấy businessId từ trong localStorage
             const businessId = localStorage.getItem('businessId');
 
-            // Bước 1: Tạo Course
-            const courseData = {
-                idCourse: uuidv4(),
-                infor: desc,
-                languageID: languageID,
-                businessId: businessId,
-            };
+            // Tạo FormData để gửi dữ liệu khóa học và ảnh
+            const formData = new FormData();
+            formData.append('idCourse', uuidv4());
+            formData.append('infor', desc);
+            formData.append('languageID', languageID);
+            formData.append('businessId', businessId);
+            if (image) {
+                formData.append('image', image); // Thêm file ảnh vào FormData
+            }
 
-            const courseResponse = await axios.post("http://localhost:5000/courses", courseData);
+            // Bước 1: Tạo Course
+            const courseResponse = await axios.post("http://localhost:5000/courses", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             const courseId = courseResponse.data._id;
 
             // Bước 2: Tạo Lessons
@@ -101,6 +119,7 @@ const CourseForm = ({ lessons }) => {
             setName("");
             setDesc("");
             setLanguageID(languages.length > 0 ? languages[0]._id : "");
+            setImage(null);
             setErrors({});
         } catch (error) {
             const errorMessage = error.response?.data?.error || "Failed to create course. Please try again.";
@@ -111,27 +130,33 @@ const CourseForm = ({ lessons }) => {
     return (
         <div className="w-full bg-[#F3FAFF]">
             <CourseHeader />
-            <div className="bg-white m-8 p-6 rounded-2xl h-[600px]">
+            <div className="bg-white m-8 p-6 rounded-2xl ">
                 <h2 className="font-bold mb-4 text-gray-700">Course Name</h2>
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Course Name..."
-                    className={`w-full border ${errors.name ? "border-red-500" : "border-[#D9D9D9]"} p-2 rounded mb-4`}
-                />
-                {errors.name && <p className="text-red-500 text-xs mb-4">{errors.name}</p>}
-
-                <h2 className="font-bold mb-4 text-gray-700">Course Description</h2>
                 <textarea
                     value={desc}
                     onChange={(e) => setDesc(e.target.value)}
-                    placeholder="Course Description..."
+                    placeholder="Course Name"
                     className={`w-full border ${errors.desc ? "border-red-500" : "border-[#D9D9D9]"} p-2 rounded mb-4`}
                     rows={4}
                 />
                 {errors.desc && <p className="text-red-500 text-xs mb-4">{errors.desc}</p>}
-
+                <h2 className="font-bold mb-4 text-gray-700">Image</h2>
+                <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+                    onChange={handleImageChange}
+                    className={`w-full border ${errors.image ? "border-red-500" : "border-[#D9D9D9]"} p-2 rounded mb-4`}
+                />
+                {errors.image && <p className="text-red-500 text-xs mb-4">{errors.image}</p>}
+                {image && (
+                    <div className="mb-4">
+                        <img
+                            src={URL.createObjectURL(image)}
+                            alt="Preview"
+                            className="w-24 h-24 object-cover rounded border border-gray-300"
+                        />
+                    </div>
+                )}
                 <h2 className="font-bold mb-4 text-gray-700">Language</h2>
                 <select
                     value={languageID}
