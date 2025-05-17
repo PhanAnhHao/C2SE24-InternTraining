@@ -17,7 +17,7 @@ const CourseCard = ({ course }) => {
             {/* Hình ảnh khóa học */}
             <div className="relative w-full h-44">
                 <img
-                    src={"/img/course.png"}
+                    src={course.image}
                     alt="Course Thumbnail"
                     className="w-full h-full object-cover rounded-xl"
                 />
@@ -47,29 +47,27 @@ const CourseCard = ({ course }) => {
                     {course.description}
                 </p>
 
-                {/* Giáo viên và giá - luôn ở dưới cùng */}
-                <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center justify-between gap-2 mt-4">
                     <div className="flex items-center">
                         <img
                             src={
-                                course.instructorImage ||
+                                course.AvatarCreator ||
                                 "https://randomuser.me/api/portraits/women/44.jpg"
                             }
                             alt="Instructor"
                             className="w-8 h-8 rounded-full border"
                         />
                         <span className="ml-2 font-medium text-gray-900 text-sm">
-                            {course.instructor}
+                            {course.creator}
                         </span>
                     </div>
 
                     <div className="text-right">
-                        <span className="text-gray-400 text-sm line-through">
-                            ${course.oldPrice}
-                        </span>
-                        <span className="text-[#49BBBD] font-bold text-lg ml-2">
-                            ${course.price}
-                        </span>
+                        <button
+                            className="bg-[#49BBBD] text-white font-semibold text-lg px-4 py-1 rounded-md hover:bg-[#3EA3A5] hover:shadow-md transition-all duration-200"
+                        >
+                            View
+                        </button>
                     </div>
                 </div>
             </div>
