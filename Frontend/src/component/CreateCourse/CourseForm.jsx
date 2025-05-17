@@ -53,10 +53,10 @@ const CourseForm = ({ lessons }) => {
         if (image) {
             const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
             if (!validImageTypes.includes(image.type)) {
-                newErrors.image = "Chỉ chấp nhận file JPG, PNG, GIF, WebP hoặc SVG.";
+                newErrors.image = "Only JPG, PNG, GIF, WebP, or SVG files are accepted.";
             }
             if (image.size > 5 * 1024 * 1024) { // 5MB
-                newErrors.image = "Kích thước ảnh không được vượt quá 5MB.";
+                newErrors.image = "Image size must not exceed 5MB.";
             }
         }
         return newErrors;
