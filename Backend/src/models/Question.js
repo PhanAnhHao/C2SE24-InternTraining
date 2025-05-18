@@ -50,11 +50,4 @@ const QuestionSchema = new mongoose.Schema({
     toObject: { virtuals: true }
 });
 
-// Virtual for answers - establishes relationship without storing in document
-QuestionSchema.virtual('answers', {
-    ref: 'Answer',
-    localField: '_id',
-    foreignField: 'questionId'
-});
-
 module.exports = mongoose.model('Question', QuestionSchema);

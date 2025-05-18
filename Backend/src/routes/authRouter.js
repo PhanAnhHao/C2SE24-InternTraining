@@ -341,6 +341,64 @@ router.post('/change-password', authenticate, async (req, res) => {
   }
 });
 
+// Register admin account (requires a secret key for security)
+router.post('/register-admin', async (req, res) => {
+  try {
+    const {
+      username,
+      password,
+      email,
+      userName,
+      location,
+      phone
+    } = req.body;
+
+    const adminRoleId = '660edabc12eac0f2fc123401'; // Admin role ID
+
+    // Check if username already exists
+    const existing = await Account.findOne({ username });
+    if (existing) return res.status(400).json({ error: 'Username already exists' });
+
+    // Check if email already exists
+    const emailExists = await Account.findOne({ email });
+    if (emailExists) return res.status(400).json({ error: 'Email already exists' });
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new account with admin role
+    const newAccount = new Account({
+      username,
+      password: hashedPassword,
+      role: adminRoleId
+    });
+
+    const savedAccount = await newAccount.save();
+
+    // Create user profile for admin
+    const newUser = new User({
+      userName,
+      email,
+      location,
+      phone,
+      idAccount: savedAccount._id
+    });
+
+    const savedUser = await newUser.save();
+
+    res.status(201).json({
+      message: 'Admin registration successful',
+      adminId: savedUser._id
+    });
+  } catch (err) {
+    console.error("Admin Registration Error:", err);
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: 'An internal server error occurred.' });
+  }
+});
+
 // Forgot password - Request password reset
 router.post('/forgot-password', async (req, res) => {
   try {

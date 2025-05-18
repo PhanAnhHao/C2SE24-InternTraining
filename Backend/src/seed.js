@@ -13,7 +13,6 @@ const Course = require('./models/Course');
 const Lesson = require('./models/Lesson');
 const Test = require('./models/Test');
 const Question = require('./models/Question');
-const Answer = require('./models/Answer');
 const History = require('./models/History');
 const Rating = require('./models/Rating');
 const Blog = require('./models/Blog');
@@ -787,19 +786,9 @@ async function seed() {
         passed: true 
       }
     ];
-    
-    await History.insertMany(historyRecords);
+      await History.insertMany(historyRecords);
 
-    // Seed more comprehensive answer data
-    const answerRecords = [
-      // Student 1 answers for JavaScript test
-      {
-        content: 'const',
-        questionId: questionIds[0],
-        userId: users[1]._id,
-        selectedOptionIndex: 2,
-        isCorrect: true
-      },
+    // Rating data section starts here
       {
         content: '55',
         questionId: questionIds[1],
@@ -1348,3 +1337,4 @@ async function seed() {
 }
 
 seed();
+

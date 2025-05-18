@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const History = require('../models/History');
 const Test = require('../models/Test');
-const Answer = require('../models/Answer');
 const Question = require('../models/Question');
 const Lesson = require('../models/Lesson');
 const Course = require('../models/Course');
