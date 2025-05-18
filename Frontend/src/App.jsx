@@ -31,6 +31,7 @@ import AccessStudentProfile from "./component/RequestProfile/AccessStudentProfil
 import MyBlog from "./component/Profile/MyBlog.jsx";
 import UpdateBlog from "./component/BlogPage/UpdateBlog/UpdateBlog.jsx";
 import UpdateCoursePage from "./pages/UpdateCoursePage.jsx";
+import ResetPasswordForm from './component/ForgotPassword/ResetPassword.jsx';
 
 const NotFound = () => {
   return (
@@ -54,7 +55,7 @@ function App() {
             <Route path="/my-blog" element={<MyBlog />} />
             <Route path="/update-blog/:blogId" element={<UpdateBlog />} />
             <Route path="/your-courses" element={<YourCourse />} />
-
+            <Route path="/reset-password/:token" element={<ResetPasswordForm />} />
 
 
             <Route path="/profile" element={<Profile />} />
