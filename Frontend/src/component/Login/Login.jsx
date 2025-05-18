@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEyeSlash, FaEye } from 'react-icons/fa';
 import theme_log from '../../assets/login_theme.jpg';
+import ForgotPassword from '../ForgotPassword/ForgotPassword';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ const LoginPage = () => {
     });
 
     const [error, setError] = useState('');
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -179,7 +181,12 @@ const LoginPage = () => {
                                     />
                                     <span className="text-gray-700">Remember me</span>
                                 </label>
-                                <a href="#" className="text-teal-400 hover:text-teal-600 transition-colors">Forgot Password?</a>
+                                <a
+                                    onClick={() => setShowForgotPassword(true)}
+                                    className="text-teal-400 hover:text-teal-600 transition-colors cursor-pointer"
+                                >
+                                    Forgot Password?
+                                </a>
                             </div>
 
                             {/* Thông báo lỗi */}
@@ -201,6 +208,12 @@ const LoginPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Add the ForgotPassword component */}
+            <ForgotPassword
+                isOpen={showForgotPassword}
+                onClose={() => setShowForgotPassword(false)}
+            />
         </>
     );
 };

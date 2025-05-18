@@ -162,7 +162,7 @@ router.post('/login', async (req, res) => {
       path: 'role',
       select: 'name description'
     });
-    
+
     if (!account) return res.status(400).json({ error: 'Invalid username or password' });
 
     const isMatch = await bcrypt.compare(password, account.password);
@@ -267,7 +267,7 @@ router.put('/update-avatar', authMiddleware, upload.single('avatar'), async (req
 
     // Find the user based on account ID from token
     const user = await User.findOne({ idAccount: req.user.id });
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -289,14 +289,14 @@ router.put('/update-avatar', authMiddleware, upload.single('avatar'), async (req
     blobStream.on('finish', async () => {
       // Make the file publicly accessible
       await blob.makePublic();
-      
+
       // Get the public URL
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
-      
+
       // Update user avatar in database
       user.avatar = publicUrl;
       await user.save();
-      
+
       res.json({
         message: 'Avatar updated successfully',
         avatar: publicUrl
@@ -360,14 +360,16 @@ router.post('/forgot-password', async (req, res) => {
 
     // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
-    
+
     // Save token to account with expiration (1 hour)
     account.resetPasswordToken = resetToken;
     account.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await account.save();
 
     // Create reset URL
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
+
+    const resetUrl = `${process.env.FRONTEND_URL || 'https://localhost:5173'}/reset-password/${resetToken}`;
+
 
     // Send email
     await sendEmail({
@@ -436,7 +438,7 @@ router.post('/reset-password/:token', async (req, res) => {
 router.get('/verify-reset-token/:token', async (req, res) => {
   try {
     const { token } = req.params;
-    
+
     const account = await Account.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: Date.now() }
