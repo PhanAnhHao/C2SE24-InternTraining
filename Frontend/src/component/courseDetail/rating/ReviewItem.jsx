@@ -12,7 +12,7 @@ const ReviewItem=({ name, rating, time, text }) =>{
                             ))}
                         </div>
                     </div>
-                    <p className="text-gray-500 text-sm">{time}</p>
+
                 </div>
                 <p className="text-gray-600 mt-2">{text}</p>
             </div>

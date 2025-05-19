@@ -45,7 +45,6 @@ const LessonList = ({ lessons = [], onAddLesson, onEditLesson, onDeleteLesson, e
             {lessons.map((lesson, idx) => (
                 <LessonItem
                     key={idx}
-                    lessonName syndication
                     lessonName={lesson.name}
                     color={lesson.color || colors[idx % colors.length]}
                     onEdit={() => handleEditLesson(idx)}
