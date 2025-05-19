@@ -24,8 +24,8 @@ require('dotenv').config();
 const app = express();
 app.use(express.json()); // Để phân tích JSON trong body của request
 app.use(cors({
-  origin: 'https://localhost:5173', // Chỉ định rõ nguồn gốc của frontend
-  credentials: true, // Hỗ trợ credentials (cookies, authorization headers, v.v.)
+  origin: ['https://localhost:5173', 'http://localhost:5000', 'http://localhost:5173'], // Allow multiple origins
+  credentials: true, // Support credentials (cookies, authorization headers, etc.)
 }));
 
 // Upload image

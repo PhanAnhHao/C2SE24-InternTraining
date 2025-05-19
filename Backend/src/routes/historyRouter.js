@@ -10,25 +10,57 @@ const mongoose = require('mongoose');
 // CREATE - Save test result to history
 router.post('/', async (req, res) => {
   try {
+    console.log('History POST request body:', req.body);
     const { studentId, testId, score, passed } = req.body;
 
     // Validate required fields
     if (!studentId || !testId) {
+      console.log('Missing studentId or testId:', { studentId, testId });
       return res.status(400).json({ error: 'Student ID and Test ID are required' });
     }
-
+    
     // Validate IDs
     if (!mongoose.Types.ObjectId.isValid(studentId) || !mongoose.Types.ObjectId.isValid(testId)) {
+      console.log('Invalid ID format:', { studentId, testId });
       return res.status(400).json({ error: 'Invalid ID format' });
     }
-
-    // Create or update history entry
+    
+    // Validate score is in the range 0-10
+    if (score === undefined || score === null) {
+      console.log('Score is missing');
+      return res.status(400).json({ error: 'Score is required' });
+    }
+      // Convert score to number if it's a string
+    let scoreNum = typeof score === 'string' ? parseFloat(score) : score;
+    
+    // Fix for scores coming in with decimal points but representing correct answers out of total
+    // For example, 5.33 might mean 5 correct out of some number of questions
+    if (scoreNum > 10) {
+      console.log('Normalizing out-of-range score:', score);
+      // Round to nearest integer if it seems like it might be a fraction or percentage
+      scoreNum = Math.round(scoreNum > 100 ? (scoreNum / 100) * 10 : Math.min(10, scoreNum / 10));
+      console.log('Normalized score:', scoreNum);
+    } else if (scoreNum < 0) {
+      scoreNum = 0; // Ensure minimum score is 0
+    }
+    
+    // Final validation to ensure score is within range
+    if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 10) {
+      console.log('Score still invalid after normalization:', scoreNum);
+      return res.status(400).json({ error: 'Score must be a number between 0 and 10' });
+    }
+    
+    // Validate passed field
+    if (passed === undefined || passed === null) {
+      console.log('Passed field is missing');
+      return res.status(400).json({ error: 'Passed field is required' });
+    }    // Create or update history entry
     const history = new History({
       studentId,
       testId,
-      score,
+      score: scoreNum, // Use the converted score
       completedAt: new Date(),
-      passed
+      passed: typeof passed === 'string' ? (passed.toLowerCase() === 'true') : !!passed // Ensure boolean
     });
 
     await history.save();
@@ -39,8 +71,13 @@ router.post('/', async (req, res) => {
         score,
         passed
       }
-    });
-  } catch (err) {
+    });  } catch (err) {
+    console.error('Error in history POST:', err);
+    if (err.name === 'ValidationError') {
+      // Extract MongoDB validation error messages
+      const validationErrors = Object.values(err.errors).map(error => error.message);
+      return res.status(400).json({ error: 'Validation Error', details: validationErrors });
+    }
     res.status(400).json({ error: err.message });
   }
 });
