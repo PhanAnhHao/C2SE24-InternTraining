@@ -20,7 +20,7 @@ const PaymentCard = (props) => {
 
                 {/* Hình ảnh khóa học */}
                 <img
-                    src={"/img/course.png"}
+                    src={courseData.image||"/img/course.png"}
                     alt="Course"
                     className="w-full rounded-md mb-4"
                 />
