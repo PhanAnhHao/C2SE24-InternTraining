@@ -4,6 +4,8 @@ import ProfileSideBar from "../../layout/ProfileSideBar";
 import theme_log from "../../assets/login_theme.jpg";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import UploadCV from "./UploadCV"; // Adjust the import path as necessary
+import { FaFile } from "react-icons/fa";
 
 const Profile = () => {
     const [profileData, setProfileData] = useState(null);
@@ -16,6 +18,12 @@ const Profile = () => {
     });
     const [avatar, setAvatar] = useState(null);
     const [avatarPreview, setAvatarPreview] = useState(null);
+    const [cvData, setCvData] = useState({
+        url: '',
+        fileName: '',
+        fileType: '',
+        uploadDate: ''
+    });
 
     useEffect(() => {
         fetchProfile();
@@ -81,6 +89,16 @@ const Profile = () => {
 
             console.log("Using avatar URL:", avatarUrl);
             setAvatarPreview(getAvatarUrl(avatarUrl));
+
+            // Update CV data if exists
+            if (response.data.cv) {
+                setCvData({
+                    url: response.data.cv.url,
+                    fileName: response.data.cv.fileName,
+                    fileType: response.data.cv.fileType,
+                    uploadDate: response.data.cv.uploadDate
+                });
+            }
         } catch (error) {
             console.error("Error fetching profile:", error);
             console.error("Response data:", error.response?.data);
@@ -229,7 +247,7 @@ const Profile = () => {
         console.log("Starting avatar upload process...");
 
         // Show loading toast
-        const loadingToastId = toast.loading("Uploading avatar...");
+        // const loadingToastId = toast.loading("Uploading avatar...");
 
         try {
             const token = localStorage.getItem("token");
@@ -240,7 +258,7 @@ const Profile = () => {
             formData.append('avatar', avatar);  // Use 'avatar' as the field name
 
             // Send the file directly to update-avatar endpoint
-            console.log("Uploading avatar to update-avatar endpoint...");
+            // console.log("Uploading avatar to update-avatar endpoint...");
             const updateRes = await axios.put(
                 "http://localhost:5000/auth/update-avatar",
                 formData,
@@ -256,8 +274,11 @@ const Profile = () => {
 
             if (updateRes.data) {
                 // Update was successful
-                toast.dismiss(loadingToastId);
-                toast.success("Avatar updated successfully!");
+                // toast.dismiss(loadingToastId);
+                toast.success('Avatar updated successfully!', {
+                    autoClose: 2000,
+                    onClose: () => window.location.reload()
+                });
 
                 // Update local avatar immediately if URL is in response
                 if (updateRes.data.avatar) {
@@ -436,6 +457,37 @@ const Profile = () => {
                                 </button>
                             </div>
                         )}
+
+                        {/* CV Section */}
+                        <div className="border-t pt-6 mt-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold text-gray-700">CV/Resume</h3>
+                                <UploadCV
+                                    currentCV={cvData.fileName}
+                                    onUploadSuccess={(data) => {
+                                        setCvData({
+                                            url: data.cv.url,
+                                            fileName: data.cv.fileName,
+                                            fileType: data.cv.fileType,
+                                            uploadDate: data.cv.uploadDate
+                                        });
+                                    }}
+                                />
+                            </div>
+                            {cvData.url && cvData.fileName && (
+                                <div className="flex items-center gap-2 text-gray-600">
+                                    <FaFile className="w-4 h-4" />
+                                    <a
+                                        href={cvData.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="hover:text-teal-500 transition-colors"
+                                    >
+                                        {cvData.fileName} ({new Date(cvData.uploadDate).toLocaleDateString()})
+                                    </a>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 ) : (
                     <p>Loading profile information...</p>

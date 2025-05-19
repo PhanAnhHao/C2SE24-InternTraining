@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ProfileSideBar from "../../layout/ProfileSideBar";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 const ChangePassword = () => {
     const [currentPassword, setCurrentPassword] = useState("");
@@ -85,34 +86,84 @@ const ChangePassword = () => {
         }
 
         try {
-            toast.success("Password changed successfully! 🎉", {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: false,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-            });
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-            // Clear form
-            setCurrentPassword("");
-            setNewPassword("");
-            setConfirmPassword("");
+            const token = localStorage.getItem("token");
+            if (!token) {
+                toast.error("Authorization token not found. Please login again.", {
+                    position: "top-right",
+                    theme: "colored"
+                });
+                return;
+            }
+
+            const response = await axios.post(
+                "http://localhost:5000/auth/change-password",
+                {
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    withCredentials: true // Add this to handle cookies if needed
+                }
+            );
+
+            if (response.status === 200) {
+                toast.success("Password changed successfully! 🎉", {
+                    position: "top-right",
+                    autoClose: 2000,
+                    theme: "colored"
+                });
+
+                // Clear form
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+
+                // Reload page after 2 seconds
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
         } catch (error) {
-            toast.error(`Failed to change password: ${error.message} ❌`, {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: false,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
+            console.error("Error details:", {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
             });
+
+            // Handle specific error cases
+            if (error.response) {
+                // Server responded with error
+                switch (error.response.status) {
+                    case 401:
+                        toast.error("Current password is incorrect", {
+                            theme: "colored"
+                        });
+                        break;
+                    case 403:
+                        toast.error("Session expired. Please login again", {
+                            theme: "colored"
+                        });
+                        break;
+                    default:
+                        toast.error(error.response.data.message || "Failed to change password", {
+                            theme: "colored"
+                        });
+                }
+            } else if (error.request) {
+                // Request made but no response
+                toast.error("Server not responding. Please try again later", {
+                    theme: "colored"
+                });
+            } else {
+                // Something else went wrong
+                toast.error("Failed to change password. Please try again", {
+                    theme: "colored"
+                });
+            }
         }
     };
 
