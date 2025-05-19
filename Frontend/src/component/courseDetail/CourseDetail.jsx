@@ -31,7 +31,7 @@ const CourseDetail = () => {
         fetchData();
     }, [courseId]);
 
-    // console.log("courseData: ", courseData)
+    console.log("courseData: ", courseData)
 
     if (loading) return <div>Đang tải...</div>;
     if (error) return <div>{error}</div>;
@@ -44,6 +44,7 @@ const CourseDetail = () => {
                 className="w-full rounded-md object-cover mb-4 h-[500px]"
             />
             <div className="px-[5%] flex flex-col mb-10">
+                <div className="text-2xl font-bold text-gray-700 pb-4 bt-2">{courseData?.courseName}</div>
                 <div className="items-start flex justify-between mb-10">
                     <RatingReview courseData={courseData} courseId={courseId} />
                     <PaymentCard courseData={courseData} />
