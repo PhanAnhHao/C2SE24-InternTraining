@@ -38,6 +38,33 @@
 					"response": []
 				},
 				{
+					"name": "Register Admin",
+					"request": {
+						"method": "POST",
+						"header": [],						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin_user\",\n  \"password\": \"admin_password\",\n  \"email\": \"admin@example.com\",\n  \"userName\": \"Admin User\",\n  \"location\": \"Admin Location\",\n  \"phone\": \"0123456789\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register-admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register-admin"
+							]
+						},
+						"description": "Register a new administrator account with admin role privileges."
+					},
+					"response": []
+				},
+				{
 					"name": "Register Business",
 					"request": {
 						"method": "POST",
@@ -1552,214 +1579,7 @@
 					},
 					"response": []
 				}
-			]
-		},
-		{
-			"name": "Answers",
-			"item": [
-				{
-					"name": "Submit Answer",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"content\": \"Đây là câu trả lời của tôi\",\n  \"questionId\": \"<ObjectId_Of_Question>\",\n  \"userId\": \"<ObjectId_Of_User>\",\n  \"selectedOptionIndex\": 0,\n  \"isCorrect\": false\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/answers",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"answers"
-							]
-						},
-						"description": "Gửi câu trả lời cho câu hỏi. Với câu hỏi trắc nghiệm, selectedOptionIndex chỉ định lựa chọn của người dùng (chỉ số trong mảng options)"
-					},
-					"response": []
-				},
-				{
-					"name": "Submit Test Answers",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"testId\": \"<ObjectId_Of_Test>\",\n  \"userId\": \"<ObjectId_Of_Student>\",\n  \"answers\": [\n    {\n      \"questionId\": \"<ObjectId_Of_Question1>\",\n      \"selectedOptionIndex\": 0\n    },\n    {\n      \"questionId\": \"<ObjectId_Of_Question2>\",\n      \"selectedOptionIndex\": 1\n    },\n    {\n      \"questionId\": \"<ObjectId_Of_Question3>\",\n      \"selectedOptionIndex\": 2\n    }\n  ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/answers/submit-test",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"answers",
-								"submit-test"
-							]
-						},
-						"description": "Submit answers for a complete test. This endpoint will automatically score each question, calculate the total score, and save the results to the history collection."
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Answers",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Lưu ID của answer đầu tiên vào biến collection 'answerId'",
-									"if (pm.response.code === 200) {",
-									"    const answers = pm.response.json();",
-									"    if (answers && answers.length > 0) {",
-									"        pm.collectionVariables.set(\"answerId\", answers[0]._id);",
-									"        console.log(`Saved first answer ID to collection variable 'answerId': ${answers[0]._id}`);",
-									"    } else {",
-									"        console.log('No answers found to save ID.');",
-									"    }",
-									"} else {",
-									"    console.log('Failed to get answers.');",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/answers",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"answers"
-							]
-						},
-						"description": "Lấy tất cả câu trả lời. Lưu _id answer đầu tiên vào {{answerId}}."
-					},
-					"response": []
-				},
-				{
-					"name": "Get Answer by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/answers/{{answerId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"answers",
-								"{{answerId}}"
-							]
-						},
-						"description": "Lấy thông tin chi tiết của câu trả lời theo ID"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Answers by User",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/answers/user/{{userId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"answers",
-								"user",
-								"{{userId}}"
-							]
-						},
-						"description": "Lấy tất cả câu trả lời của một người dùng cụ thể"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Answers by Question",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/answers/question/{{questionId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"answers",
-								"question",
-								"{{questionId}}"
-							]
-						},
-						"description": "Lấy tất cả câu trả lời cho một câu hỏi cụ thể"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Answer",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"content\": \"Đây là câu trả lời đã cập nhật\",\n  \"isCorrect\": true\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/answers/{{answerId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"answers",
-								"{{answerId}}"
-							]
-						},
-						"description": "Cập nhật thông tin câu trả lời theo ID"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Answer",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/answers/{{answerId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"answers",
-								"{{answerId}}"
-							]
-						},
-						"description": "Xóa câu trả lời theo ID"
-					},
-					"response": []
-				}
-			]
-		},
+			]		},
 		{
 			"name": "Ratings",
 			"item": [
@@ -2148,7 +1968,7 @@
 									"value": "<p>As web technologies continue to evolve, developers must stay informed about the most efficient tools and frameworks available. React has long been a dominant force in frontend development, but Next.js is quickly gaining traction for its powerful features.</p>\n<p>In this article, we'll compare React and Next.js and help you decide which might be best for your projects.</p>\n<h2>Key Advantages of Next.js</h2>\n<ul>\n<li>Built-in server-side rendering for improved SEO and performance</li>\n<li>Automatic code splitting for faster page loads</li>\n<li>Simplified routing with file-system based router</li>\n<li>API routes that make backend development easier</li>\n<li>Static site generation for lightning-fast static websites</li>\n</ul>\n<p>While React remains an excellent choice for many applications, Next.js provides additional features that can significantly enhance user experience and developer productivity.</p>",
 									"type": "text"
 								},
-								{
+																{
 									"key": "tags",
 									"value": "Web Development,React,Next.js,JavaScript,Frontend",
 									"type": "text"

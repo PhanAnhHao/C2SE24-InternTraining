@@ -96,10 +96,16 @@ export default function Rank() {
                         score: avgScore,
                         id,
                     };
-                });
-
+                });                // Sort by score in descending order
                 const sortedRows = combinedRows.sort((a, b) => (b.score || 0) - (a.score || 0));
-                setRows(sortedRows);
+                
+                // Update ranking numbers based on sorted order
+                const rankedRows = sortedRows.map((row, index) => ({
+                    ...row,
+                    no: index + 1  // Assign rank based on sorted position
+                }));
+                
+                setRows(rankedRows);
                 setLoading(false);
             } catch (err) {
                 console.error('Fetch error:', err);
@@ -184,11 +190,10 @@ export default function Rank() {
                                     No ranking data available.
                                 </TableCell>
                             </TableRow>
-                        ) : (
-                            rows
+                        ) : (                            rows
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row) => (
-                                    <TableRow hover key={row.no}>
+                                    <TableRow hover key={row.id}>
                                         {columns.map((column) => {
                                             const value = row[column.id];
                                             return (

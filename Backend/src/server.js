@@ -13,7 +13,6 @@ const questionRouter = require('./routes/questionRouter');
 const authRouter = require('./routes/authRouter');
 const testMailRouter = require('./routes/testMailRouter');
 const historyRouter = require('./routes/historyRouter'); // New router for History
-const answerRouter = require('./routes/answerRouter'); // New router for Answer
 const ratingRouter = require('./routes/ratingRouter'); // New router for Rating
 const blogRouter = require('./routes/blogRouter'); // New router for Blog
 const viewRequestRouter = require('./routes/viewRequestRouter');
@@ -25,8 +24,8 @@ require('dotenv').config();
 const app = express();
 app.use(express.json()); // Để phân tích JSON trong body của request
 app.use(cors({
-  origin: 'https://localhost:5173', // Chỉ định rõ nguồn gốc của frontend
-  credentials: true, // Hỗ trợ credentials (cookies, authorization headers, v.v.)
+  origin: ['https://localhost:5173', 'http://localhost:5000', 'http://localhost:5173'], // Allow multiple origins
+  credentials: true, // Support credentials (cookies, authorization headers, etc.)
 }));
 
 // Upload image
@@ -62,7 +61,6 @@ app.use('/auth', authRouter);
 app.use('/send-mail', testMailRouter);
 // Add routes for new collections
 app.use('/history', historyRouter);
-app.use('/answers', answerRouter);
 app.use('/ratings', ratingRouter);
 app.use('/blogs', blogRouter); // Add the blog routes
 app.use('/api/view-requests', viewRequestRouter);

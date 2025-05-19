@@ -26,6 +26,22 @@
           "englishSkill": "Advanced"
         }
         ```
+
+* **POST /auth/register-admin**
+    * Purpose: Register a new administrator account
+    * Body (JSON):
+        ```json
+        {
+          "username": "admin_user",
+          "password": "admin_password",
+          "email": "admin@example.com",
+          "userName": "Admin User",
+          "location": "Admin Location",
+          "phone": "0123456789"
+        }
+        ```
+        }
+        ```
     * Note: Fields `age`, `school`, `course`, and `englishSkill` are optional. If not provided, the system will automatically create a Student record with default values. The `course` field is an array of strings.
 
 * **POST /auth/register-business**
@@ -396,66 +412,8 @@
     * Purpose: Delete a question
 
 ---
-**11. Answers**
+**11. History**
 ---
-
-* **POST /answers**
-    * Purpose: Submit an answer
-    * Body (JSON):
-        ```json
-        {
-          "content": "Đây là câu trả lời của tôi",
-          "questionId": "<ObjectId_Of_Question>",
-          "userId": "<ObjectId_Of_User>",
-          "selectedOptionIndex": 0,
-          "isCorrect": false
-        }
-        ```
-
-* **POST /answers/submit-test**
-    * Purpose: Submit answers for a complete test
-    * Body (JSON):
-        ```json
-        {
-          "testId": "<ObjectId_Of_Test>",
-          "userId": "<ObjectId_Of_Student>",
-          "answers": [
-            {
-              "questionId": "<ObjectId_Of_Question1>",
-              "selectedOptionIndex": 0
-            },
-            {
-              "questionId": "<ObjectId_Of_Question2>",
-              "selectedOptionIndex": 1
-            }
-          ]
-        }
-        ```
-
-* **GET /answers**
-    * Purpose: Get list of all answers
-
-* **GET /answers/:id**
-    * Purpose: Get answer details by ID
-
-* **GET /answers/user/:userId**
-    * Purpose: Get all answers from a specific user
-
-* **GET /answers/question/:questionId**
-    * Purpose: Get all answers for a specific question
-
-* **PUT /answers/:id**
-    * Purpose: Update an answer
-    * Body (JSON):
-        ```json
-        {
-          "content": "Đây là câu trả lời đã cập nhật",
-          "isCorrect": true
-        }
-        ```
-
-* **DELETE /answers/:id**
-    * Purpose: Delete an answer
 
 ---
 **12. Ratings**
