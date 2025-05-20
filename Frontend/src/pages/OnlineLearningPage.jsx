@@ -67,7 +67,7 @@ const OnlineLearningPage = () => {
         <div className="flex flex-col min-h-screen bg-gray-50 overflow-x-hidden">
             {/* Header cố định ở đầu trang */}
             <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-md">
-                <Header lessons={lessons} />
+                <Header lessons={lessons} courseId={courseId}/>
             </div>
 
             <div className="flex flex-1 mt-14">

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 
 // Hàm lấy video ID từ URL YouTube
 const getVideoIdFromUrl = (url) => {
@@ -14,12 +15,98 @@ const formatDuration = (seconds) => {
     return `${minutes}:${secs.toString().padStart(2, "0")}`;
 };
 
-const VideoPlayer = ({ videoUrl, title = "" }) => {
+const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const playerRef = useRef(null);
     const playerContainerRef = useRef(null);
-    const isCompletedRef = useRef(false); // Theo dõi trạng thái hoàn thành 80%
+    const isCompletedRef = useRef(false); // Track if lesson is completed
+    const lastProgressRef = useRef({ progress: 0, watchTime: 0 }); // Store last progress locally
+    const updateTimeoutRef = useRef(null); // Debounce API calls
+
+    // Lấy studentId từ localStorage
+    const studentId = localStorage.getItem("studentId");
+
+    // Gọi API để kiểm tra trạng thái tiến độ ban đầu
+    const fetchInitialProgress = async () => {
+        if (!studentId || !lessonId) {
+            console.warn("Thiếu studentId hoặc lessonId, không thể lấy tiến độ ban đầu", { studentId, lessonId });
+            return;
+        }
+
+        try {
+            // Giả sử có endpoint để lấy tiến độ cho một lesson cụ thể
+            const response = await axios.get(`http://localhost:5000/progress/${studentId}/${lessonId}`);
+            const progressData = response.data;
+
+            if (progressData) {
+                lastProgressRef.current = {
+                    progress: progressData.progress || 0,
+                    watchTime: progressData.watchTime || 0,
+                };
+                isCompletedRef.current = progressData.status === "completed";
+                setCurrentTime(progressData.watchTime || 0); // Khôi phục vị trí cuối cùng
+                console.log("Initial progress loaded:", progressData);
+            }
+        } catch (err) {
+            console.error("Lỗi khi lấy tiến độ ban đầu:", err.response?.data || err.message);
+        }
+    };
+
+    // Gọi API để cập nhật tiến độ video
+    const updateProgress = async (progress, watchTime, status = "in_progress") => {
+        if (!studentId || !lessonId || isCompletedRef.current) {
+            console.warn("Không gọi API: Thiếu studentId, lessonId hoặc đã hoàn thành", { studentId, lessonId, isCompleted: isCompletedRef.current });
+            return;
+        }
+
+        try {
+            const response = await axios.post("http://localhost:5000/progress", {
+                studentId,
+                lessonId,
+                status,
+                progress,
+                watchTime,
+            });
+            console.log(`Cập nhật tiến độ: ${status}, progress: ${progress}%, watchTime: ${watchTime}s`, response.data);
+            if (status === "completed") {
+                isCompletedRef.current = true;
+                console.log("✅ Lesson marked as completed");
+            }
+        } catch (err) {
+            console.error("Lỗi khi cập nhật tiến độ video:", err.response?.data || err.message);
+        }
+    };
+
+    // Debounce cập nhật tiến độ
+    const debounceUpdateProgress = (progress, watchTime, status = "in_progress") => {
+        lastProgressRef.current = { progress, watchTime };
+        if (updateTimeoutRef.current) {
+            clearTimeout(updateTimeoutRef.current);
+        }
+        updateTimeoutRef.current = setTimeout(() => {
+            updateProgress(progress, watchTime, status);
+        }, 1000); // Debounce 1 giây
+    };
+
+    // Xử lý khi người dùng rời trang hoặc chuyển tab
+    const handleVisibilityChange = () => {
+        if (document.visibilityState === "hidden" && !isCompletedRef.current) {
+            const { progress, watchTime } = lastProgressRef.current;
+            if (progress > 0) {
+                updateProgress(progress, watchTime, progress >= 80 ? "completed" : "in_progress");
+            }
+        }
+    };
+
+    const handleBeforeUnload = () => {
+        if (!isCompletedRef.current) {
+            const { progress, watchTime } = lastProgressRef.current;
+            if (progress > 0) {
+                updateProgress(progress, watchTime, progress >= 80 ? "completed" : "in_progress");
+            }
+        }
+    };
 
     // Tạo player YouTube
     const createPlayer = () => {
@@ -40,15 +127,19 @@ const VideoPlayer = ({ videoUrl, title = "" }) => {
                     controls: 1,
                     rel: 0,
                     modestbranding: 1,
-                    start: 0, // Bắt đầu từ 0 giây
+                    start: lastProgressRef.current.watchTime || 0, // Bắt đầu từ vị trí cuối cùng
                 },
                 events: {
                     onReady: (event) => {
                         const videoDuration = event.target.getDuration();
                         setDuration(videoDuration || 0);
-                        setCurrentTime(0); // Reset currentTime khi player sẵn sàng
                         console.log(`Video ${videoId} duration: ${videoDuration}`);
-                        event.target.seekTo(0); // Đảm bảo video bắt đầu từ 0
+                        event.target.seekTo(lastProgressRef.current.watchTime || 0);
+
+                        // Cập nhật trạng thái "in_progress" nếu chưa hoàn thành
+                        if (studentId && lessonId && !isCompletedRef.current) {
+                            debounceUpdateProgress(lastProgressRef.current.progress || 0, lastProgressRef.current.watchTime || 0, "in_progress");
+                        }
                     },
                     onError: (error) => {
                         console.error("Lỗi player:", error);
@@ -56,25 +147,23 @@ const VideoPlayer = ({ videoUrl, title = "" }) => {
                     },
                     onStateChange: (event) => {
                         if (event.data === window.YT.PlayerState.PLAYING) {
-                            // Reset currentTime nếu video bắt đầu phát từ đầu
-                            if (Math.abs(event.target.getCurrentTime()) < 1) {
-                                setCurrentTime(0);
-                            }
-
-                            let hasLogged80Percent = false;
-
                             const interval = setInterval(() => {
                                 const time = event.target.getCurrentTime();
                                 const totalDuration = event.target.getDuration();
                                 setCurrentTime(time);
 
-                                console.log(`Thời gian hiện tại: ${time}`);
+                                if (totalDuration && !isCompletedRef.current) {
+                                    const progress = ((time / totalDuration) * 100).toFixed(2);
+                                    lastProgressRef.current = { progress, watchTime: time };
 
-                                if (!hasLogged80Percent && totalDuration && time / totalDuration >= 0.8) {
-                                    hasLogged80Percent = true;
-                                    console.log("✅ Đã xem hơn 80% video");
+                                    // Chỉ cập nhật nếu đạt hơn 80%
+                                    if (progress >= 80) {
+                                        debounceUpdateProgress(100, time, "completed");
+                                        clearInterval(interval);
+                                        playerRef.current.interval = null;
+                                    }
                                 }
-                            }, 3000);
+                            }, 1000); // Cập nhật mỗi 1 giây
                             playerRef.current.interval = interval;
                         } else {
                             if (playerRef.current?.interval) {
@@ -93,9 +182,15 @@ const VideoPlayer = ({ videoUrl, title = "" }) => {
 
     // Tải YouTube IFrame API và tạo player
     useEffect(() => {
-        isCompletedRef.current = false; // Reset trạng thái hoàn thành khi videoUrl thay đổi
-        setCurrentTime(0); // Reset currentTime khi videoUrl thay đổi
+        // Reset trạng thái
+        isCompletedRef.current = false;
+        lastProgressRef.current = { progress: 0, watchTime: 0 };
+        setCurrentTime(0);
 
+        // Lấy tiến độ ban đầu
+        fetchInitialProgress();
+
+        // Tải YouTube IFrame API
         if (!window.YT) {
             const tag = document.createElement("script");
             tag.src = "https://www.youtube.com/iframe_api";
@@ -109,6 +204,10 @@ const VideoPlayer = ({ videoUrl, title = "" }) => {
             createPlayer();
         }
 
+        // Thêm sự kiện visibilitychange và beforeunload
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
         return () => {
             if (playerRef.current?.interval) {
                 clearInterval(playerRef.current.interval);
@@ -116,8 +215,20 @@ const VideoPlayer = ({ videoUrl, title = "" }) => {
             if (playerRef.current?.destroy) {
                 playerRef.current.destroy();
             }
+            if (updateTimeoutRef.current) {
+                clearTimeout(updateTimeoutRef.current);
+            }
+            // Gọi API lần cuối khi component unmount
+            if (!isCompletedRef.current) {
+                const { progress, watchTime } = lastProgressRef.current;
+                if (progress > 0) {
+                    updateProgress(progress, watchTime, progress >= 80 ? "completed" : "in_progress");
+                }
+            }
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            window.removeEventListener("beforeunload", handleBeforeUnload);
         };
-    }, [videoUrl]);
+    }, [videoUrl, lessonId, studentId]); // Đảm bảo studentId là dependency
 
     return (
         <div className="relative w-full rounded-lg overflow-hidden">

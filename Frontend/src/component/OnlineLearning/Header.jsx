@@ -1,17 +1,20 @@
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
-const Header = ({ lessons }) => {
+const Header = ({ lessons ,courseId}) => {
     const navigate = useNavigate();
     const handleBack = () => {
-        // console.log("Navigating back to the previous page");
-        // alert("Trở về trang trước");
-        navigate(`/course/${lessons[0].idCourse.id}`);
+        if (courseId) {
+            navigate(`/course/${courseId}`);
+        } else {
+            console.warn("courseId is not provided, cannot navigate back");
+            navigate(-1); // Fallback: quay lại trang trước đó
+        }
     };
 
     // Tính toán tiến trình học
     const totalLessons = lessons.length;
-    const completedLessons = lessons.filter(lesson => lesson.status === "active").length;
+    const completedLessons = lessons.filter(lesson => lesson.progress?.status === "completed").length;
     const progressPercentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
     return (

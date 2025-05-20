@@ -4,45 +4,77 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faYoutube, faTwitter, faTelegram } from "@fortawesome/free-brands-svg-icons";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const PaymentCard = (props) => {
     const { courseData } = props;
     console.log("courseData: ", courseData);
     const courseId = courseData.courseId;
+    const navigate = useNavigate();
+
     useEffect(() => {
         localStorage.setItem("courseId", courseId);
-    }, [courseId])
-    const navigate = useNavigate();
-    return (
-        <div className="  w-2/5 mt-[-300px]">
-            <div className="w-full p-6 bg-white max-w-sm mx-auto rounded-lg shadow-md">
+    }, [courseId]);
 
+    // Kiểm tra trạng thái đăng nhập
+    const isLoggedIn = () => {
+        const studentId = localStorage.getItem("studentId");
+        return !!studentId; // Trả về true nếu studentId tồn tại
+    };
+
+    // Xử lý khi nhấn nút "Learn"
+    const handleLearnClick = () => {
+        if (isLoggedIn()) {
+            navigate(`/online-learning/${courseId}`);
+        } else {
+            const confirmLogin = window.confirm(
+                "Bạn cần đăng nhập để tham gia khóa học. Vui lòng đăng nhập để tiếp tục."
+            );
+            if (confirmLogin) {
+                navigate("/login"); // Điều hướng đến trang đăng nhập nếu nhấn OK
+            }
+        }
+    };
+
+    // Xử lý khi nhấn nút "Do Test"
+    const handleTestClick = () => {
+        if (isLoggedIn()) {
+            if (courseData.test && courseData.test.length > 0) {
+                navigate(`/test-page/${courseData.test[0].idTest}`);
+            } else {
+                alert("Không có bài kiểm tra nào cho khóa học này");
+            }
+        } else {
+            const confirmLogin = window.confirm(
+                "Bạn cần đăng nhập để làm bài kiểm tra. Vui lòng đăng nhập để tiếp tục."
+            );
+            if (confirmLogin) {
+                navigate("/login"); // Điều hướng đến trang đăng nhập nếu nhấn OK
+            }
+        }
+    };
+
+    return (
+        <div className="w-2/5 mt-[-300px]">
+            <div className="w-full p-6 bg-white max-w-sm mx-auto rounded-lg shadow-md">
                 {/* Hình ảnh khóa học */}
                 <img
-                    src={courseData.image||"/img/course.png"}
+                    src={courseData.image || "/img/course.png"}
                     alt="Course"
                     className="w-full rounded-md mb-4"
                 />
 
-                {/* Giá và khuyến mãi */}
-                {/* <div className="text-center">
-                <p className="text-2xl font-bold">
-                    $49.65 <span className="text-gray-400 line-through">$99.99</span>
-                    <span className="text-green-500 text-sm font-semibold"> 50% Off</span>
-                </p>
-                <p className="text-blue-500 text-sm font-semibold mt-1">11 hours left at this price</p>
-            </div> */}
-
                 {/* Nút mua */}
                 <button
-                    onClick={() => navigate(`/online-learning/${courseId}`)}
-                    className="w-full bg-teal-500 text-white font-semibold py-2 rounded-lg mt-4 hover:bg-teal-600 transition">
+                    onClick={handleLearnClick}
+                    className="w-full bg-teal-500 text-white font-semibold py-2 rounded-lg mt-4 hover:bg-teal-600 transition"
+                >
                     Learn
                 </button>
                 <button
-                    onClick={() => navigate(`/test-page/${courseData.test[0].idTest}`)}
-                    className="w-full bg-gray-300 text-teal-500 font-semibold py-2 rounded-lg mt-4 hover:bg-teal-300 hover:text-white transition">
+                    onClick={handleTestClick}
+                    className="w-full bg-gray-300 text-teal-500 font-semibold py-2 rounded-lg mt-4 hover:bg-teal-300 hover:text-white transition"
+                >
                     Do Test
                 </button>
 
@@ -52,10 +84,22 @@ const PaymentCard = (props) => {
                 <div>
                     <h3 className="text-lg font-semibold mb-2">This Course Included</h3>
                     <ul className="space-y-2 text-sm text-gray-700">
-                        <li className="flex items-center"><FontAwesomeIcon icon={faCheckCircle} className="text-teal-500 mr-2" /> Money Back Guarantee</li>
-                        <li className="flex items-center"><FontAwesomeIcon icon={faMobileAlt} className="text-teal-500 mr-2" /> Access on all devices</li>
-                        <li className="flex items-center"><FontAwesomeIcon icon={faCertificate} className="text-teal-500 mr-2" /> Certification of completion</li>
-                        <li className="flex items-center"><FontAwesomeIcon icon={faBook} className="text-teal-500 mr-2" /> 32 Modules</li>
+                        <li className="flex items-center">
+                            <FontAwesomeIcon icon={faCheckCircle} className="text-teal-500 mr-2" />
+                            Money Back Guarantee
+                        </li>
+                        <li className="flex items-center">
+                            <FontAwesomeIcon icon={faMobileAlt} className="text-teal-500 mr-2" />
+                            Access on all devices
+                        </li>
+                        <li className="flex items-center">
+                            <FontAwesomeIcon icon={faCertificate} className="text-teal-500 mr-2" />
+                            Certification of completion
+                        </li>
+                        <li className="flex items-center">
+                            <FontAwesomeIcon icon={faBook} className="text-teal-500 mr-2" />
+                            32 Modules
+                        </li>
                     </ul>
                 </div>
 
