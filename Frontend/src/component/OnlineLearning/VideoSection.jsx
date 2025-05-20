@@ -8,14 +8,13 @@ const VideoSection = ({ selectedLesson }) => {
             <VideoPlayer
                 videoUrl={selectedLesson.linkVideo}
                 title={selectedLesson.name.toUpperCase()}
-                subtitle="Kiến thức nền tảng"
+                lessonId={selectedLesson._id} // Truyền lessonId
             />
             <div className="px-2">
                 <VideoDescription
                     title={selectedLesson.name}
-                    updateDate={formatToVietnamTime(selectedLesson.updatedAt)} // You can make this dynamic if needed
+                    updateDate={formatToVietnamTime(selectedLesson.updatedAt)}
                     description={selectedLesson.content}
-
                 />
             </div>
         </div>

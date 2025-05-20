@@ -1,31 +1,41 @@
-import { FaPlayCircle, FaLock } from "react-icons/fa";
+import { FaPlayCircle } from "react-icons/fa";
 
 const LessonItem = ({ lesson, selectedLesson, index, onSelect, isSelected }) => {
-    console.log("selectedLesson ", selectedLesson);
+    // Determine if this lesson is the selected one
     const isActive = lesson._id === selectedLesson?._id;
+
+    // Get the lesson's status from the progress object (default to "not_started" if not available)
+    const status = lesson.progress?.status || "not_started";
+
+    // Define styles based on status
+    const getStatusStyles = () => {
+        if (isSelected) {
+            return "bg-teal-600 text-white shadow-md scale-105";
+        }
+        switch (status) {
+            case "completed":
+                return "bg-teal-400 text-white hover:bg-teal-500";
+            case "in_progress":
+                return "bg-yellow-200 text-gray-800 hover:bg-yellow-300";
+            case "not_started":
+            default:
+                return "bg-gray-200 text-gray-600 hover:bg-gray-300";
+        }
+    };
 
     return (
         <div
-            onClick={onSelect}
-            className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 ease-in-out ${isSelected
-                ? "bg-teal-600 text-white shadow-md scale-105"
-                : isActive
-                    ? "bg-teal-400 hover:bg-teal-600 text-white"
-                    : "bg-teal-100 cursor-not-allowed text-gray-600"
-                }`}
+            onClick={onSelect} // Allow clicking for all statuses
+            className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ease-in-out ${getStatusStyles()}`}
         >
             <div className="flex items-center space-x-3">
-                {/* {isActive ? (
-                    <FaPlayCircle className={`text-lg ${isSelected ? "text-white" : "text-white"}`} />
-                ) : (
-                    <FaLock className="text-gray-400 text-lg" />
-                )} */}
-                <FaPlayCircle className={`text-lg ${isSelected ? "text-white" : "text-white"}`} />
-                <span className={`font-medium ${isSelected ? "text-white" : isActive ? "text-white" : "text-gray-600"}`}>
+                <FaPlayCircle className={`text-lg ${isSelected || status === "completed" ? "text-white" : status === "in_progress" ? "text-gray-800" : "text-gray-600"}`} />
+                <span className={`font-medium ${isSelected || status === "completed" ? "text-white" : status === "in_progress" ? "text-gray-800" : "text-gray-600"}`}>
                     {index + 1}. {lesson.name}
                 </span>
             </div>
-            <span className={`text-xs ${isSelected ? "text-gray-200" : "text-gray-500"}`}>
+            <span className={`text-xs ${isSelected || status === "completed" ? "text-gray-200" : status === "in_progress" ? "text-gray-700" : "text-gray-500"}`}>
+                {/* Uncomment if you have duration data */}
                 {/* {lesson.duration} */}
             </span>
         </div>
