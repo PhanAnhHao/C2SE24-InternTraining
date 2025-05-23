@@ -40,7 +40,7 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
         try {
             const response = await axios.get(`http://localhost:5000/progress/${studentId}/${lessonId}`);
             const progressData = response.data || { watchTime: 0, status: "not_started", progress: 0 };
-            console.log("API response:", progressData);
+            // console.log("API response:", progressData);
 
             if (!progressData.watchTime || progressData.status === "not_started") {
                 console.log("Người dùng chưa bắt đầu bài học, không cần khôi phục tiến độ.");
@@ -59,13 +59,15 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
             }
             console.log("Khôi phục tiến độ video:", progressData);
         } catch (err) {
-            console.error("Lỗi khi lấy tiến độ:", err.response?.data || err.message);
+            // Chỉ ghi log lỗi nếu không phải 404
             if (err.response?.status !== 404) {
+                console.error("Lỗi khi lấy tiến độ:", err.response?.data || err.message);
                 setError("Không thể lấy tiến độ bài học");
+            } else {
+                console.log("Không có tiến độ, bắt đầu từ đầu.");
             }
         }
     }, [studentId, lessonId]);
-
     // Cập nhật tiến độ video
     const updateProgress = useCallback(async (progress, watchTime, status = "in_progress") => {
         if (!studentId || !lessonId || isCompletedRef.current) {
@@ -130,7 +132,7 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
             setCurrentTime(watchTime);
             setShowResumeMessage(true);
             setTimeout(() => setShowResumeMessage(false), 3000);
-            console.log(`Nhảy đến vị trí: ${watchTime}s`);
+            // console.log(`Nhảy đến vị trí: ${watchTime}s`);
         }
         setShowContinuePrompt(false);
     }, []);
@@ -154,10 +156,9 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
             event.target.seekTo(0, true);
             setCurrentTime(0);
             lastProgressRef.current.watchTime = 0;
-            console.log("Video đã hoàn thành, chạy từ đầu");
+            // console.log("Video đã hoàn thành, chạy từ đầu");
         }
         // Nếu video ở trạng thái in_progress, chờ người dùng chọn "Có" hoặc "Không"
-        // Không gọi seekTo ở đây, sẽ xử lý trong handleContinueYes/handleContinueNo
     }, []);
 
     // Xử lý khi trạng thái video thay đổi
