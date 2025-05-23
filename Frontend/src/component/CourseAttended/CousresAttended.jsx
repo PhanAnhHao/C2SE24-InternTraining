@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CourseCard from "./CourseCard.jsx";
 
-const YourCourse = () => {
+const CousresAttended = () => {
     const [courses, setCourses] = useState([]);
     const [filteredCourses, setFilteredCourses] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -10,8 +10,15 @@ const YourCourse = () => {
 
     useEffect(() => {
         const fetchCourses = async () => {
+            const studentId = localStorage.getItem("studentId");
+            if (!studentId) {
+                console.error("No studentId found in localStorage.");
+                setLoading(false);
+                return;
+            }
+
             try {
-                const response = await fetch('http://localhost:5000/courses/');
+                const response = await fetch(`http://localhost:5000/courses/student-enrolled-courses/student?studentId=${studentId}`);
                 const data = await response.json();
                 const transformedCourses = data.map(course => ({
                     id: course._id,
@@ -19,12 +26,12 @@ const YourCourse = () => {
                     category: "programming",
                     avgRating: course.avgRating,
                     instructor: "Unknown",
-                    image: "/img/placeholder.jpg",
+                    image: course.image || "https://placehold.co/150", // Sử dụng course.image từ API, fallback nếu không có
                     description: course.infor,
-                    price: 400,
-                    oldPrice: 500,
                     ratingsCount: course.ratingsCount,
-                    language: course.languageID.name
+                    language: course.languageID.name,
+                    creator: course.businessId?.userId?.userName || "Unknown Creator",
+                    AvatarCreator: course.businessId?.userId?.avatar || "https://placehold.co/40"
                 }));
                 setCourses(transformedCourses);
                 setFilteredCourses(transformedCourses);
@@ -71,7 +78,7 @@ const YourCourse = () => {
     return (
         <div>
             <div className="px-[5%] py-10 bg-white">
-                <h2 className="text-2xl font-bold mb-4">Course List</h2>
+                <h2 className="text-2xl font-bold mb-4">Course Attended</h2>
                 <div
                     className={`w-full ${currentCourses.length >= 4 ? 'grid grid-cols-4 justify-center gap-4' : 'flex flex-wrap gap-4'}`}>
                     {currentCourses.map(course => (
@@ -106,4 +113,4 @@ const YourCourse = () => {
     );
 };
 
-export default YourCourse;
+export default CousresAttended;

@@ -118,7 +118,7 @@ router.get('/:studentId/:lessonId', async (req, res) => {
       });
     
     if (!progressRecord) {
-      return res.status(404).json({ 
+      return res.status(200).json({
         message: 'No progress record found',
         data: {
           studentId,

@@ -679,4 +679,87 @@ router.get('/business/:businessId', async (req, res) => {
   }
 });
 
+
+router.get('/student-enrolled-courses/student', async (req, res) => {
+  const { studentId, businessId } = req.query;
+
+  if (!studentId) {
+    return res.status(400).json({ error: 'Missing studentId' });
+  }
+
+  const cleanedStudentId = studentId.replace(/[^0-9a-fA-F]/g, '');
+  if (!/^[0-9a-fA-F]{24}$/.test(cleanedStudentId)) {
+    return res.status(400).json({ error: 'Invalid studentId format' });
+  }
+
+  const parsedStudentId = new mongoose.Types.ObjectId(cleanedStudentId);
+  const student = await mongoose.model('Student').findById(parsedStudentId);
+  if (!student) {
+    return res.status(404).json({ error: 'Student not found' });
+  }
+
+  try {
+    const progressRecords = await StudentLessonProgress.find({
+      studentId: parsedStudentId,
+      status: { $in: ['in_progress', 'completed'] }
+    }).populate({
+      path: 'lessonId',
+      select: 'idCourse'
+    });
+
+    if (!progressRecords.length) {
+      return res.status(200).json({ message: 'No enrolled courses found for this student', courses: [] });
+    }
+
+    const courseIds = [...new Set(progressRecords
+        .filter(record => record.lessonId && record.lessonId.idCourse)
+        .map(record => record.lessonId.idCourse))];
+
+    const courseFilter = { _id: { $in: courseIds } };
+    if (businessId && mongoose.Types.ObjectId.isValid(businessId)) {
+      courseFilter.businessId = new mongoose.Types.ObjectId(businessId);
+    }
+
+    const courses = await Course.find(courseFilter)
+        .populate('languageID', 'languageId name')
+        .populate({
+          path: 'businessId',
+          select: 'idBusiness type detail userId',
+          populate: {
+            path: 'userId',
+            select: 'userName email location phone avatar cv'
+          }
+        })
+        .populate({
+          path: 'ratings',
+          populate: {
+            path: 'studentId',
+            select: 'idStudent userId',
+            populate: {
+              path: 'userId',
+              select: 'userName'
+            }
+          }
+        });
+
+    const formattedCourses = courses.map(course => {
+      const courseObj = course.toObject();
+      const avgRating = courseObj.ratings?.length
+          ? parseFloat((courseObj.ratings.reduce((acc, rating) => acc + rating.stars, 0) / courseObj.ratings.length).toFixed(1))
+          : 0;
+      return {
+        ...courseObj,
+        avgRating,
+        ratingsCount: courseObj.ratings?.length || 0
+      };
+    });
+
+    res.json(formattedCourses);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;
+
 module.exports = router;

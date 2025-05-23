@@ -26,7 +26,7 @@ import ChangePassword from './component/ChangePassword/ChangePassword.jsx';
 import CreateBlog from './component/BlogPage/CreateBlog/CreateBlog.jsx';
 import OnlineLearningPage from "./pages/OnlineLearningPage.jsx";
 import RequestProfile from "./pages/RequestProfile.jsx";
-import YourCourse from "./component/YourCourse/YourCourse.jsx";
+import CousresAttended from "./component/CourseAttended/CousresAttended.jsx";
 import AccessStudentProfile from "./component/RequestProfile/AccessStudentProfile.jsx";
 import MyBlog from "./component/Profile/MyBlog.jsx";
 import UpdateBlog from "./component/BlogPage/UpdateBlog/UpdateBlog.jsx";
@@ -54,7 +54,7 @@ function App() {
             <Route path="/blogs/:blogId" element={<BlogDetail />} />
             <Route path="/my-blog" element={<MyBlog />} />
             <Route path="/update-blog/:blogId" element={<UpdateBlog />} />
-            <Route path="/your-courses" element={<YourCourse />} />
+            <Route path="/course-attended" element={<CousresAttended />} />
             <Route path="/reset-password/:token" element={<ResetPasswordForm />} />
 
 
