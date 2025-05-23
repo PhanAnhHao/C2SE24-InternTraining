@@ -26,7 +26,7 @@ const CousresAttended = () => {
                     category: "programming",
                     avgRating: course.avgRating,
                     instructor: "Unknown",
-                    image: course.image || "https://placehold.co/150", // Sử dụng course.image từ API, fallback nếu không có
+                    image: course.image || "https://placehold.co/150",
                     description: course.infor,
                     ratingsCount: course.ratingsCount,
                     language: course.languageID.name,
@@ -79,34 +79,44 @@ const CousresAttended = () => {
         <div>
             <div className="px-[5%] py-10 bg-white">
                 <h2 className="text-2xl font-bold mb-4">Course Attended</h2>
-                <div
-                    className={`w-full ${currentCourses.length >= 4 ? 'grid grid-cols-4 justify-center gap-4' : 'flex flex-wrap gap-4'}`}>
-                    {currentCourses.map(course => (
-                        <CourseCard key={course.id} course={course} />
-                    ))}
-                </div>
-
-                {/* Pagination Controls */}
-                {filteredCourses.length > coursesPerPage && (
-                    <div className="flex justify-center mt-6 space-x-4">
-                        <button
-                            onClick={handlePrevPage}
-                            disabled={currentPage === 1}
-                            className={`px-4 py-2 rounded-md ${currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-teal-500 text-white hover:bg-teal-600'}`}
-                        >
-                            Previous
-                        </button>
-                        <span className="flex items-center text-gray-700">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                            onClick={handleNextPage}
-                            disabled={currentPage === totalPages}
-                            className={`px-4 py-2 rounded-md ${currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-teal-500 text-white hover:bg-teal-600'}`}
-                        >
-                            Next
-                        </button>
+                {filteredCourses.length === 0 ? (
+                    <div className="text-center text-gray-500 py-10">
+                        <p className="text-lg">You haven't enrolled in any courses yet.</p>
+                        <p className="mt-2">Explore available courses to start learning!</p>
                     </div>
+                ) : (
+                    <>
+                        <div
+                            className={`w-full ${currentCourses.length >= 4 ? 'grid grid-cols-4 justify-center gap-4' : 'flex flex-wrap gap-4'}`}
+                        >
+                            {currentCourses.map(course => (
+                                <CourseCard key={course.id} course={course} />
+                            ))}
+                        </div>
+
+                        {/* Pagination Controls */}
+                        {filteredCourses.length > coursesPerPage && (
+                            <div className="flex justify-center mt-6 space-x-4">
+                                <button
+                                    onClick={handlePrevPage}
+                                    disabled={currentPage === 1}
+                                    className={`px-4 py-2 rounded-md ${currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-teal-500 text-white hover:bg-teal-600'}`}
+                                >
+                                    Previous
+                                </button>
+                                <span className="flex items-center text-gray-700">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                <button
+                                    onClick={handleNextPage}
+                                    disabled={currentPage === totalPages}
+                                    className={`px-4 py-2 rounded-md ${currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-teal-500 text-white hover:bg-teal-600'}`}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>

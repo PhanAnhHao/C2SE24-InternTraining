@@ -21,16 +21,24 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
     const [duration, setDuration] = useState(0);
     const [error, setError] = useState(null);
     const [showResumeMessage, setShowResumeMessage] = useState(false);
-    const [showContinuePrompt, setShowContinuePrompt] = useState(false); // State cho thông báo "Bạn có muốn xem tiếp?"
+    const [showContinuePrompt, setShowContinuePrompt] = useState(false);
     const playerRef = useRef(null);
     const intervalRef = useRef(null);
     const isCompletedRef = useRef(false);
     const lastProgressRef = useRef({ progress: 0, watchTime: 0 });
     const updateTimeoutRef = useRef(null);
     const studentId = localStorage.getItem("studentId");
+    const userRole = localStorage.getItem("role"); // Lấy role từ localStorage
 
-    // Lấy tiến độ ban đầu
+    // Chỉ áp dụng logic tiến độ nếu user là student
+    const isStudent = userRole === "Student";
+
+    // Lấy tiến độ ban đầu (chỉ cho student)
     const fetchInitialProgress = useCallback(async () => {
+        if (!isStudent) {
+            console.log("Không phải student, bỏ qua fetchInitialProgress");
+            return;
+        }
         if (!studentId || !lessonId) {
             console.warn("Thiếu studentId hoặc lessonId", { studentId, lessonId });
             setError("Vui lòng đăng nhập để tiếp tục từ vị trí đã lưu");
@@ -40,7 +48,6 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
         try {
             const response = await axios.get(`http://localhost:5000/progress/${studentId}/${lessonId}`);
             const progressData = response.data || { watchTime: 0, status: "not_started", progress: 0 };
-            // console.log("API response:", progressData);
 
             if (!progressData.watchTime || progressData.status === "not_started") {
                 console.log("Người dùng chưa bắt đầu bài học, không cần khôi phục tiến độ.");
@@ -59,7 +66,6 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
             }
             console.log("Khôi phục tiến độ video:", progressData);
         } catch (err) {
-            // Chỉ ghi log lỗi nếu không phải 404
             if (err.response?.status !== 404) {
                 console.error("Lỗi khi lấy tiến độ:", err.response?.data || err.message);
                 setError("Không thể lấy tiến độ bài học");
@@ -67,9 +73,14 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
                 console.log("Không có tiến độ, bắt đầu từ đầu.");
             }
         }
-    }, [studentId, lessonId]);
-    // Cập nhật tiến độ video
+    }, [studentId, lessonId, isStudent]);
+
+    // Cập nhật tiến độ video (chỉ cho student)
     const updateProgress = useCallback(async (progress, watchTime, status = "in_progress") => {
+        if (!isStudent) {
+            console.log("Không phải student, bỏ qua updateProgress");
+            return;
+        }
         if (!studentId || !lessonId || isCompletedRef.current) {
             console.warn("Không gọi API", { studentId, lessonId, isCompleted: isCompletedRef.current });
             return;
@@ -91,10 +102,14 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
             console.error("Lỗi khi cập nhật tiến độ:", err.response?.data || err.message);
             setError("Không thể cập nhật tiến độ");
         }
-    }, [studentId, lessonId]);
+    }, [studentId, lessonId, isStudent]);
 
-    // Debounce cập nhật tiến độ
+    // Debounce cập nhật tiến độ (chỉ cho student)
     const debounceUpdateProgress = useCallback((progress, watchTime, status = "in_progress") => {
+        if (!isStudent) {
+            console.log("Không phải student, bỏ qua debounceUpdateProgress");
+            return;
+        }
         lastProgressRef.current = { progress, watchTime };
         if (updateTimeoutRef.current) {
             clearTimeout(updateTimeoutRef.current);
@@ -102,29 +117,42 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
         updateTimeoutRef.current = setTimeout(() => {
             updateProgress(progress, watchTime, status);
         }, 2000);
-    }, [updateProgress]);
+    }, [updateProgress, isStudent]);
 
-    // Xử lý khi rời trang hoặc chuyển tab
+    // Xử lý khi rời trang hoặc chuyển tab (chỉ cho student)
     const handleVisibilityChange = useCallback(() => {
+        if (!isStudent) {
+            console.log("Không phải student, bỏ qua handleVisibilityChange");
+            return;
+        }
         if (document.visibilityState === "hidden" && !isCompletedRef.current) {
             const { progress, watchTime } = lastProgressRef.current;
             if (progress > 0) {
                 updateProgress(progress, watchTime, progress >= 80 ? "completed" : "in_progress");
             }
         }
-    }, [updateProgress]);
+    }, [updateProgress, isStudent]);
 
     const handleBeforeUnload = useCallback(() => {
+        if (!isStudent) {
+            console.log("Không phải student, bỏ qua handleBeforeUnload");
+            return;
+        }
         if (!isCompletedRef.current) {
             const { progress, watchTime } = lastProgressRef.current;
             if (progress > 0) {
                 updateProgress(progress, watchTime, progress >= 80 ? "completed" : "in_progress");
             }
         }
-    }, [updateProgress]);
+    }, [updateProgress, isStudent]);
 
-    // Xử lý khi người dùng chọn "Có" (tiếp tục xem từ watchTime)
+    // Xử lý khi người dùng chọn "Có" (tiếp tục xem từ watchTime) (chỉ cho student)
     const handleContinueYes = useCallback(() => {
+        if (!isStudent) {
+            console.log("Không phải student, bỏ qua handleContinueYes");
+            setShowContinuePrompt(false);
+            return;
+        }
         const watchTime = lastProgressRef.current.watchTime;
         const videoDuration = playerRef.current?.getDuration() || 0;
         if (watchTime > 0 && watchTime <= videoDuration) {
@@ -132,10 +160,9 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
             setCurrentTime(watchTime);
             setShowResumeMessage(true);
             setTimeout(() => setShowResumeMessage(false), 3000);
-            // console.log(`Nhảy đến vị trí: ${watchTime}s`);
         }
         setShowContinuePrompt(false);
-    }, []);
+    }, [isStudent]);
 
     // Xử lý khi người dùng chọn "Không" (chạy từ đầu)
     const handleContinueNo = useCallback(() => {
@@ -151,15 +178,12 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
         const videoDuration = event.target.getDuration();
         setDuration(videoDuration || 0);
 
-        // Nếu video đã hoàn thành, chạy từ đầu
-        if (isCompletedRef.current) {
+        if (isStudent && isCompletedRef.current) {
             event.target.seekTo(0, true);
             setCurrentTime(0);
             lastProgressRef.current.watchTime = 0;
-            // console.log("Video đã hoàn thành, chạy từ đầu");
         }
-        // Nếu video ở trạng thái in_progress, chờ người dùng chọn "Có" hoặc "Không"
-    }, []);
+    }, [isStudent]);
 
     // Xử lý khi trạng thái video thay đổi
     const onStateChange = useCallback((event) => {
@@ -169,7 +193,7 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
                     const time = event.target.getCurrentTime();
                     const totalDuration = event.target.getDuration();
                     setCurrentTime(time);
-                    if (totalDuration && !isCompletedRef.current) {
+                    if (isStudent && totalDuration && !isCompletedRef.current) {
                         const progress = ((time / totalDuration) * 100).toFixed(2);
                         lastProgressRef.current = { progress, watchTime: time };
                         if (progress >= 80) {
@@ -191,7 +215,7 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
                 intervalRef.current = null;
             }
         }
-    }, [debounceUpdateProgress]);
+    }, [debounceUpdateProgress, isStudent]);
 
     // Xử lý lỗi từ YouTube Player
     const onError = useCallback((event) => {
@@ -213,10 +237,12 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
         setCurrentTime(0);
         setError(null);
         setShowContinuePrompt(false);
-        fetchInitialProgress();
 
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-        window.addEventListener("beforeunload", handleBeforeUnload);
+        if (isStudent) {
+            fetchInitialProgress();
+            document.addEventListener("visibilitychange", handleVisibilityChange);
+            window.addEventListener("beforeunload", handleBeforeUnload);
+        }
 
         return () => {
             if (intervalRef.current) {
@@ -226,16 +252,18 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
             if (updateTimeoutRef.current) {
                 clearTimeout(updateTimeoutRef.current);
             }
-            if (!isCompletedRef.current) {
+            if (isStudent && !isCompletedRef.current) {
                 const { progress, watchTime } = lastProgressRef.current;
                 if (progress > 0) {
                     updateProgress(progress, watchTime, progress >= 80 ? "completed" : "in_progress");
                 }
             }
-            document.removeEventListener("visibilitychange", handleVisibilityChange);
-            window.removeEventListener("beforeunload", handleBeforeUnload);
+            if (isStudent) {
+                document.removeEventListener("visibilitychange", handleVisibilityChange);
+                window.removeEventListener("beforeunload", handleBeforeUnload);
+            }
         };
-    }, [videoUrl, lessonId, studentId, fetchInitialProgress, updateProgress, handleVisibilityChange, handleBeforeUnload]);
+    }, [videoUrl, lessonId, studentId, fetchInitialProgress, updateProgress, handleVisibilityChange, handleBeforeUnload, isStudent]);
 
     const videoId = getVideoIdFromUrl(videoUrl);
 
@@ -246,7 +274,7 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
                     {error}
                 </div>
             )}
-            {showContinuePrompt && (
+            {isStudent && showContinuePrompt && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                     <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center space-y-4">
                         <p className="text-lg font-semibold">
@@ -269,7 +297,7 @@ const VideoPlayer = ({ videoUrl, title = "", lessonId }) => {
                     </div>
                 </div>
             )}
-            {showResumeMessage && (
+            {isStudent && showResumeMessage && (
                 <div className="absolute top-4 right-4 bg-teal-500 text-white px-4 py-2 rounded">
                     Tiếp tục từ {formatDuration(lastProgressRef.current.watchTime)}
                 </div>
