@@ -4,55 +4,58 @@ import ReviewList from "../../../src/component/Admin/ManageReviews/ReviewList.js
 import Table from "../../../src/component/Admin/ManageReviews/Table.jsx";
 import Filter from "../../../src/component/Admin/ManageReviews/Filter";
 import axios from "axios";
+import { useSnackbar } from "notistack"; // Thêm useSnackbar
 
 const ManageReviews = () => {
     const [selectedCourse, setSelectedCourse] = useState(null);
-    const [coursesData, setCoursesData] = useState([]);
+    const [courses, setCourses] = useState([]);
     const [reviewsData, setReviewsData] = useState([]);
     const [filters, setFilters] = useState({
         rating: "",
         user: "",
         date: "",
     });
-    const [loadingCourses, setLoadingCourses] = useState(true);
     const [loadingReviews, setLoadingReviews] = useState(false);
     const [error, setError] = useState(null);
 
-    // Gọi API để lấy danh sách khóa học
+    const { enqueueSnackbar } = useSnackbar(); // Thêm enqueueSnackbar
+
+    // Gọi API lấy danh sách khóa học
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                setLoadingCourses(true);
-                console.log("Fetching courses from /courses...");
-                const response = await axios.get("http://localhost:5000/courses");
-                const apiCourses = response.data;
-                console.log("Courses data:", apiCourses);
+                const role = localStorage.getItem('role');
+                let url = "http://localhost:5000/courses";
 
-                const mappedCourses = apiCourses.map((course) => ({
-                    id: course._id,
-                    title: course.infor,
-                    category: course.languageID?.name || "Unknown",
-                    averageRating: course.avgRating || 0,
-                    totalReviews: course.ratingsCount || 0,
-                }));
+                // Nếu role là Business, lấy businessId và thêm vào query
+                if (role === "Business") {
+                    const businessId = localStorage.getItem('businessId');
+                    if (!businessId) {
+                        enqueueSnackbar("Business ID not found. Please log in again.", { variant: "error" });
+                        return;
+                    }
+                    url = `http://localhost:5000/courses/business/${businessId}`;
+                }
 
-                console.log("Mapped courses:", mappedCourses);
-                setCoursesData(mappedCourses);
-                setLoadingCourses(false);
-            } catch (err) {
-                console.error("Error fetching courses:", err);
-                console.log("Error details:", {
-                    message: err.message,
-                    response: err.response ? err.response.data : null,
-                    status: err.response ? err.response.status : null,
-                });
-                setError("Failed to fetch courses: " + err.message);
-                setLoadingCourses(false);
+                const response = await axios.get(url);
+                let courseData = [];
+
+                // Chuẩn hóa dữ liệu: lấy mảng khóa học từ API
+                if (role === "Business") {
+                    courseData = response.data.courses || [];
+                } else {
+                    courseData = response.data || [];
+                }
+
+                console.log("Courses:", courseData);
+                setCourses(courseData);
+            } catch (error) {
+                console.error("Error fetching courses:", error);
+                enqueueSnackbar("Failed to fetch courses.", { variant: "error" }); // Thêm thông báo lỗi
             }
         };
-
         fetchCourses();
-    }, []);
+    }, [enqueueSnackbar]);
 
     // Gọi API để lấy reviews khi người dùng chọn một khóa học
     useEffect(() => {
@@ -84,7 +87,7 @@ const ManageReviews = () => {
                 const mappedReviews = apiReviews.ratings.map((rating) => ({
                     id: rating._id,
                     user: rating.studentId?.userId?.userName || "Anonymous Pill", // Sửa studentID thành studentId
-                    nameCourse: coursesData.find((course) => course.id === selectedCourse)?.title || "Unknown Course",
+                    nameCourse: courses.find((course) => course.id === selectedCourse)?.title || "Unknown Course",
                     rating: rating.stars || 0,
                     comment: rating.feedback || "",
                     date: rating.createdAt
@@ -109,9 +112,9 @@ const ManageReviews = () => {
         };
 
         fetchReviews();
-    }, [selectedCourse]); // Bỏ dependency coursesData
+    }, [selectedCourse]); // Bỏ dependency courses
 
-    const selectedCourseData = coursesData.find((course) => course.id === selectedCourse) || null;
+    const selectedCourseData = courses.find((course) => course.id === selectedCourse) || null;
 
     const handleDeleteReview = (courseId, reviewId) => {
         console.log("Deleting review:", { courseId, reviewId });
@@ -161,9 +164,7 @@ const ManageReviews = () => {
         return reviewsList;
     };
 
-    if (loadingCourses) {
-        return <div>Loading courses...</div>;
-    }
+
 
     return (
         <div className="min-h-screen">
@@ -188,7 +189,7 @@ const ManageReviews = () => {
 
             <div className="mt-6">
                 {!selectedCourse ? (
-                    <Table courses={coursesData} onSelectCourse={setSelectedCourse} />
+                    <Table courses={courses} onSelectCourse={setSelectedCourse} />
                 ) : (
                     <>
                     <div className="mb-4 flex justify-between items-center">
