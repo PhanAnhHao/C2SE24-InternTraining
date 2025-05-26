@@ -3,6 +3,7 @@ import Button from "../../common/Button.jsx";
 import { FaStar } from "react-icons/fa";
 
 const Table = ({ courses, onSelectCourse }) => {
+    console.log(courses);
     return (
         <div className="bg-white shadow-md rounded-xl overflow-hidden border border-gray-200">
             <table className="w-full border-collapse text-gray-700">
@@ -18,17 +19,17 @@ const Table = ({ courses, onSelectCourse }) => {
                 <tbody>
                 {courses.map((course, index) => (
                     <tr
-                        key={course.id}
+                        key={course._id}
                         className={`border-t ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} 
                         hover:bg-gray-100 transition-all duration-200`}
                     >
-                        <td className="p-2 font-semibold">{course.title}</td>
-                        <td className="p-2">{course.category}</td>
+                        <td className="p-2 font-semibold">{course.infor}</td>
+                        <td className="p-2">{course.languageID.name}</td>
                         <td className="p-2 flex items-center">
                             <FaStar className="text-yellow-500" />
-                            <span className="ml-1 font-medium">{course.averageRating.toFixed(1)}</span>
+                            <span className="ml-1 font-medium">{course.avgRating.toFixed(1)}</span>
                         </td>
-                        <td className="p-2">{course.totalReviews}</td>
+                        <td className="p-2">{course.ratingsCount}</td>
                         <td className="p-2">
                             <Button className="mr-2" onClick={() => onSelectCourse(course.id)}>
                                 View all reviews

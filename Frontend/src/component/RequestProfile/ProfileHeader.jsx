@@ -1,9 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from "react-router-dom";
 
-const ProfileHeader = ({ name, email, profilePic }) => {
+const ProfileHeader = ({ name, email, avatar }) => {
+    const [hasImageError, setHasImageError] = useState(false); // Thêm state để theo dõi lỗi ảnh
     const navigate = useNavigate(); // Hook để điều hướng
-
+console.log(avatar)
     // Hàm xử lý khi nhấn nút "Go to Homepage"
     const handleGoToHomepage = () => {
         navigate('/'); // Điều hướng về trang chủ
@@ -11,25 +14,27 @@ const ProfileHeader = ({ name, email, profilePic }) => {
 
     return (
         <div className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-50 to-yellow-50">
-            <div className="flex items-center">
+            {avatar && !hasImageError ? (
                 <img
-                    src={profilePic || "/img/Profile.jpg"}
-                    alt="Profile"
-                    className="w-12 h-12 rounded-full mr-4 object-cover"
-                    onError={(e) => { e.target.src = "https://via.placeholder.com/50"; }}
+                    src={avatar} // Loại bỏ cache-busting
+                    alt="User Avatar"
+                    className="w-9 h-9 rounded-full mr-4 object-cover"
+                    onError={() => setHasImageError(true)} // Đặt lỗi nếu load thất bại
                 />
-                <div>
-                    <h2 className="text-lg font-semibold">{name || "Your Name"}</h2>
-                    <p className="text-sm text-gray-500">{email || "your.email@example.com"}</p>
-                </div>
+            ) : (
+                <FontAwesomeIcon
+                    icon={faUserCircle}
+                    className="text-[35px] mr-4 text-gray-600 rounded-full border"
+                />
+            )}
+            <div>
+                <h2 className="text-xl font-bold">{name}</h2>
+                <p className="text-gray-600">{email}</p>
             </div>
             <button
-                className="flex items-center font-semibold bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                onClick={handleGoToHomepage} // Gắn sự kiện onClick
+                className="ml-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                onClick={handleGoToHomepage}
             >
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 010-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
                 Go to Homepage
             </button>
         </div>

@@ -40,16 +40,15 @@ const ManageCourse = () => {
                     courseData = response.data || [];
                 }
 
-                // Sắp xếp dữ liệu
+                // Sắp xếp dữ liệu theo thời gian tạo (createdAt) - mới nhất trước
                 const sortedData = courseData.sort((a, b) => {
-                    const numA = parseInt(a.idCourse.replace(/\D/g, ""));
-                    const numB = parseInt(b.idCourse.replace(/\D/g, ""));
-                    return numA - numB;
+                    return new Date(b.createdAt) - new Date(a.createdAt); // Sắp xếp giảm dần (mới nhất trước)
                 });
 
                 setCourses(sortedData);
             } catch (error) {
                 enqueueSnackbar("Failed to fetch courses.", { variant: "error" });
+                console.error("Error fetching courses:", error);
             }
         };
         fetchCourses();

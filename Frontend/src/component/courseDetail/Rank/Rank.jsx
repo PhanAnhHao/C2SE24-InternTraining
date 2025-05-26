@@ -18,8 +18,8 @@ const columns = [
         label: 'Score',
         minWidth: 100,
         align: 'right',
-        format: (value) => (value ? value.toFixed(2) : 'N/A'),
-    },
+        format: (value) => (value !== null && value !== undefined ? value.toFixed(2) : 'N/A'),
+    }
 ];
 
 export default function Rank() {
@@ -85,18 +85,17 @@ export default function Rank() {
                 // Combine info
                 const combinedRows = studentIds.map((id, index) => {
                     const scores = scoreMap[id].filter((s) => s !== null && s !== undefined);
-                    const avgScore = scores.length > 0
-                        ? scores.reduce((a, b) => a + b, 0) / scores.length
-                        : null;
+                    // Get the most recent score (last score in the filtered array)
+                    const mostRecentScore = scores.length > 0 ? scores[scores.length - 1] : null;
 
                     const studentInfo = studentInfoList.find((s) => s.id === id);
                     return {
                         no: index + 1,
                         name: studentInfo?.name || 'Unknown',
-                        score: avgScore,
+                        score: mostRecentScore,
                         id,
                     };
-                });                // Sort by score in descending order
+                });               // Sort by score in descending order
                 const sortedRows = combinedRows.sort((a, b) => (b.score || 0) - (a.score || 0));
                 
                 // Update ranking numbers based on sorted order

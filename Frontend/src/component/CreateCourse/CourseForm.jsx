@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import CourseHeader from "./CourseHeader.jsx";
 import { useSnackbar } from "notistack";
 import { v4 as uuidv4 } from 'uuid';
+import { useNavigate } from "react-router-dom"; // Thêm useNavigate
 
 const CourseForm = ({ lessons }) => {
     const [name, setName] = useState("");
@@ -11,8 +12,10 @@ const CourseForm = ({ lessons }) => {
     const [languages, setLanguages] = useState([]);
     const [image, setImage] = useState(null);
     const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false); // Thêm trạng thái để kiểm soát gửi yêu cầu
 
     const { enqueueSnackbar } = useSnackbar();
+    const navigate = useNavigate(); // Sử dụng useNavigate để chuyển hướng
 
     useEffect(() => {
         const fetchLanguages = async () => {
@@ -32,7 +35,6 @@ const CourseForm = ({ lessons }) => {
     const validateForm = () => {
         const newErrors = {};
 
-
         if (!desc.trim()) {
             newErrors.desc = "Course name is required.";
         }
@@ -49,7 +51,7 @@ const CourseForm = ({ lessons }) => {
         if (!businessId) {
             newErrors.businessId = "Business ID is required. Please log in.";
         }
-// Kiểm tra định dạng file ảnh
+
         if (image) {
             const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
             if (!validImageTypes.includes(image.type)) {
@@ -66,27 +68,28 @@ const CourseForm = ({ lessons }) => {
         const file = e.target.files[0];
         setImage(file);
     };
-    const handleCreate = async () => {
-        const validationErrors = validateForm();
 
+    const handleCreate = async () => {
+        if (isSubmitting) return; // Ngăn gửi yêu cầu nếu đang xử lý
+
+        const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             enqueueSnackbar("Please fix the errors in the form.", { variant: "error" });
             return;
         }
 
+        setIsSubmitting(true); // Đặt trạng thái đang gửi yêu cầu
         try {
-            // Lấy businessId từ trong localStorage
             const businessId = localStorage.getItem('businessId');
 
-            // Tạo FormData để gửi dữ liệu khóa học và ảnh
             const formData = new FormData();
             formData.append('idCourse', uuidv4());
             formData.append('infor', desc);
             formData.append('languageID', languageID);
             formData.append('businessId', businessId);
             if (image) {
-                formData.append('image', image); // Thêm file ảnh vào FormData
+                formData.append('image', image);
             }
 
             // Bước 1: Tạo Course
@@ -107,7 +110,6 @@ const CourseForm = ({ lessons }) => {
                     linkVideo: lesson.linkVideo || "",
                     status: "draft",
                 };
-                console.log(lessonData);
                 return axios.post("http://localhost:5000/lessons", lessonData);
             });
 
@@ -115,22 +117,20 @@ const CourseForm = ({ lessons }) => {
 
             enqueueSnackbar("Course and lessons created successfully!", { variant: "success" });
 
-            // Reset form
-            setName("");
-            setDesc("");
-            setLanguageID(languages.length > 0 ? languages[0]._id : "");
-            setImage(null);
-            setErrors({});
+            // Chuyển hướng sau khi tạo thành công
+            navigate("/dashboard/courses"); // Chuyển hướng đến trang dashboard
         } catch (error) {
             const errorMessage = error.response?.data?.error || "Failed to create course. Please try again.";
             enqueueSnackbar(errorMessage, { variant: "error" });
+        } finally {
+            setIsSubmitting(false); // Kết thúc trạng thái gửi yêu cầu
         }
     };
 
     return (
         <div className="w-full bg-[#F3FAFF]">
             <CourseHeader />
-            <div className="bg-white m-8 p-6 rounded-2xl ">
+            <div className="bg-white m-8 p-6 rounded-2xl">
                 <h2 className="font-bold mb-4 text-gray-700">Course Name</h2>
                 <textarea
                     value={desc}
@@ -138,6 +138,7 @@ const CourseForm = ({ lessons }) => {
                     placeholder="Course Name"
                     className={`w-full border ${errors.desc ? "border-red-500" : "border-[#D9D9D9]"} p-2 rounded mb-4`}
                     rows={4}
+                    disabled={isSubmitting}
                 />
                 {errors.desc && <p className="text-red-500 text-xs mb-4">{errors.desc}</p>}
                 <h2 className="font-bold mb-4 text-gray-700">Image</h2>
@@ -146,9 +147,10 @@ const CourseForm = ({ lessons }) => {
                     accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
                     onChange={handleImageChange}
                     className={`w-full border ${errors.image ? "border-red-500" : "border-[#D9D9D9]"} p-2 rounded mb-4`}
+                    disabled={isSubmitting}
                 />
                 {errors.image && <p className="text-red-500 text-xs mb-4">{errors.image}</p>}
-                {image && (
+                {image && !isSubmitting && (
                     <div className="mb-4">
                         <img
                             src={URL.createObjectURL(image)}
@@ -162,6 +164,7 @@ const CourseForm = ({ lessons }) => {
                     value={languageID}
                     onChange={(e) => setLanguageID(e.target.value)}
                     className={`w-full border ${errors.languageID ? "border-red-500" : "border-[#D9D9D9]"} p-2 rounded mb-4`}
+                    disabled={isSubmitting}
                 >
                     {languages.map((lang) => (
                         <option key={lang._id} value={lang._id}>
@@ -177,9 +180,12 @@ const CourseForm = ({ lessons }) => {
                 <div className="flex justify-end mt-20">
                     <button
                         onClick={handleCreate}
-                        className="bg-teal-500 hover:bg-teal-600 transition-colors text-white p-3 rounded font-semibold"
+                        className={`bg-teal-500 hover:bg-teal-600 transition-colors text-white p-3 rounded font-semibold ${
+                            isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                        disabled={isSubmitting}
                     >
-                        Create Now
+                        {isSubmitting ? "Creating..." : "Create Now"}
                     </button>
                 </div>
             </div>
