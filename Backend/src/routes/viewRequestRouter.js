@@ -166,6 +166,7 @@ router.get('/access/:token', auth, async (req, res) => {
         
         // Tạo đối tượng dữ liệu hồ sơ sinh viên an toàn
         const studentProfile = {
+            objectId: student._id,
             studentId: student.idStudent || 'Not available',
             age: student.age || 'Not specified',
             school: student.school || 'Not specified',
