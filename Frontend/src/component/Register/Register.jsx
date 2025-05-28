@@ -60,14 +60,27 @@ const RegisterPage = () => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email);
     };
+    const isValidPhone = (phone) => {
+        const regex = /^[0-9]{10,11}$/;
+        return regex.test(phone);
+    };
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
 
     const handleStep1Submit = (e) => {
         e.preventDefault();
         const newErrors = {};
-
-        if (!formData.username.trim()) newErrors.username = 'Username cannot be blank';
-        if (!formData.password || formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters';
+// Username validation
+        if (!formData.username.trim()) {
+            newErrors.username = 'Username cannot be blank';
+        } else if (formData.username.length < 2 || formData.username.length > 50) {
+            newErrors.username = 'Username must be between 2 and 50 characters';
+        }
+        // Password validation
+        if (!formData.password) {
+            newErrors.password = 'Password cannot be blank';
+        } else if (!passwordRegex.test(formData.password)) {
+            newErrors.password = 'Password must contain at least 6 characters, one uppercase, one lowercase, one number, and one special character';
         }
         if (!formData.confirmPassword) {
             newErrors.confirmPassword = 'Please confirm your password';
@@ -91,9 +104,24 @@ const RegisterPage = () => {
         } else if (!isValidEmail(formData.email)) {
             newErrors.email = 'Invalid email format';
         }
-        if (!formData.userName.trim()) newErrors.userName = 'Display name cannot be blank';
-        if (!formData.location.trim()) newErrors.location = 'Location cannot be blank';
-        if (!formData.phone.trim()) newErrors.phone = 'Phone number cannot be blank';
+        // Display Name (userName) validation
+        if (!formData.userName.trim()) {
+            newErrors.userName = 'Display name cannot be blank';
+        } else if (formData.userName.length < 2 || formData.userName.length > 50) {
+            newErrors.userName = 'Display name must be between 2 and 50 characters';
+        }
+        // Location validation
+        if (!formData.location.trim()) {
+            newErrors.location = 'Location cannot be blank';
+        } else if (formData.location.length > 200) {
+            newErrors.location = 'Location cannot exceed 200 characters';
+        }
+        // Phone validation
+        if (!formData.phone.trim()) {
+            newErrors.phone = 'Phone number cannot be blank';
+        } else if (!isValidPhone(formData.phone)) {
+            newErrors.phone = 'Phone number must be 10-11 digits';
+        }
         if (role === 'business' && !formData.detail.trim()) newErrors.detail = 'Detail cannot be blank';
         if (role === 'business' && !formData.type) newErrors.type = 'Please select a business type';
         if (formData.age && (isNaN(formData.age) || formData.age < 0)) {
@@ -115,8 +143,8 @@ const RegisterPage = () => {
             setTimeout(() => navigate('/login'), 2000);
         } catch (error) {
             console.error('Register error:', error);
-            if (error.response && error.response.data && error.response.data.message) {
-                setApiError(error.response.data.message);
+            if (error.response && error.response.data && error.response.data.error) {
+                setApiError(error.response.data.error); // Lấy trường error thay vì message
             } else {
                 setApiError('Registration failed!');
             }
