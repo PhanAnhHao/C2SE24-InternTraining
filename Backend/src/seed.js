@@ -111,7 +111,7 @@ async function seed() {
     // Default avatars
     const avatarUrls = {
       student: `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/avatars%2Fdefault-student.jpg?alt=media`,
-      business: `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/avatars%2Fdefault-business.jpg?alt=media`
+      business: (i) => `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/avatars%2Fdefault-business${i+1}.jpg?alt=media`
     };
     
     // Create student users
@@ -135,7 +135,7 @@ async function seed() {
         email: businessAccounts[i].email,
         location: faker.location.city(),
         phone: faker.phone.number('+1##########'),
-        avatar: avatarUrls.business,
+        avatar: avatarUrls.business(i),
         idAccount: businessAccounts[i]._id
       });
     }
@@ -1308,7 +1308,7 @@ async function seed() {
       blogs.push({
         title: blogTitle,
         content: blogContent,
-        image: `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/blogs%2Fblog-${i+1}.jpg?alt=media`,
+        image: `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/blogs%2Fblog${i+1}.jpg?alt=media`,
         tags: [
           faker.helpers.arrayElement(['Technology', 'Programming', 'Education', 'Career']),
           faker.helpers.arrayElement(['Web', 'Mobile', 'AI', 'Cloud'])

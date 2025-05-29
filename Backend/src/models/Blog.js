@@ -8,10 +8,9 @@ const BlogSchema = new mongoose.Schema({
   content: {
     type: String,
     required: true
-  },
-  image: {
+  },  image: {
     type: String,
-    default: 'https://storage.googleapis.com/intern-training-ed6ba.appspot.com/blogs/default-blog-image.jpg'
+    default: 'https://firebasestorage.googleapis.com/v0/b/intern-training-ed6ba.appspot.com/o/blogs%2Fdefault-blog-image.jpg?alt=media'
   },
   tags: [{
     type: String
