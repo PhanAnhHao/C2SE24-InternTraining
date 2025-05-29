@@ -13,6 +13,12 @@ const ManageCourse = () => {
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
 
+    // Helper function to emit course update event
+    const emitCourseUpdate = () => {
+        const event = new CustomEvent('coursesUpdated');
+        window.dispatchEvent(event);
+    };
+
     // Fetch courses
     useEffect(() => {
         const fetchCourses = async () => {
@@ -46,6 +52,8 @@ const ManageCourse = () => {
                 });
 
                 setCourses(sortedData);
+                // Emit event after successful fetch
+                emitCourseUpdate();
             } catch (error) {
                 enqueueSnackbar("Failed to fetch courses.", { variant: "error" });
                 console.error("Error fetching courses:", error);
@@ -99,44 +107,44 @@ const ManageCourse = () => {
                 <div className="overflow-x-auto bg-white shadow-md rounded-lg">
                     <table className="min-w-full">
                         <thead className="bg-[#4FD1C5] text-white">
-                        <tr>
-                            <th className="py-3 px-4 text-left font-semibold">No.</th>
-                            <th className="py-3 px-4 text-left font-semibold">Description</th>
-                            <th className="py-3 px-4 text-left font-semibold">Language</th>
-                            <th className="py-3 px-4 text-left font-semibold">Actions</th>
-                        </tr>
+                            <tr>
+                                <th className="py-3 px-4 text-left font-semibold">No.</th>
+                                <th className="py-3 px-4 text-left font-semibold">Description</th>
+                                <th className="py-3 px-4 text-left font-semibold">Language</th>
+                                <th className="py-3 px-4 text-left font-semibold">Actions</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {currentCourses.map((course, index) => (
-                            <tr
-                                key={course._id}
-                                className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
-                            >
-                                <td className="py-3 px-4">{indexOfFirstCourse + index + 1}</td>
-                                <td className="py-3 px-4">{course.infor}</td>
-                                <td className="py-3 px-4">
-                                    {typeof course.languageID === "string"
-                                        ? course.languageID
-                                        : (course.languageID?.name || "N/A")}
-                                </td>
-                                <td className="py-3 px-4 space-x-2">
-                                    <button
-                                        onClick={() => handleUpdateClick(course._id)}
-                                        className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                                        title="Edit"
-                                    >
-                                        <FontAwesomeIcon icon={faEdit} />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(course._id)}
-                                        className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                                        title="Delete"
-                                    >
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                            {currentCourses.map((course, index) => (
+                                <tr
+                                    key={course._id}
+                                    className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                                >
+                                    <td className="py-3 px-4">{indexOfFirstCourse + index + 1}</td>
+                                    <td className="py-3 px-4">{course.infor}</td>
+                                    <td className="py-3 px-4">
+                                        {typeof course.languageID === "string"
+                                            ? course.languageID
+                                            : (course.languageID?.name || "N/A")}
+                                    </td>
+                                    <td className="py-3 px-4 space-x-2">
+                                        <button
+                                            onClick={() => handleUpdateClick(course._id)}
+                                            className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                                            title="Edit"
+                                        >
+                                            <FontAwesomeIcon icon={faEdit} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(course._id)}
+                                            className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                                            title="Delete"
+                                        >
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
@@ -146,11 +154,10 @@ const ManageCourse = () => {
                     <button
                         onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
-                        className={`px-4 py-2 rounded-lg ${
-                            currentPage === 1
+                        className={`px-4 py-2 rounded-lg ${currentPage === 1
                                 ? "bg-gray-300 cursor-not-allowed"
                                 : "bg-[#4FD1C5] text-white hover:bg-teal-600"
-                        }`}
+                            }`}
                     >
                         Previous
                     </button>
@@ -160,11 +167,10 @@ const ManageCourse = () => {
                     <button
                         onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
-                        className={`px-4 py-2 rounded-lg ${
-                            currentPage === totalPages
+                        className={`px-4 py-2 rounded-lg ${currentPage === totalPages
                                 ? "bg-gray-300 cursor-not-allowed"
                                 : "bg-[#4FD1C5] text-white hover:bg-teal-600"
-                        }`}
+                            }`}
                     >
                         Next
                     </button>

@@ -14,6 +14,15 @@ const OnlineLearningManager = () => {
 
     const { enqueueSnackbar } = useSnackbar(); // Thêm enqueueSnackbar
 
+    // const emitOnlineLearningUpdate = () => {
+    //     const event = new CustomEvent('onlineLearningUpdated');
+    //     window.dispatchEvent(event);
+    // }; 
+    const emitOnlineLearningUpdate = () => {
+        const event = new CustomEvent('onlineLearningUpdated');
+        window.dispatchEvent(event);
+    };
+
     // Gọi API lấy danh sách khóa học
     useEffect(() => {
         const fetchCourses = async () => {
@@ -90,16 +99,22 @@ const OnlineLearningManager = () => {
         (lesson) => lesson.idCourse?._id === selectedCourse
     );
 
-    const handleEditLesson = (lessonId) => {
+    const handleEditLesson = async (lessonId) => {
         console.log("Edit lesson", lessonId);
+        // After successful edit
+        emitOnlineLearningUpdate();
     };
 
-    const handleDeleteLesson = (lessonId) => {
+    const handleDeleteLesson = async (lessonId) => {
         console.log("Delete lesson", lessonId);
+        // After successful delete
+        emitOnlineLearningUpdate();
     };
 
-    const handleAddLesson = () => {
+    const handleAddLesson = async () => {
         console.log("Add new lesson");
+        // After successful add
+        emitOnlineLearningUpdate();
     };
 
     return (
