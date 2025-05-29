@@ -116,10 +116,16 @@ const ManageReviews = () => {
 
     const selectedCourseData = courses.find((course) => course.id === selectedCourse) || null;
 
+    const emitReviewUpdate = () => {
+        const event = new CustomEvent('reviewsUpdated');
+        window.dispatchEvent(event);
+    };
+
     const handleDeleteReview = (courseId, reviewId) => {
         console.log("Deleting review:", { courseId, reviewId });
         const updatedReviews = reviewsData.filter((review) => review.id !== reviewId);
         setReviewsData(updatedReviews);
+        emitReviewUpdate();
     };
 
     const handleAddResponse = (courseId, reviewId, response) => {
@@ -128,8 +134,9 @@ const ManageReviews = () => {
         const reviewIndex = updatedReviews.findIndex((review) => review.id === reviewId);
         if (reviewIndex !== -1) {
             updatedReviews[reviewIndex].adminResponse = response;
+            setReviewsData(updatedReviews);
+            emitReviewUpdate();
         }
-        setReviewsData(updatedReviews);
     };
 
     const handleFilterChange = (filterKey, value) => {
@@ -192,18 +199,18 @@ const ManageReviews = () => {
                     <Table courses={courses} onSelectCourse={setSelectedCourse} />
                 ) : (
                     <>
-                    <div className="mb-4 flex justify-between items-center">
-                        <button
-                            onClick={() => {
-                                setSelectedCourse(null);
-                                setError(null);
-                            }}
-                            className="flex items-center gap-2 px-4 py-2 ml-6 bg-[#4FD1C5] text-white rounded-md shadow-md hover:bg-teal-500"
-                        >
-                            Go Back
-                        </button>
-                        <Filter onFilterChange={handleFilterChange} />
-                    </div>
+                        <div className="mb-4 flex justify-between items-center">
+                            <button
+                                onClick={() => {
+                                    setSelectedCourse(null);
+                                    setError(null);
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 ml-6 bg-[#4FD1C5] text-white rounded-md shadow-md hover:bg-teal-500"
+                            >
+                                Go Back
+                            </button>
+                            <Filter onFilterChange={handleFilterChange} />
+                        </div>
 
                         {error && (
                             <div className="text-red-500 mb-4">

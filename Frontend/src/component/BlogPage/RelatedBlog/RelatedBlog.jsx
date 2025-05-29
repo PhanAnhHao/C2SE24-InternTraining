@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // thêm dòng này
+import { useNavigate } from "react-router-dom";
 import theme_log from "../../../assets/ava_lap.jpg";
 import { FaEye } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import axios from "axios";
+import { toast } from 'react-toastify';
 
 const RelatedBlog = () => {
     const [blogs, setBlogs] = useState([]);
@@ -66,6 +67,24 @@ const RelatedBlog = () => {
         window.location.reload();
     };
 
+    const handleCreateBlog = () => {
+        const businessId = localStorage.getItem('businessId');
+        const studentId = localStorage.getItem('studentId');
+
+        if (businessId || studentId) {
+            navigate('/create-blog');
+        } else {
+            toast.error('Please login to create a blog!', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true
+            });
+        }
+    };
+
     const stripHtml = (html) => {
         const tmp = document.createElement("div");
         tmp.innerHTML = html;
@@ -80,7 +99,7 @@ const RelatedBlog = () => {
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-bold">Related Blog</h2>
                 <button
-                    onClick={() => navigate('/create-blog')}
+                    onClick={handleCreateBlog}
                     className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition">
                     Create Blog
                 </button>

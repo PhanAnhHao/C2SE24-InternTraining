@@ -1,18 +1,64 @@
 import React, { useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import theme_log from "../../../assets/ava_lap.jpg";
+import Reactimg from "../../../assets/reactjs.jpg";
+import PHP from "../../../assets/php.jpg";
+import JavaScript from "../../../assets/javascript.jpg";
+import Nodejs from "../../../assets/nodejs.jpg";
+import Python from "../../../assets/python.jpg";
+import TypeScript from "../../../assets/typescript.jpg";
+import Vuejs from "../../../assets/vuejs.jpg";
+import Angular from "../../../assets/angular.jpg";
 
 const blogItems = [
-    { id: 1, title: "UX/UI", image: theme_log },
-    { id: 2, title: "React", image: theme_log },
-    { id: 3, title: "PHP", image: theme_log },
-    { id: 4, title: "JavaScript", image: theme_log },
-    { id: 5, title: "Node.js", image: theme_log },
-    { id: 6, title: "Python", image: theme_log },
-    { id: 7, title: "Django", image: theme_log },
-    { id: 8, title: "TypeScript", image: theme_log },
-    { id: 9, title: "Vue.js", image: theme_log },
-    { id: 10, title: "Angular", image: theme_log },
+    {
+        id: 1,
+        title: "Reactjs",
+        image: Reactimg,
+        url: "https://react.dev/learn"
+    },
+    {
+        id: 2,
+        title: "PHP",
+        image: PHP,
+        url: "https://www.php.net/manual/en/getting-started.php"
+    },
+    {
+        id: 3,
+        title: "JavaScript",
+        image: JavaScript,
+        url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide"
+    },
+    {
+        id: 4,
+        title: "Node.js",
+        image: Nodejs,
+        url: "https://nodejs.org/en/learn"
+    },
+    {
+        id: 5,
+        title: "Python",
+        image: Python,
+        url: "https://www.python.org/about/gettingstarted/"
+    },
+    {
+        id: 6,
+        title: "TypeScript",
+        image: TypeScript,
+        url: "https://www.typescriptlang.org/docs/"
+    },
+    {
+        id: 7,
+        title: "Vuejs",
+        image: Vuejs,
+        url: "https://vuejs.org/guide/introduction.html"
+    },
+    {
+        id: 8,
+        title: "Angular",
+        image: Angular,
+        url: "https://angular.io/start"
+    },
 ];
 
 const BlogList = () => {
@@ -33,7 +79,7 @@ const BlogList = () => {
 
     return (
         <div className="max-w-6xl mx-auto py-6">
-            <h2 className="text-lg font-semibold mb-4">Reading blog list</h2>
+            <h2 className="text-lg font-semibold mb-4">Related programming languages</h2>
             <div className="relative flex items-center">
                 {/* Button Prev */}
                 <button
@@ -50,15 +96,25 @@ const BlogList = () => {
                     <div
                         className="flex gap-4 transition-transform duration-300 ease-in-out"
                         style={{ transform: `translateX(-${startIndex * (100 / visibleItems)}%)` }}
-                    >
-                        {blogItems.map((item) => (
-                            <div key={item.id} className="relative w-[240px] h-[240px] bg-white rounded-lg shadow-lg overflow-hidden flex-shrink-0">
-                                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded-md shadow text-sm font-medium">
-                                    {item.title}
-                                </div>
+                    >                        {blogItems.map((item) => (
+                        <a
+                            key={item.id}
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="relative w-[240px] h-[180px] bg-white rounded-lg shadow-lg overflow-hidden flex-shrink-0 cursor-pointer transform transition-transform duration-300 hover:scale-105"
+                        >
+                            <img
+                                src={item.image}
+                                alt={item.title}
+                                className={`w-full h-full object-contain ${item.id === 3 ? 'scale-[0.85]' : ''
+                                    }`}
+                            />
+                            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded-md shadow text-sm font-medium">
+                                {item.title}
                             </div>
-                        ))}
+                        </a>
+                    ))}
                     </div>
                 </div>
 

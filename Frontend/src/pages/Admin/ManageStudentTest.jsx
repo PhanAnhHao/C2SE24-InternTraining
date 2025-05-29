@@ -171,6 +171,11 @@ const ManageStudentTest = () => {
         return true;
     };
 
+    const emitTestsUpdated = () => {
+        const event = new CustomEvent('testsUpdated');
+        window.dispatchEvent(event);
+    };
+
     const handleAdd = async () => {
         if (!validateForm()) return;
 
@@ -185,6 +190,7 @@ const ManageStudentTest = () => {
             });
             setShowForm(false);
             enqueueSnackbar("Test added successfully", { variant: "success" });
+            emitTestsUpdated(); // Emit event khi thêm test
         } catch (error) {
             enqueueSnackbar("Failed to add test", { variant: "error" });
             console.error("Error adding test:", error);
@@ -352,6 +358,7 @@ const ManageStudentTest = () => {
                     toast.success("Cập nhật bài kiểm tra thành công!");
                     dispatch(getAllTests());  // Lấy lại danh sách bài kiểm tra
                     setShowForm(false);
+                    emitTestsUpdated(); // Emit event khi cập nhật test
                 } else {
                     toast.error(resultAction.payload || "Cập nhật thất bại!");
                 }
@@ -363,6 +370,7 @@ const ManageStudentTest = () => {
                     toast.success("Tạo bài kiểm tra thành công!");
                     dispatch(getAllTests());  // Lấy lại danh sách bài kiểm tra mới
                     setShowForm(false);
+                    emitTestsUpdated(); // Emit event khi tạo test mới
                 } else {
                     toast.error(resultAction.payload || "Tạo thất bại!");
                 }

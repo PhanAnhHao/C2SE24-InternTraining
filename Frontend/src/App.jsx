@@ -32,6 +32,7 @@ import MyBlog from "./component/Profile/MyBlog.jsx";
 import UpdateBlog from "./component/BlogPage/UpdateBlog/UpdateBlog.jsx";
 import UpdateCoursePage from "./pages/UpdateCoursePage.jsx";
 import ResetPasswordForm from './component/ForgotPassword/ResetPassword.jsx';
+import ArticlesDetail from './pages/ArticlesDetail.jsx';
 
 const NotFound = () => {
   return (
@@ -52,6 +53,7 @@ function App() {
             <Route path="/course/:courseId" element={<CourseDetailPage />} />
             <Route path="/blog-page" element={<BlogPage />} />
             <Route path="/blogs/:blogId" element={<BlogDetail />} />
+            <Route path="/article-detail" element={<ArticlesDetail />} />
             <Route path="/my-blog" element={<MyBlog />} />
             <Route path="/update-blog/:blogId" element={<UpdateBlog />} />
             <Route path="/course-attended" element={<CousresAttended />} />

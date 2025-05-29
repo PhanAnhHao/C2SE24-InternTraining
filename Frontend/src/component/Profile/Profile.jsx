@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ProfileSideBar from "../../layout/ProfileSideBar";
-import theme_log from "../../assets/login_theme.jpg";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import UploadCV from "./UploadCV"; // Adjust the import path as necessary
+import UploadCV from "./UploadCV";
 import { FaFile } from "react-icons/fa";
+import AvatarStudent from "../../assets/default-student.jpg";
+import AvatarBusiness from "../../assets/default-business.jpg";
+import AvatarAdmin from "../../assets/default-admin.jpg";
 
 const Profile = () => {
     const [profileData, setProfileData] = useState(null);
@@ -27,16 +29,29 @@ const Profile = () => {
 
     useEffect(() => {
         fetchProfile();
-    }, []);
+    }, []); const getAvatarUrl = (avatar) => {
+        // Nếu đã có avatar được upload
+        if (avatar) {
+            // Handle base64 images directly 
+            if (avatar.startsWith('data:image')) return avatar;
+            // Handle HTTP URLs
+            if (avatar.startsWith("http")) return avatar;
+            // Handle local uploads
+            return `http://localhost:5000/upload/${avatar}`;
+        }
 
-    const getAvatarUrl = (avatar) => {
-        if (!avatar) return theme_log;
-        // Handle base64 images directly 
-        if (avatar.startsWith('data:image')) return avatar;
-        // Handle HTTP URLs
-        if (avatar.startsWith("http")) return avatar;
-        // Handle local uploads
-        return `http://localhost:5000/upload/${avatar}`;
+        // Nếu chưa có avatar, trả về avatar mặc định theo role
+        const role = profileData?.idAccount?.role?.name;
+        switch (role) {
+            case 'Student':
+                return AvatarStudent;
+            case 'Business':
+                return AvatarBusiness;
+            case 'Admin':
+                return AvatarAdmin;
+            default:
+                return AvatarStudent; // Default fallback avatar
+        }
     };
 
     const fetchProfile = async () => {
@@ -341,9 +356,13 @@ const Profile = () => {
                                     src={avatarPreview && !avatarPreview.startsWith('data:image')
                                         ? `${avatarPreview}${avatarPreview.includes('?') ? '&' : '?'}v=${new Date().getTime()}`
                                         : avatarPreview}
-                                    alt="Avatar"
-                                    className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
-                                    onError={e => { e.target.onerror = null; e.target.src = theme_log; }}
+                                    alt="Avatar" className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
+                                    onError={e => {
+                                        e.target.onerror = null;
+                                        const role = profileData?.idAccount?.role?.name;
+                                        e.target.src = role === 'Business' ? AvatarBusiness :
+                                            role === 'Admin' ? AvatarAdmin : AvatarStudent;
+                                    }}
                                 />
 
                                 {/* Upload controls */}

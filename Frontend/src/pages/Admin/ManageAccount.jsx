@@ -81,34 +81,57 @@ const ManageAccount = () => {
         setShowForm(true);
     };
 
+    const emitAccountsUpdated = () => {
+        const event = new CustomEvent('accountsUpdated');
+        window.dispatchEvent(event);
+    };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete?")) {
-            setAccounts(accounts.filter(acc => acc._id !== id));
-            enqueueSnackbar("Account deleted successfully", { variant: "success" });
+            try {
+                await axios.delete(`http://localhost:5000/api/accounts/delete/${id}`);
+                setAccounts(accounts.filter(acc => acc._id !== id));
+                enqueueSnackbar("Account deleted successfully", { variant: "success" });
+                emitAccountsUpdated(); // Emit event khi xóa account
+            } catch (err) {
+                enqueueSnackbar("Failed to delete account", { variant: "error" });
+            }
         }
     };
 
-    const handleUpdate = () => {
+    const handleUpdate = async () => {
         if (!validateForm()) return;
 
-        const updated = accounts.map(acc => acc._id === form.id ? {
-            ...acc,
-            username: form.username,
-            password: form.password,
-            email: form.email,
-            role: {
-                ...acc.role,
-                name: form.roleName,
-                description: form.roleDescription
-            }
-        } : acc);
+        try {
+            await axios.put(`http://localhost:5000/api/accounts/update/${form.id}`, {
+                username: form.username,
+                email: form.email,
+                password: form.password,
+                role: {
+                    name: form.roleName,
+                    description: form.roleDescription
+                }
+            });
 
-        setAccounts(updated);
-        setEditingAccount(null);
-        setForm({ username: '', password: '', email: '', roleName: '', roleDescription: '' });
-        enqueueSnackbar("Account updated successfully", { variant: "success" });
-        setShowForm(false);
+            const updated = accounts.map(acc => acc._id === form.id ? {
+                ...acc,
+                username: form.username,
+                email: form.email,
+                role: {
+                    name: form.roleName,
+                    description: form.roleDescription
+                }
+            } : acc);
+
+            setAccounts(updated);
+            setEditingAccount(null);
+            setForm({ username: '', password: '', email: '', roleName: '', roleDescription: '' });
+            enqueueSnackbar("Account updated successfully", { variant: "success" });
+            setShowForm(false);
+            emitAccountsUpdated(); // Emit event khi update account
+        } catch (err) {
+            enqueueSnackbar("Failed to update account", { variant: "error" });
+        }
     };
 
     const handleAdd = async () => {
@@ -121,7 +144,6 @@ const ManageAccount = () => {
             };
 
             const roleId = roleIdMap[form.roleName.toLowerCase()];
-
             if (!roleId) {
                 enqueueSnackbar("Invalid role selected.", { variant: "error" });
                 return;
@@ -131,12 +153,10 @@ const ManageAccount = () => {
                 username: form.username,
                 email: form.email,
                 password: form.password,
-                roleId: roleId  // Be nhận object
+                roleId: roleId
             };
 
             const res = await axios.post("http://localhost:5000/api/accounts/add-account", newAccountData);
-            console.log("Response from server:", res.data);
-
             const addedAccount = {
                 ...res.data,
                 role: {
@@ -147,9 +167,9 @@ const ManageAccount = () => {
 
             setAccounts(prev => [...prev, addedAccount]);
             enqueueSnackbar("New account added successfully", { variant: "success" });
-
             setForm({ username: '', password: '', email: '', roleName: '', roleDescription: '' });
             setShowForm(false);
+            emitAccountsUpdated(); // Emit event khi thêm account
 
         } catch (err) {
             console.error("Add account error:", err);

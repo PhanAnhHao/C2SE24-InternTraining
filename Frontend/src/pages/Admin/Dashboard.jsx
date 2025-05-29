@@ -1,16 +1,80 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaUsers, FaUserGraduate, FaBook, FaChalkboardTeacher, FaStar } from "react-icons/fa";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-
+import { getAccountStats } from './Stats/AccountStats';
+import { getTestStats } from './Stats/TestStats';
+import { getCourseStats } from './Stats/CourseStats';
+import { getOnlineLearningStats } from './Stats/OnlineLearningStats';
+import { getReviewStats } from './Stats/ReviewStats';
 
 const Dashboard = () => {
-    const stats = [
-        { name: "User", icon: <FaUsers />, count: 120 },
-        { name: "Student Test", icon: <FaUserGraduate />, count: 95 },
-        { name: "Course", icon: <FaBook />, count: 30 },
-        { name: "Online Learning", icon: <FaChalkboardTeacher />, count: 50 },
-        { name: "Review Rating", icon: <FaStar />, count: 200 },
+    const [accountStats, setAccountStats] = useState({ total: 0 });
+    const [testStats, setTestStats] = useState({ total: 0 });
+    const [courseStats, setCourseStats] = useState({ total: 0 });
+    const [onlineLearningStats, setOnlineLearningStats] = useState({ total: 0 });
+    const [reviewStats, setReviewStats] = useState({ total: 0 });
+    const [userRole, setUserRole] = useState('');
+
+    useEffect(() => {
+        const role = localStorage.getItem('role');
+        setUserRole(role);
+        fetchAccountStats();
+        fetchTestStats();
+        fetchCourseStats();
+        fetchOnlineLearningStats();
+        fetchReviewStats();
+    }, []);
+
+    const fetchAccountStats = async () => {
+        const stats = await getAccountStats();
+        setAccountStats(stats);
+    };
+
+    const fetchTestStats = async () => {
+        const stats = await getTestStats();
+        setTestStats(stats);
+    };
+
+    const fetchCourseStats = async () => {
+        const stats = await getCourseStats();
+        setCourseStats(stats);
+    };
+
+    const fetchOnlineLearningStats = async () => {
+        const stats = await getOnlineLearningStats();
+        setOnlineLearningStats(stats);
+    };
+
+    const fetchReviewStats = async () => {
+        const stats = await getReviewStats();
+        setReviewStats(stats);
+    };
+
+    // Listen for updates
+    useEffect(() => {
+        window.addEventListener('testsUpdated', fetchTestStats);
+        window.addEventListener('coursesUpdated', fetchCourseStats);
+        window.addEventListener('onlineLearningUpdated', fetchOnlineLearningStats);
+        window.addEventListener('reviewsUpdated', fetchReviewStats);
+        return () => {
+            window.removeEventListener('testsUpdated', fetchTestStats);
+            window.removeEventListener('coursesUpdated', fetchCourseStats);
+            window.removeEventListener('onlineLearningUpdated', fetchOnlineLearningStats);
+            window.removeEventListener('reviewsUpdated', fetchReviewStats);
+        };
+    }, []);
+
+    const baseStats = [
+        { name: "User", icon: <FaUsers />, count: accountStats.total },
+        { name: "Student Test", icon: <FaUserGraduate />, count: testStats.total },
+        { name: "Course", icon: <FaBook />, count: courseStats.total },
+        { name: "Online Learning", icon: <FaChalkboardTeacher />, count: onlineLearningStats.total },
+        { name: "Review Rating", icon: <FaStar />, count: reviewStats.total },
     ];
+
+    const stats = userRole === 'Business'
+        ? baseStats.filter(stat => stat.name !== "User")
+        : baseStats;
 
     const chartData = [
         { name: "January", user: 30, courses: 5 },
