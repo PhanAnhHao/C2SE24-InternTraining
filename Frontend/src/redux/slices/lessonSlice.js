@@ -5,10 +5,7 @@ export const getLessonDataByCourseId = createAsyncThunk(
     'lessons/getLessonDataByCourseId',
     async (courseId, { rejectWithValue }) => {
         try {
-            // Retrieve studentId from localStorage
             const studentId = localStorage.getItem('studentId');
-
-            // Construct the API URL with studentId as a query parameter if it exists
             const url = studentId
                 ? `http://localhost:5000/lessons/course/${courseId}?studentId=${studentId}`
                 : `http://localhost:5000/course/${courseId}`;
@@ -23,7 +20,6 @@ export const getLessonDataByCourseId = createAsyncThunk(
     }
 );
 
-// Define lessonSlice
 const lessonSlice = createSlice({
     name: 'lesson',
     initialState: {
@@ -33,10 +29,16 @@ const lessonSlice = createSlice({
         error: null,
     },
     reducers: {
-        // Other reducers if needed
+        // Thêm reducer để cập nhật tiến độ bài học
+        updateLessonProgress(state, action) {
+            const { lessonId, progress, watchTime, status } = action.payload;
+            const lessonIndex = state.lessons.findIndex((lesson) => lesson._id === lessonId);
+            if (lessonIndex !== -1) {
+                state.lessons[lessonIndex].progress = { progress, watchTime, status };
+            }
+        },
     },
     extraReducers: (builder) => {
-        // --- Get Lesson By Course ID ---
         builder
             .addCase(getLessonDataByCourseId.pending, (state) => {
                 state.loading = true;
@@ -44,9 +46,9 @@ const lessonSlice = createSlice({
             })
             .addCase(getLessonDataByCourseId.fulfilled, (state, action) => {
                 state.loading = false;
-                state.lessons = action.payload.lessons; // Store only the lessons array
-                state.courseId = action.payload.courseId; // Optionally store courseId
-                state.lessonsCount = action.payload.lessonsCount; // Optionally store lessonsCount
+                state.lessons = action.payload.lessons;
+                state.courseId = action.payload.courseId;
+                state.lessonsCount = action.payload.lessonsCount;
             })
             .addCase(getLessonDataByCourseId.rejected, (state, action) => {
                 state.loading = false;
@@ -55,4 +57,5 @@ const lessonSlice = createSlice({
     },
 });
 
+export const { updateLessonProgress } = lessonSlice.actions;
 export default lessonSlice.reducer;

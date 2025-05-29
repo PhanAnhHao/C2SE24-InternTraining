@@ -9,6 +9,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { Button } from '@mui/material';
 import { useParams } from 'react-router-dom';
+import {useSnackbar} from "notistack";
 
 const columns = [
     { id: 'no', label: 'No', minWidth: 50 },
@@ -27,10 +28,24 @@ export default function Rank() {
     const [rows, setRows] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [isBusiness, setIsBusiness] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     // const totalPages = Math.ceil(rows.length / rowsPerPage);
 
+    const { enqueueSnackbar } = useSnackbar();
+
+    // Check user role on component mount
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('role'); // Retrieve role from localStorage
+
+        if (token && role) {
+            setIsBusiness(role === 'Business'); // Set isBusiness based on role
+        } else {
+            setIsBusiness(false); // No token or role means not business
+        }
+    }, []);
     useEffect(() => {
         const fetchStudentInfo = async (id) => {
             const response = await fetch(`http://localhost:5000/students/${id}`);
@@ -129,12 +144,18 @@ export default function Rank() {
         const token = localStorage.getItem('token');
         console.log(token);
         if (!token) {
-            alert('Please log in to send a request.');
+            enqueueSnackbar('You need to be logged in to send a contact request. Please sign in.', {
+                variant: 'warning',
+                autoHideDuration: 3000,
+            });
             return;
         }
 
         if (!row.id) {
-            alert('Student ID is missing.');
+            enqueueSnackbar('Unable to send request: Student ID is missing.', {
+                variant: 'error',
+                autoHideDuration: 3000,
+            });
             return;
         }
 
@@ -150,12 +171,21 @@ export default function Rank() {
 
             const data = await response.json();
             if (data.success) {
-                alert('Request sent successfully!');
+                enqueueSnackbar('Contact request sent successfully!', {
+                    variant: 'success',
+                    autoHideDuration: 3000,
+                });
             } else {
-                alert(`Request failed: ${data.message}`);
+                enqueueSnackbar(`Failed to send request: ${data.message}`, {
+                    variant: 'error',
+                    autoHideDuration: 3000,
+                });
             }
         } catch (err) {
-            alert(`Error sending request: ${err.message}`);
+            enqueueSnackbar(`An error occurred while sending the request: ${err.message}`, {
+                variant: 'error',
+                autoHideDuration: 3000,
+            });
         }
     };
 
@@ -179,7 +209,9 @@ export default function Rank() {
                                     {column.label}
                                 </TableCell>
                             ))}
-                            <TableCell align="center">Actions</TableCell>
+                            {isBusiness && (
+                                <TableCell align="center">Actions</TableCell>
+                            )}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -203,23 +235,25 @@ export default function Rank() {
                                                 </TableCell>
                                             );
                                         })}
-                                        <TableCell align="center">
-                                            <Button
-                                                variant="text"
-                                                color="primary"
-                                                onClick={() => handleContact(row)}
-                                                sx={{
-                                                    textTransform: 'none',
-                                                    fontWeight: 'bold',
-                                                    '&:hover': {
-                                                        textDecoration: 'underline',
-                                                        backgroundColor: 'transparent',
-                                                    },
-                                                }}
-                                            >
-                                                Contact
-                                            </Button>
-                                        </TableCell>
+                                        {isBusiness && (
+                                            <TableCell align="center">
+                                                <Button
+                                                    variant="text"
+                                                    color="primary"
+                                                    onClick={() => handleContact(row)}
+                                                    sx={{
+                                                        textTransform: 'none',
+                                                        fontWeight: 'bold',
+                                                        '&:hover': {
+                                                            textDecoration: 'underline',
+                                                            backgroundColor: 'transparent',
+                                                        },
+                                                    }}
+                                                >
+                                                    Contact
+                                                </Button>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))
                         )}

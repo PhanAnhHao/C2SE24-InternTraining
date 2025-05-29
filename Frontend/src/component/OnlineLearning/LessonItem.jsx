@@ -1,13 +1,8 @@
 import { FaPlayCircle } from "react-icons/fa";
 
 const LessonItem = ({ lesson, selectedLesson, index, onSelect, isSelected }) => {
-    // Determine if this lesson is the selected one
-    const isActive = lesson._id === selectedLesson?._id;
-
-    // Get the lesson's status from the progress object (default to "not_started" if not available)
     const status = lesson.progress?.status || "not_started";
 
-    // Define styles based on status
     const getStatusStyles = () => {
         if (isSelected) {
             return "bg-teal-600 text-white shadow-md scale-105";
@@ -25,19 +20,25 @@ const LessonItem = ({ lesson, selectedLesson, index, onSelect, isSelected }) => 
 
     return (
         <div
-            onClick={onSelect} // Allow clicking for all statuses
+            onClick={onSelect}
             className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ease-in-out ${getStatusStyles()}`}
         >
             <div className="flex items-center space-x-3">
-                <FaPlayCircle className={`text-lg ${isSelected || status === "completed" ? "text-white" : status === "in_progress" ? "text-gray-800" : "text-gray-600"}`} />
-                <span className={`font-medium ${isSelected || status === "completed" ? "text-white" : status === "in_progress" ? "text-gray-800" : "text-gray-600"}`}>
-                    {index + 1}. {lesson.name}
-                </span>
+                <FaPlayCircle
+                    className={`text-lg ${isSelected || status === "completed" ? "text-white" : status === "in_progress" ? "text-gray-800" : "text-gray-600"}`}
+                />
+                <span
+                    className={`font-medium ${isSelected || status === "completed" ? "text-white" : status === "in_progress" ? "text-gray-800" : "text-gray-600"}`}
+                >
+          {index + 1}. {lesson.name}
+        </span>
             </div>
-            <span className={`text-xs ${isSelected || status === "completed" ? "text-gray-200" : status === "in_progress" ? "text-gray-700" : "text-gray-500"}`}>
-                {/* Uncomment if you have duration data */}
+            <span
+                className={`text-xs ${isSelected || status === "completed" ? "text-gray-200" : status === "in_progress" ? "text-gray-700" : "text-gray-500"}`}
+            >
+        {/* Uncomment if you have duration data */}
                 {/* {lesson.duration} */}
-            </span>
+      </span>
         </div>
     );
 };

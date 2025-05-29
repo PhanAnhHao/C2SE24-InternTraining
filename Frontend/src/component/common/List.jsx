@@ -15,8 +15,8 @@ const List = ({ title, seeAllLink, items, renderItem, itemsPerPage = 4, bg = "wh
                 </div>
 
                 {/* Danh sách items */}
-                <div className="relative flex flex-col items-center">
-                    <div className="flex w-full justify-between">
+                <div className="relative flex flex-col  items-center">
+                    <div className="flex w-full justify-between gap-6">
                         {visibleItems.map((item, index) => (
                             <div key={index}>{renderItem(item)}</div>
                         ))}

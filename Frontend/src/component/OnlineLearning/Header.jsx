@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { FaArrowLeft } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { FaArrowLeft } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Header = ({ lessons, courseId }) => {
     const navigate = useNavigate();
@@ -32,7 +32,7 @@ const Header = ({ lessons, courseId }) => {
     }, [courseId]);
 
     const totalLessons = lessons.length;
-    const completedLessons = lessons.filter(lesson => lesson.progress?.status === "completed").length;
+    const completedLessons = lessons.filter((lesson) => lesson.progress?.status === "completed").length;
     const progressPercentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
     return (
@@ -57,7 +57,9 @@ const Header = ({ lessons, courseId }) => {
                 <div className="flex items-center justify-center w-8 h-8 border-2 border-white rounded-full">
                     <span className="text-[12px] font-bold">{progressPercentage}%</span>
                 </div>
-                <span className="text-sm mr-4">{completedLessons}/{totalLessons} bài học</span>
+                <span className="text-sm mr-4">
+          {completedLessons}/{totalLessons} bài học
+        </span>
             </div>
         </header>
     );
