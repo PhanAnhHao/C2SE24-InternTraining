@@ -67,32 +67,47 @@ const RecommendList = () => {
 
     return (
         <div>
-            <SearchBar courses={courses} onSearch={setFilteredCourses} />
-            <div className="px-[5%] py-10 bg-white">
-                <h2 className="text-2xl font-bold mb-4">Course List</h2>
+            <SearchBar courses={courses} onSearch={setFilteredCourses}/>
+            <div className="px-4 sm:px-6 md:px-8 lg:px-[5%] py-10 bg-gray-50 min-h-screen">
+                <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800">Course List</h2>
                 <div
-                    className={`w-full ${currentCourses.length >= 4 ? 'grid grid-cols-4 justify-center gap-4' : 'flex flex-wrap gap-4'}`}>
+                    className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center"
+                >
                     {currentCourses.map(course => (
-                        <CourseCard key={course.id} course={course} />
+                        <CourseCard
+                            key={course.id}
+                            course={course}
+                        />
                     ))}
                 </div>
 
                 {filteredCourses.length > coursesPerPage && (
-                    <div className="flex justify-center mt-6 space-x-4">
+                    <div
+                        className="flex flex-col sm:flex-row justify-center items-center mt-8 space-y-4 sm:space-y-0 sm:space-x-6">
                         <button
                             onClick={handlePrevPage}
                             disabled={currentPage === 1}
-                            className={`px-4 py-2 rounded-md ${currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-teal-500 text-white hover:bg-teal-600'}`}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                                currentPage === 1
+                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'bg-teal-500 text-white hover:bg-teal-600'
+                            }`}
+                            aria-label="Previous page"
                         >
                             Previous
                         </button>
-                        <span className="flex items-center text-gray-700">
-                            Page {currentPage} of {totalPages}
-                        </span>
+                        <span className="flex items-center text-gray-700 text-sm font-medium">
+                    Page {currentPage} of {totalPages}
+                </span>
                         <button
                             onClick={handleNextPage}
                             disabled={currentPage === totalPages}
-                            className={`px-4 py-2 rounded-md ${currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-teal-500 text-white hover:bg-teal-600'}`}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                                currentPage === totalPages
+                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'bg-teal-500 text-white hover:bg-teal-600'
+                            }`}
+                            aria-label="Next page"
                         >
                             Next
                         </button>

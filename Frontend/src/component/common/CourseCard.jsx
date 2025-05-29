@@ -11,7 +11,7 @@ const CourseCard = ({ course }) => {
 
     return (
         <div
-            className="w-72 rounded-xl shadow-lg bg-white border border-gray-200 p-3 hover:scale-105 transition-transform duration-300 cursor-pointer"
+            className="w-full max-w-xs sm:max-w-sm lg:max-w-md  rounded-xl shadow-lg bg-white border border-gray-200 p-3 hover:scale-105 transition-transform duration-300 cursor-pointer"
             onClick={handleClick}
         >
             {/* Hình ảnh khóa học */}
@@ -19,7 +19,7 @@ const CourseCard = ({ course }) => {
                 <img
                     src={course.image}
                     alt="Course Thumbnail"
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-fill rounded-xl"
                 />
             </div>
 

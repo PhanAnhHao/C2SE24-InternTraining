@@ -16,40 +16,38 @@ const PaymentCard = (props) => {
         localStorage.setItem("courseId", courseId);
     }, [courseId]);
 
-    // Kiểm tra trạng thái đăng nhập
-    const isLoggedIn = () => {
+    const isStudentLoggedIn = () => {
         const studentId = localStorage.getItem("studentId");
-        return !!studentId; // Trả về true nếu studentId tồn tại
+        const userRole = localStorage.getItem("role");
+        return !!studentId && userRole === "Student";
     };
 
-    // Xử lý khi nhấn nút "Learn"
     const handleLearnClick = () => {
-        if (isLoggedIn()) {
+        if (isStudentLoggedIn()) {
             navigate(`/online-learning/${courseId}`);
         } else {
             const confirmLogin = window.confirm(
-                "Bạn cần đăng nhập để tham gia khóa học. Vui lòng đăng nhập để tiếp tục."
+                "Only students can access this course. Please log in as a student to continue."
             );
             if (confirmLogin) {
-                navigate("/login"); // Điều hướng đến trang đăng nhập nếu nhấn OK
+                navigate("/login");
             }
         }
     };
 
-    // Xử lý khi nhấn nút "Do Test"
     const handleTestClick = () => {
-        if (isLoggedIn()) {
+        if (isStudentLoggedIn()) {
             if (courseData.test && courseData.test.length > 0) {
                 navigate(`/test-page/${courseData.test[0].idTest}`);
             } else {
-                alert("Không có bài kiểm tra nào cho khóa học này");
+                alert("There is no test available for this course.");
             }
         } else {
             const confirmLogin = window.confirm(
-                "Bạn cần đăng nhập để làm bài kiểm tra. Vui lòng đăng nhập để tiếp tục."
+                "Only students can take the test. Please log in as a student to continue."
             );
             if (confirmLogin) {
-                navigate("/login"); // Điều hướng đến trang đăng nhập nếu nhấn OK
+                navigate("/login");
             }
         }
     };
@@ -57,20 +55,22 @@ const PaymentCard = (props) => {
     return (
         <div className="w-2/5 mt-[-300px]">
             <div className="w-full p-6 bg-white max-w-sm mx-auto rounded-lg shadow-md">
-                {/* Hình ảnh khóa học */}
+                {/* Course Image */}
                 <img
                     src={courseData.image || "/img/course.png"}
                     alt="Course"
                     className="w-full rounded-md mb-4"
                 />
 
-                {/* Nút mua */}
+                {/* Learn Button */}
                 <button
                     onClick={handleLearnClick}
                     className="w-full bg-teal-500 text-white font-semibold py-2 rounded-lg mt-4 hover:bg-teal-600 transition"
                 >
                     Learn
                 </button>
+
+                {/* Test Button */}
                 <button
                     onClick={handleTestClick}
                     className="w-full bg-gray-300 text-teal-500 font-semibold py-2 rounded-lg mt-4 hover:bg-teal-300 hover:text-white transition"
@@ -80,9 +80,9 @@ const PaymentCard = (props) => {
 
                 <hr className="my-4" />
 
-                {/* Thông tin khóa học */}
+                {/* Course Info */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-2">This Course Included</h3>
+                    <h3 className="text-lg font-semibold mb-2">This Course Includes</h3>
                     <ul className="space-y-2 text-sm text-gray-700">
                         <li className="flex items-center">
                             <FontAwesomeIcon icon={faCheckCircle} className="text-teal-500 mr-2" />
@@ -94,7 +94,7 @@ const PaymentCard = (props) => {
                         </li>
                         <li className="flex items-center">
                             <FontAwesomeIcon icon={faCertificate} className="text-teal-500 mr-2" />
-                            Certification of completion
+                            Certificate of Completion
                         </li>
                         <li className="flex items-center">
                             <FontAwesomeIcon icon={faBook} className="text-teal-500 mr-2" />
@@ -105,9 +105,9 @@ const PaymentCard = (props) => {
 
                 <hr className="my-4" />
 
-                {/* Thông tin nhóm */}
+                {/* Group Info */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-1">Training 5 or more people</h3>
+                    <h3 className="text-lg font-semibold mb-1">Training 5 or more people?</h3>
                     <p className="text-gray-600 text-sm">
                         Class, launched less than a year ago by Blackboard co-founder Michael Chasen, integrates exclusively...
                     </p>
@@ -115,7 +115,7 @@ const PaymentCard = (props) => {
 
                 <hr className="my-4" />
 
-                {/* Chia sẻ khóa học */}
+                {/* Share Options */}
                 <div>
                     <h3 className="text-lg font-semibold mb-2">Share this course</h3>
                     <div className="flex space-x-4 text-gray-500 text-xl">

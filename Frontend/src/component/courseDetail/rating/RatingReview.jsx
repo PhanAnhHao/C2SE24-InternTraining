@@ -12,59 +12,60 @@ const RatingReview = ({ courseData, courseId }) => {
     const [loading, setLoading] = useState(true);
     const [userRatingLoading, setUserRatingLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
             setLoading(true);
             setUserRatingLoading(true);
             const studentId = localStorage.getItem('studentId');
-            if (!studentId) {
-                throw new Error('Không tìm thấy studentId trong localStorage. Vui lòng đăng nhập lại.');
-            }
-            console.log('Bắt đầu lấy dữ liệu - courseId:', courseId, 'studentId:', studentId);
+            setIsLoggedIn(!!studentId); // Check login status
 
-            // Gọi cả hai API đồng thời
-            const [ratingsResponse, userRatingResponse] = await Promise.all([
-                fetch(`http://localhost:5000/courses/${courseId}`).then(res => {
-                    if (!res.ok) throw new Error('Không thể lấy dữ liệu đánh giá khóa học');
-                    return res.json();
-                }),
-                fetch(`http://localhost:5000/ratings?studentId=${studentId}`).then(res => {
-                    if (!res.ok) throw new Error('Không thể lấy đánh giá của người dùng');
-                    return res.json();
-                }),
-            ]);
+            // Fetch course ratings
+            const ratingsResponse = await fetch(`http://localhost:5000/courses/${courseId}`).then(res => {
+                if (!res.ok) throw new Error('Unable to fetch course ratings data');
+                return res.json();
+            });
 
-            // Xử lý dữ liệu ratings
+            // Process ratings data
             const ratings = ratingsResponse.ratings || [];
             const sortedRatings = ratings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            console.log('Tất cả đánh giá của khóa học (sắp xếp theo thời gian):', sortedRatings);
+            console.log('All course ratings (sorted by time):', sortedRatings);
             setRatingsData(sortedRatings);
 
-            // Xử lý userRating
-            if (userRatingResponse.length > 0) {
-                const userRatingForCourse = userRatingResponse.find(
-                    (r) =>
-                        r.studentId &&
-                        r.studentId._id &&
-                        r.studentId._id.toString() === studentId.toString() &&
-                        r.courseId &&
-                        r.courseId._id &&
-                        r.courseId._id.toString() === courseId.toString()
-                );
-                console.log('Danh sách đánh giá của người dùng:', userRatingResponse);
-                console.log('Đánh giá của người dùng cho khóa học này:', userRatingForCourse);
-                setUserRating(userRatingForCourse || null);
+            // Process user rating if logged in
+            if (studentId) {
+                const userRatingResponse = await fetch(`http://localhost:5000/ratings?studentId=${studentId}`).then(res => {
+                    if (!res.ok) throw new Error('Unable to fetch user ratings');
+                    return res.json();
+                });
+
+                if (userRatingResponse.length > 0) {
+                    const userRatingForCourse = userRatingResponse.find(
+                        (r) =>
+                            r.studentId &&
+                            r.studentId._id &&
+                            r.studentId._id.toString() === studentId.toString() &&
+                            r.courseId &&
+                            r.courseId._id &&
+                            r.courseId._id.toString() === courseId.toString()
+                    );
+                    console.log('List of user ratings:', userRatingResponse);
+                    console.log('User rating for this course:', userRatingForCourse);
+                    setUserRating(userRatingForCourse || null);
+                } else {
+                    console.log('No ratings found for this studentId');
+                    setUserRating(null);
+                }
             } else {
-                console.log('Không tìm thấy đánh giá nào cho studentId này');
-                setUserRating(null);
+                setUserRating(null); // No studentId, set userRating to null
             }
 
             setLoading(false);
             setUserRatingLoading(false);
         } catch (err) {
-            console.error('Lỗi khi lấy dữ liệu:', err.message);
-            setError(err.message || 'Lỗi khi lấy dữ liệu đánh giá');
+            console.error('Error fetching data:', err.message);
+            setError(err.message || 'Error fetching ratings data');
             setLoading(false);
             setUserRatingLoading(false);
         }
@@ -72,7 +73,7 @@ const RatingReview = ({ courseData, courseId }) => {
 
     useEffect(() => {
         if (!courseId) {
-            setError('ID khóa học không hợp lệ');
+            setError('Invalid course ID');
             setLoading(false);
             setUserRatingLoading(false);
             return;
@@ -91,17 +92,17 @@ const RatingReview = ({ courseData, courseId }) => {
 
             setRatingsData(updatedRatingsData);
             setUserRating(updatedReview);
-            console.log('Đã cập nhật/thêm đánh giá mới:', updatedReview);
+            console.log('Updated/added new rating:', updatedReview);
 
-            // Tự động làm mới dữ liệu sau khi gửi/cập nhật đánh giá
+            // Refresh data after submitting/updating a review
             await fetchData();
         } catch (err) {
-            console.error('Lỗi khi xử lý đánh giá:', err.message);
-            setError('Lỗi khi gửi/cập nhật đánh giá');
+            console.error('Error processing review:', err.message);
+            setError('Error submitting/updating review');
         }
     };
 
-    if (loading) return <div className="text-center text-gray-600">Đang tải dữ liệu...</div>;
+    if (loading) return <div className="text-center text-gray-600">Loading data...</div>;
     if (error) return <div className="text-center text-red-500">{error}</div>;
 
     return (
@@ -133,21 +134,27 @@ const RatingReview = ({ courseData, courseId }) => {
                     <RatingSummary ratingsData={ratingsData} />
                     <ReviewList ratingsData={ratingsData} />
                     {userRatingLoading ? (
-                        <div className="text-center text-gray-600">Đang tải đánh giá của bạn...</div>
-                    ) : userRating ? (
-                        <ReviewSubmission
-                            courseId={courseId}
-                            onReviewSubmit={handleReviewSubmit}
-                            existingRating={userRating}
-                        />
-                    ) : (
-                        <div className="text-center text-gray-600">
-                            Bạn chưa đánh giá khóa học này. Hãy gửi đánh giá của bạn!
+                        <div className="text-center text-gray-600">Loading your review...</div>
+                    ) : isLoggedIn ? (
+                        userRating ? (
                             <ReviewSubmission
                                 courseId={courseId}
                                 onReviewSubmit={handleReviewSubmit}
                                 existingRating={userRating}
                             />
+                        ) : (
+                            <div className="text-center text-gray-600">
+                                You haven't reviewed this course yet. Submit your review now!
+                                <ReviewSubmission
+                                    courseId={courseId}
+                                    onReviewSubmit={handleReviewSubmit}
+                                    existingRating={userRating}
+                                />
+                            </div>
+                        )
+                    ) : (
+                        <div className="text-center text-gray-600">
+                            Please log in to submit a course review.
                         </div>
                     )}
                 </div>
