@@ -6,6 +6,7 @@ export const getAllCourses = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await axios.get(`http://localhost:5000/courses`);
+            console.log("response.data: ", response.data);
             return response.data;
         } catch (error) {
             return rejectWithValue(

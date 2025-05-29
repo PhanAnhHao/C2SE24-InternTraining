@@ -70,7 +70,7 @@ const RegisterPage = () => {
     const handleStep1Submit = (e) => {
         e.preventDefault();
         const newErrors = {};
-// Username validation
+        // Username validation
         if (!formData.username.trim()) {
             newErrors.username = 'Username cannot be blank';
         } else if (formData.username.length < 2 || formData.username.length > 50) {
@@ -163,7 +163,7 @@ const RegisterPage = () => {
         <>
             <Notification showSuccess={showSuccess} apiError={apiError} />
             <Header onHomeClick={() => navigate('/')} />
-            <div className="flex flex-col md:flex-row w-screen gap-0">
+            <div className="flex flex-col md:flex-row h-screen w-screen gap-0 mt-[50px]">
                 <div className="hidden md:flex md:w-1/3 bg-gray-20 items-center justify-center p-2 ml-80 mt-[100px]">
                     <div className="max-w-lg scale-250">
                         <img src={theme_log} alt="Student with books" className="w-[90%] max-w-sm" />

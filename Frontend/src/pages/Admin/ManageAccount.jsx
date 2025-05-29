@@ -184,7 +184,7 @@ const ManageAccount = () => {
             <h1 className="text-2xl font-bold text-gray-700 flex items-center mb-4">
                 <FaUsersCog className="text-[#4FD1C5] mr-2" /> Manage Accounts
             </h1>
-            <div className="flex justify-end mb-4">
+            {/* <div className="flex justify-end mb-4">
                 <button
                     onClick={() => {
                         setEditingAccount(null);
@@ -201,7 +201,7 @@ const ManageAccount = () => {
                 >
                     + Add New Account
                 </button>
-            </div>
+            </div> */}
 
             {showForm && (
                 <AccountForm
