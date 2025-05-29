@@ -10,6 +10,7 @@ const Header = () => {
     const navigate = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false);
     const [userData, setUserData] = useState({ avatar: null, role: "b", userName: "" }); // Thêm userName
+    const role = localStorage.getItem("role");
 
     const getAvatarUrl = (avatar) => {
         if (!avatar || avatar === "default-avatar.jpg") return null;
@@ -95,14 +96,16 @@ const Header = () => {
                         Courses
                     </NavLink>
                     {loggedIn && (
-                        <NavLink
-                            to={userData.role === "business" ? "/your-course" : "/course-attended"}
-                            className={({ isActive }) =>
-                                isActive ? "font-bold text-teal-400" : "hover:text-teal-400"
-                            }
-                        >
-                            {userData.role === "business" ? "Your Courses" : "Course Attended"}
-                        </NavLink>
+                        !["Business", "Admin"].includes(role) && (
+                            <NavLink
+                                to="/course-attended"
+                                className={({ isActive }) =>
+                                    isActive ? "font-bold text-teal-400" : "hover:text-teal-400"
+                                }
+                            >
+                                Course Attended
+                            </NavLink>
+                        )
                     )}
                     <NavLink
                         to="/blog-page"

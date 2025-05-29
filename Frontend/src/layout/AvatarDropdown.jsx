@@ -40,6 +40,8 @@ const AvatarDropdown = ({ avatar, userName }) => {
         }
     }, []);
 
+    console.log(role);
+
     return (
         <div className="relative" ref={dropdownRef}>
             <div
@@ -73,7 +75,7 @@ const AvatarDropdown = ({ avatar, userName }) => {
                     >
                         View Profile
                     </button>
-                    {role === "Business" && (
+                    {(role === "Business" || role === "Admin") && (
                         <button
                             onClick={() => {
                                 navigate("/dashboard");

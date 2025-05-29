@@ -15,7 +15,7 @@ const categories = [
 const CategoryList = () => {
     return (
         <section className="py-10 px-[5%]">
-            <h2 className="text-2xl font-bold  text-gray-800 mb-6">Choice favourite course from top category</h2>
+            <h2 className="text-2xl font-bold  text-gray-800 mb-6">Categories</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4  place-items-center w-full gap-6">
                 {categories.map((category, index) => (
                     <CategoryCard key={index} {...category} description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmodadipiscing elit, sed do eiusmod" />

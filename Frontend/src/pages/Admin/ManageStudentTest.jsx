@@ -218,6 +218,8 @@ const ManageStudentTest = () => {
     const indexOfFirstTest = indexOfLastTest - testsPerPage;
     const currentTests = tests.slice(indexOfFirstTest, indexOfLastTest);
 
+    // console.log("currentTests", currentTests);
+
     const addQuestion = () => {
         setQuestions([
             ...questions,
@@ -311,8 +313,10 @@ const ManageStudentTest = () => {
             idTest: test.idTest,
             question: q.question || "",
             options: q.options || [""],  // Nếu không có options, tạo một array trống
-            correctAnswerIndex: q.correctAnswerIndex || 0,  // Nếu không có chỉ định đúng, mặc định là 0
+            correctAnswerIndex: q.correctAnswerIndex ?? 0,  // Nếu không có chỉ định đúng, mặc định là 0
         }));
+
+        // console.log('Test questions:', test);
 
         setQuestions(mappedQuestions);  // Set câu hỏi đã được map
         setIsEditMode(true);            // Đặt chế độ là Edit
@@ -347,7 +351,7 @@ const ManageStudentTest = () => {
             questions: finalQuestions,
         };
 
-        console.log("Payload to submit:", testPayload);
+        // console.log("Payload to submit:", testPayload);
 
         try {
             if (isEditMode) {
@@ -544,7 +548,10 @@ const ManageStudentTest = () => {
                                         <>
                                             <button
                                                 className="bg-blue-500 text-white px-3 py-1 rounded"
-                                                onClick={() => handleEditTest(test)}
+                                                onClick={() => {
+                                                    handleEditTest(test);
+                                                    // console.log("tests: ", tests);
+                                                }}
                                             >
                                                 Edit
                                             </button>

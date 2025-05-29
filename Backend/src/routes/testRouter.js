@@ -75,7 +75,7 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const tests = await Test.find()
-      .populate('idQuestion', 'question options answer')
+      .populate('idQuestion', 'question options correctAnswerIndex answer')
       .populate('idCourse', 'idCourse infor') // Lấy thông tin khóa học
       .sort({ createdAt: -1 }); // Sắp xếp theo trường createdAt, mới nhất sẽ lên đầu
 
@@ -125,7 +125,7 @@ router.get('/business/:businessId', async (req, res) => {
   try {
     const { businessId } = req.params;
 
-    console.log('Finding tests for business ID:', businessId);
+    // console.log('Finding tests for business ID:', businessId);
 
     // Validate business ID
     if (!mongoose.Types.ObjectId.isValid(businessId)) {
@@ -143,7 +143,7 @@ router.get('/business/:businessId', async (req, res) => {
 
     // 1. Find all courses by business ID
     const courses = await Course.find({ businessId });
-    console.log(`Found ${courses.length} courses for business ID ${businessId}`);
+    // console.log(`Found ${courses.length} courses for business ID ${businessId}`);
 
     if (courses.length === 0) {
       return res.json({
@@ -161,7 +161,7 @@ router.get('/business/:businessId', async (req, res) => {
 
     // 2. Find all lessons from these courses
     const lessons = await Lesson.find({ idCourse: { $in: courseIds } });
-    console.log(`Found ${lessons.length} lessons from courses`);
+    // console.log(`Found ${lessons.length} lessons from courses`);
 
     if (lessons.length === 0) {
       return res.json({
@@ -183,7 +183,7 @@ router.get('/business/:businessId', async (req, res) => {
       .populate('idLesson')
       .populate('idQuestion', 'idQuestion question options');
 
-    console.log(`Found ${tests.length} tests from lessons`);
+    // console.log(`Found ${tests.length} tests from lessons`);
 
     if (tests.length === 0) {
       return res.json({
@@ -230,7 +230,7 @@ router.get('/business/:businessId', async (req, res) => {
       try {
         // Kiểm tra xem test có thông tin về idLesson không
         if (!test.idLesson || !test.idLesson._id) {
-          console.log(`Test ${test._id} has no idLesson information`);
+          // console.log(`Test ${test._id} has no idLesson information`);
           errorsCount++;
           return; // Skip this test
         }
@@ -239,7 +239,7 @@ router.get('/business/:businessId', async (req, res) => {
 
         // Kiểm tra xem lessonId có trong lessonMap không
         if (!lessonMap[lessonId]) {
-          console.log(`Lesson with ID ${lessonId} not found in lesson map for test ${test._id}`);
+          // console.log(`Lesson with ID ${lessonId} not found in lesson map for test ${test._id}`);
           errorsCount++;
           return; // Skip this test
         }
@@ -248,7 +248,7 @@ router.get('/business/:businessId', async (req, res) => {
 
         // Kiểm tra xem lessonInfo có courseId không
         if (!lessonInfo.courseId) {
-          console.log(`Lesson ${lessonId} has no courseId information for test ${test._id}`);
+          // console.log(`Lesson ${lessonId} has no courseId information for test ${test._id}`);
           errorsCount++;
           return; // Skip this test
         }
@@ -257,7 +257,7 @@ router.get('/business/:businessId', async (req, res) => {
 
         // Kiểm tra xem courseId có trong courseMap không
         if (!courseMap[courseId]) {
-          console.log(`Course with ID ${courseId} not found in course map for test ${test._id}`);
+          // console.log(`Course with ID ${courseId} not found in course map for test ${test._id}`);
           errorsCount++;
           return; // Skip this test
         }
@@ -354,6 +354,8 @@ router.put('/:idTest', async (req, res) => {
 
       // Kiểm tra xem câu hỏi đã tồn tại chưa
       let questionDoc = await Question.findOne({ idQuestion: q.idQuestion, idTest: existingTest._id });
+
+      // console.log("questionDoc: ", questionDoc);
 
       if (questionDoc) {
         // Cập nhật câu hỏi
