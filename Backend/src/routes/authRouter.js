@@ -11,6 +11,7 @@ const { bucket } = require('../configs/firebase');
 const upload = multer({ storage: multer.memoryStorage() });
 const sendEmail = require('../utils/sendEmail');
 const authenticate = require('../middleware/auth');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -33,53 +34,70 @@ router.post('/register', async (req, res) => {
 
     const defaultRoleId = '660edabc12eac0f2fc123402';
 
+    // Kiểm tra username đã tồn tại chưa
     const existing = await Account.findOne({ username });
     if (existing) return res.status(400).json({ error: 'Username already exists' });
 
-    const emailExists = await Account.findOne({ email });
+    // Kiểm tra email đã tồn tại chưa
+    const emailExists = await User.findOne({ email });
     if (emailExists) return res.status(400).json({ error: 'Email already exists' });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    // Thêm trường 'role' với giá trị là defaultRoleId
-    const newAccount = new Account({
-      username,
-      password: hashedPassword,
-      role: defaultRoleId // Gán Role mặc định khi tạo Account
-    });
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    const savedAccount = await newAccount.save();
+      // Thêm trường 'role' với giá trị là defaultRoleId
+      const newAccount = new Account({
+        username,
+        password: hashedPassword,
+        role: defaultRoleId // Gán Role mặc định khi tạo Account
+      });
 
-    const newUser = new User({
-      userName,
-      email,
-      location,
-      phone,
-      idAccount: savedAccount._id
-    });
+      const savedAccount = await newAccount.save({ session });
 
-    const savedUser = await newUser.save();
+      const newUser = new User({
+        userName,
+        email,
+        location,
+        phone,
+        idAccount: savedAccount._id
+      });
 
-    // Generate a random student ID (e.g., "S_" followed by 6 random hex chars)
-    const randomId = crypto.randomBytes(3).toString('hex').toUpperCase();
-    const studentId = `S_${randomId}`;
+      const savedUser = await newUser.save({ session });
 
-    // Create a Student record with default values if not provided
-    const newStudent = new Student({
-      idStudent: studentId,
-      age: age || 18, // Default age if not provided
-      school: school || 'Unknown', // Default school if not provided
-      course: course ? (Array.isArray(course) ? course : [course]) : ['IT'], // Ensure course is an array
-      englishSkill: englishSkill || 'Intermediate', // Default English skill if not provided
-      userId: savedUser._id
-    });
+      // Generate a random student ID (e.g., "S_" followed by 6 random hex chars)
+      const randomId = crypto.randomBytes(3).toString('hex').toUpperCase();
+      const studentId = `S_${randomId}`;
 
-    const savedStudent = await newStudent.save();
+      // Create a Student record with default values if not provided
+      const newStudent = new Student({
+        idStudent: studentId,
+        age: age || 18, // Default age if not provided
+        school: school || 'Unknown', // Default school if not provided
+        course: course ? (Array.isArray(course) ? course : [course]) : ['IT'], // Ensure course is an array
+        englishSkill: englishSkill || 'Intermediate', // Default English skill if not provided
+        userId: savedUser._id
+      });
 
-    res.status(201).json({
-      message: 'Register successful',
-      studentId: savedStudent._id // Return the ID of the created student record
-    });
+      const savedStudent = await newStudent.save({ session });
+
+      // Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      res.status(201).json({
+        message: 'Register successful',
+        studentId: savedStudent._id // Return the ID of the created student record
+      });
+    } catch (error) {
+      // Nếu có lỗi, hủy transaction
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   } catch (err) {
     console.error("Register Error:", err); // Log lỗi ra console để debug dễ hơn
     // Trả về lỗi cụ thể hơn nếu là lỗi validation
@@ -101,49 +119,66 @@ router.post('/register-business', async (req, res) => {
 
     const defaultRoleId = '660edabc12eac0f2fc123403';
 
+    // Kiểm tra username đã tồn tại chưa
     const existing = await Account.findOne({ username });
     if (existing) return res.status(400).json({ error: 'Username already exists' });
 
-    const emailExists = await Account.findOne({ email });
+    // Kiểm tra email đã tồn tại chưa
+    const emailExists = await User.findOne({ email });
     if (emailExists) return res.status(400).json({ error: 'Email already exists' });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const newAccount = new Account({
-      username,
-      password: hashedPassword,
-      role: defaultRoleId
-    });
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    const savedAccount = await newAccount.save();
+      const newAccount = new Account({
+        username,
+        password: hashedPassword,
+        role: defaultRoleId
+      });
 
-    const newUser = new User({
-      userName,
-      email,
-      location,
-      phone,
-      idAccount: savedAccount._id
-    });
+      const savedAccount = await newAccount.save({ session });
 
-    const savedUser = await newUser.save();
+      const newUser = new User({
+        userName,
+        email,
+        location,
+        phone,
+        idAccount: savedAccount._id
+      });
 
-    // Generate a random business ID with format BUS12345
-    const randomNumbers = Math.floor(10000 + Math.random() * 90000); // Generate a 5-digit number
-    const businessId = `BUS${randomNumbers}`;
+      const savedUser = await newUser.save({ session });
 
-    const newBusiness = new Business({
-      idBusiness: businessId, // Use the generated business ID
-      type, // Added the type field
-      detail,
-      userId: savedUser._id
-    });
+      // Generate a random business ID with format BUS12345
+      const randomNumbers = Math.floor(10000 + Math.random() * 90000); // Generate a 5-digit number
+      const businessId = `BUS${randomNumbers}`;
 
-    const savedBusiness = await newBusiness.save();
+      const newBusiness = new Business({
+        idBusiness: businessId, // Use the generated business ID
+        type, // Added the type field
+        detail,
+        userId: savedUser._id
+      });
 
-    res.status(201).json({
-      message: 'Business registration successful',
-      businessId: savedBusiness.idBusiness // Return the generated business ID
-    });
+      const savedBusiness = await newBusiness.save({ session });
+
+      // Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      res.status(201).json({
+        message: 'Business registration successful',
+        businessId: savedBusiness.idBusiness // Return the generated business ID
+      });
+    } catch (error) {
+      // Nếu có lỗi, hủy transaction
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   } catch (err) {
     console.error("Business Registration Error:", err);
     if (err.name === 'ValidationError') {
